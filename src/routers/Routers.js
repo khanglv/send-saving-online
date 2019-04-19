@@ -4,6 +4,7 @@ import {
     Route,
     Switch
 } from 'react-router-dom';
+import {Error404} from '../components/Error404/Error404';
 import Login from '../components/Login/Login';
 import HeaderDetail from '../components/HeaderDetail/HeaderDetail';
 import Main from '../components/Main/Main';
@@ -13,9 +14,13 @@ const RouteRUL = () => (
     <BrowserRouter>
         <div>
             <Switch>
-                <Route path="/header" component={HeaderDetail} />
+                <Route exact path="/" component={Main} />
                 <Route path="/login" component={Login} />
-                <Route path="/home" component={Main} />
+                <Route path="/main" component={Main} />
+                <Route path="/header" component={HeaderDetail} />
+                
+                {/* nhập sai đường dẫn */}
+                <Route exact path="*" component={Error404} />
             </Switch>
         </div>
     </BrowserRouter>

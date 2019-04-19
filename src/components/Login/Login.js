@@ -19,12 +19,28 @@ class Login extends Component {
 
         this.toggleNavbar = this.toggleNavbar.bind(this);
         this.state = {
-            collapsed: true
+            collapsed: true,
+            idAccount: "",
+            password: ""
         };
     }
 
     onSubmit = () => {
-        this.props.history.push('/home')
+        this.props.history.push('/main');
+        console.log("id " + this.state.idAccount + " - password " + this.state.password);
+    }
+
+    componentDidMount(){
+        let obj = localStorage.getItem('myName');
+        console.log("data " + JSON.stringify(obj));
+    }
+
+    onChangeAccount = (event)=>{
+        this.setState({idAccount: event.target.value});
+    }
+
+    onChangePassword = (event)=>{
+        this.setState({password: event.target.value});
     }
 
     toggleNavbar() {
@@ -37,34 +53,14 @@ class Login extends Component {
             <div style={styles.boxLogin} >
                 <div style={styles.backgroundStyle}></div>
                 <Form className="col-md-3" style={styles.formLogin}>
-                    <div style={{width: '100%'}}>
-                        <Label style={{float: 'left'}} for="exampleEmail">grant_type <i style={{color: 'red'}}>*</i></Label>
-                        <UncontrolledButtonDropdown style={{width: '50%'}}>
-                            <DropdownToggle caret>
-                            </DropdownToggle>
-                            <DropdownMenu>
-                                <DropdownItem>password</DropdownItem>
-                                <DropdownItem>client_credentials</DropdownItem>
-                            </DropdownMenu>
-                        </UncontrolledButtonDropdown>
-                    </div>
-                    
-                    <FormGroup>
-                        <Label for="exampleEmail" style={{ float: 'left' }}>client_id <i style={{color: 'red'}}>*</i></Label>
-                        <Input valid />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="exampleEmail" style={{ float: 'left' }}>client_secret <i style={{color: 'red'}}>*</i></Label>
-                        <Input />
-                        {/* <FormFeedback valid>Sweet! that name is available</FormFeedback> */}
-                    </FormGroup>
+                    <div className="text-center" style={{fontSize: 24, color: '#fff'}}>Login</div>
                     <FormGroup>
                         <Label for="exampleEmail" style={{ float: 'left' }}>username <i style={{color: 'red'}}>*</i></Label>
-                        <Input valid />
+                        <Input valid placeholder="Type ID or Email" value={this.state.idAccount} onChange={this.onChangeAccount}/>
                     </FormGroup>
                     <FormGroup>
                         <Label for="exampleEmail" style={{ float: 'left' }}>password <i style={{color: 'red'}}>*</i></Label>
-                        <Input />
+                        <Input type="password" placeholder="Type password" value={this.state.password} onChange={this.onChangePassword}/>
                     </FormGroup>
                     <FormGroup check style={{ float: 'left' }}>
                         <Label check>

@@ -13,13 +13,12 @@ class HeaderDetail extends Component{
     }
 
     componentDidMount(){
-        let tmp = 1;
-        localStorage.setItem('myName', JSON.stringify(tmp));
+        let tmp = [this.state.firstName, this.state.lastName];
+        localStorage.setItem('myName', tmp);
     }
 
     onLogout = ()=>{
-        let obj = localStorage.getItem('myName');
-        console.log('item ' + JSON.parse(obj));
+        this.props.history.push('/login');
     }
 
     render(){

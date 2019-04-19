@@ -3,11 +3,15 @@ import HeaderDetail from '../HeaderDetail/HeaderDetail';
 import TradeForm from '../TradeForm/TraceForm';
 
 class Main extends Component{
+    test = ()=>{
+        this.props.history.push('/login');
+    }
     render(){
         return(
             <div style={styles.paddingMain}>
-                <HeaderDetail/>
+                <HeaderDetail history={this.props.history}/>
                 <label style={{color: 'red'}}>Trade Online</label>
+                <button onClick={this.test}>Test</button>
                 <TradeForm />
             </div>
         );
