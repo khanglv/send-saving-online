@@ -10,8 +10,7 @@ class Main extends Component{
         return(
             <div style={styles.paddingMain}>
                 <HeaderDetail history={this.props.history}/>
-                <label style={{color: 'red'}}>Trade Online</label>
-                <button onClick={this.test}>Test</button>
+                <h1 style={{color: 'red'}}>Trade Online</h1>
                 <TradeForm />
             </div>
         );

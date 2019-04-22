@@ -1,4 +1,4 @@
-import {ADD_TEST_DEMO} from './actionTypes';
+import {LOGIN} from './actionTypes';
 
 export const addDemo = ()=>{
     return {

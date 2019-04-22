@@ -1,33 +1,28 @@
 import React, {Component} from 'react';
 import { 
+    Table,
+    Button, 
     Form, 
     FormGroup, 
     Label, 
-    Input,
-    UncontrolledButtonDropdown, 
-    DropdownToggle, 
-    DropdownItem, 
-    DropdownMenu,
-    Button
+    Input
 } from 'reactstrap';
-import {BrowserRouter} from 'react-router-dom';
-import BackgroundImg from './background.jpg';
+import {connect} from 'react-redux';
+import {login} from '../../stores/actions/loginAction';
 
 class Login extends Component {
     constructor(props) {
         super(props);
 
-        this.toggleNavbar = this.toggleNavbar.bind(this);
         this.state = {
-            collapsed: true,
             idAccount: "",
             password: ""
         };
     }
 
     onSubmit = () => {
-        this.props.history.push('/main');
-        console.log("id " + this.state.idAccount + " - password " + this.state.password);
+        // this.props.history.push('/main');
+        this.props.onLogin(this.state.idAccount, this.state.password);
     }
 
     componentDidMount(){
@@ -43,65 +38,95 @@ class Login extends Component {
         this.setState({password: event.target.value});
     }
 
-    toggleNavbar() {
-        this.setState({
-            collapsed: !this.state.collapsed
-        });
-    }
     render() {
         return (
-            <div style={styles.boxLogin} >
-                <div style={styles.backgroundStyle}></div>
-                <Form className="col-md-3" style={styles.formLogin}>
-                    <div className="text-center" style={{fontSize: 24, color: '#fff'}}>Login</div>
-                    <FormGroup>
-                        <Label for="exampleEmail" style={{ float: 'left' }}>username <i style={{color: 'red'}}>*</i></Label>
-                        <Input valid placeholder="Type ID or Email" value={this.state.idAccount} onChange={this.onChangeAccount}/>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="exampleEmail" style={{ float: 'left' }}>password <i style={{color: 'red'}}>*</i></Label>
-                        <Input type="password" placeholder="Type password" value={this.state.password} onChange={this.onChangePassword}/>
-                    </FormGroup>
-                    <FormGroup check style={{ float: 'left' }}>
-                        <Label check>
-                            <Input type="checkbox" />
-                            Remember
-                            </Label>
-                    </FormGroup><br></br>
-                    <Button onClick={this.onSubmit} outline color="success" style={{float: 'right'}}>Submit</Button>
-                </Form>
+            <div className="container">
+                <div>
+                    <div className="col-md-8 left">
+                        <img style={{with: '10vw',}} src="/images/header/logo.png" alt='logo'/>
+                    </div>
+                    <div className="col-md-4 right">
+                        <div className="right" style={{padding: 10}}>
+                            <img className='pointer' style={{width: '1vw', marginRight: '5px'}} src="/images/header/vi.png" alt='vn'/>
+                            <img className='pointer' style={{width: '1vw', marginRight: '5px'}} src="/images/header/en.png" alt='en'/>
+                            <img className='pointer' style={{width: '1vw', marginRight: '5px'}} src="/images/header/fr.png" alt='fr'/>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <Table bordered style={{marginBottom: 0}}>
+                        <tbody>
+                            <tr>
+                                <th style={{width: '20%'}}>
+                                <div style={styles.titleTrading}>
+                                    <span style={{color: '#0579f5', fontFamily: 'Times New Roman'}}>TRADING</span>
+                                    &nbsp;<span style={styles.fontTimeNew}>ONLINE</span>
+                                </div>
+                                </th>
+                                <th style={{ width: '80%' }}>
+                                    <Form inline style={{ width: '80%', float: 'left' }}>
+                                        <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                                            <Input type="email" value={this.state.idAccount} onChange={this.onChangeAccount} placeholder="ID đăng nhập" />
+                                        </FormGroup>
+                                        <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                                            <Input type="password" value={this.state.password} onChange={this.onChangePassword} placeholder="Mật khẩu" />
+                                        </FormGroup>
+                                        <FormGroup check inline>
+                                            <Label check style={{ fontWeight: 'normal' }}>
+                                                <Input type="checkbox" /> Lưu ID
+                                                </Label>
+                                        </FormGroup>
+                                        <FormGroup check inline>
+                                            <Label check style={{ fontWeight: 'normal' }}>
+                                                <Input type="checkbox" /> Lưu mật khẩu
+                                                </Label>
+                                        </FormGroup>
+                                    </Form>
+                                    <div className="right">
+                                        <Button outline color="info" onClick={this.onSubmit}>Đăng nhập</Button>
+                                    </div>
+                                </th>
+                            </tr>
+                        </tbody>
+                    </Table>
+                    <div>
+                        <img style={{width: '100%'}} src="/images/header/stockboard-bg.png" alt="stock" />
+                    </div>
+                </div>
             </div>
         )
     }
 }
 
-export default Login;
+const mapStateToProps = state =>{
+    return{
+        
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onLogin: (idAccount, password)=> dispatch(login(idAccount, password)),
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps) (Login);
 
 const styles = {
-    backgroundStyle:{
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundImage: `url(${ BackgroundImg })`,
-        backgroundSize: 'cover',
-        overflow: 'hidden',
-        opacity: 0.7,
-        width: '100%',
-        height: '100%'
+    mainHeaderDetail:{
+        paddingLeft: 10,
+        paddingRight: 10,
     },
-    boxLogin:{
+    titleTrading:{
+        height: 38,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
     },
-    formLogin: {
-        color: '#fff',
-        padding: 15,
-        borderRadius: 10,
-        backgroundColor: 'rgb(49, 71, 76)',
-        boxShadow: '0 5px 7px rgba(0, 0, 0, 0.23)',
+    borderTable: {
+        border: 1,
+        borderColor: '#a1b8cf',
+    },
+    fontTimeNew:{
+        fontFamily: 'Times New Roman',
     }
 }

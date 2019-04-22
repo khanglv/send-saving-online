@@ -6,6 +6,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: rgba(14, 24, 77, 0.03)!important;
 }
 
 code {
@@ -15,4 +16,16 @@ code {
 
 .color-main{
   background-color: rgba(14, 24, 77, 0.03);
+}
+
+.left{
+  float: left;
+}
+
+.right{
+  float: right;
+}
+
+.pointer{
+  cursor: pointer;
 }
