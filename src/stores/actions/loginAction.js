@@ -15,9 +15,10 @@ const loginSuccess= (info)=>{
     }
 }
 
-const loginFailed = (idAccount, password)=>{
+const loginFailed = (mes)=>{
     return {
         type: LOGIN_FAILED,
+        message: mes
     }
 }
 
@@ -25,13 +26,14 @@ export const login = (username, password)=> (dispatch)=>{
     dispatch(loginRequest(username));
     return api.loginApi(username, password).then((response)=>{
         if(response && response.success){
-            const {data} = response;
-            console.log(JSON.stringify(data));
+            const data = response;
             if (data && data.data && !data.error) {
                 return dispatch(loginSuccess(data.data));
             }
-              return dispatch(loginFailed(data.error));
+                return dispatch(loginFailed(data.error));
         }
         return dispatch(loginFailed(response.message));
+    }).catch(err=>{
+        alert("lỗi: " + JSON.stringify(err));
     });
 }

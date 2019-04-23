@@ -22,6 +22,7 @@ const reducer = (state = initialState, action)=>{
                 idAccount: action.info.idAccount,
                 password: action.info.password,
                 message: '',
+                accessToken: action.data
             }
         case LOGIN_FAILED:
             return {

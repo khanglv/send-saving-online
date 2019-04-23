@@ -8,7 +8,7 @@ import {Error404} from '../components/Error404/Error404';
 import Login from '../components/Login/Login';
 import HeaderDetail from '../components/HeaderDetail/HeaderDetail';
 import Main from '../components/Main/Main';
-
+import {ModalAlert} from '../components/Modal/Modal';
 
 const RouteRUL = () => (
     <BrowserRouter>
@@ -18,7 +18,7 @@ const RouteRUL = () => (
                 <Route path="/login" component={Login} />
                 <Route path="/main" component={Main} />
                 <Route path="/header" component={HeaderDetail} />
-                
+                <Route path="/alert" component={ModalAlert} />
                 {/* nhập sai đường dẫn */}
                 <Route exact path="*" component={Error404} />
             </Switch>

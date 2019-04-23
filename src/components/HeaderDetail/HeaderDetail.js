@@ -25,7 +25,7 @@ class HeaderDetail extends Component{
             <div>
                 <div>
                     <div className="col-md-8 left">
-                        <img style={{with: '10vw',}} src='/images/header/logo.png' alt='logo'/>
+                        <img style={{with: '10vw', paddingTop: 30, paddingBottom: 30}} src='/images/header/logo.png' alt='logo'/>
                     </div>
                     <div className="col-md-4 right">
                         <div className="right" style={{padding: 10}}>
