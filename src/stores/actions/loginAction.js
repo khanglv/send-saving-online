@@ -1,7 +1,7 @@
 import * as api from '../../api/api';
 import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILED} from './actionTypes';
 
-const loginRequest = (username)=>{
+export const loginRequest = (username)=>{
     return {
         type: LOGIN_REQUEST,
         username

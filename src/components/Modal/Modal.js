@@ -24,7 +24,7 @@ export class ModalAlert extends React.Component {
     render() {
         return (
             <div>
-                <Modal returnFocusAfterClose={this.state.focusAfterClose} isOpen={this.props.open} >
+                <Modal returnFocusAfterClose={this.state.focusAfterClose} toggle={this.toggle} isOpen={this.props.open} >
                     <ModalBody>
                         {this.props.dataSend}
                     </ModalBody>

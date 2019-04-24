@@ -9,7 +9,7 @@ import {
 } from 'reactstrap';
 import Footer from '../Footer/Footer';
 import {connect} from 'react-redux';
-import {login} from '../../stores/actions/loginAction';
+import {login,loginRequest} from '../../stores/actions/loginAction';
 import {ModalAlert} from '../Modal/Modal';
 import GuideLogin from './Guide';
 import MarketInfo from './MarketInfo';
@@ -32,8 +32,8 @@ class Login extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        if (!nextProps.isFetching && !nextProps.isAuthenticated && nextProps.messageAlert) {
-            prevState.isOpen = true;
+        if (nextProps.messageAlert) {
+            return {isOpen: true, dataSend: "Tài khoản hoặc mật khẩu không đúng!!!"};
             // this.props.onRequest(this.state.idAccount);
         }
         return null;
@@ -53,6 +53,7 @@ class Login extends Component {
     }
 
     onCloseAlert = ()=>{
+        this.props.onRequest(this.state.idAccount);
         this.setState({isOpen: false});
     }
 
@@ -181,7 +182,7 @@ const mapStateToProps = state =>{
 const mapDispatchToProps = dispatch =>{
     return{
         onLogin: (idAccount, password)=> dispatch(login(idAccount, password)),
-        // onRequest: (idAccount)=> dispatch(loginRequest(idAccount)),
+        onRequest: (idAccount)=> dispatch(loginRequest(idAccount)),
     }
 }
 
