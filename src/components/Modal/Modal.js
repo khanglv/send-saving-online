@@ -14,11 +14,10 @@ export class ModalAlert extends React.Component {
             open: props.isOpen,
             focusAfterClose: true
         };
-        console.log("open " + this.state.open);
-        this.toggle = this.toggle.bind(this);
+        
     }
 
-    toggle() {
+    toggle = ()=> {
         this.props.onClose();
     }
 
@@ -27,7 +26,7 @@ export class ModalAlert extends React.Component {
             <div>
                 <Modal returnFocusAfterClose={this.state.focusAfterClose} isOpen={this.props.open} >
                     <ModalBody>
-                        {this.props.demo}
+                        {this.props.dataSend}
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onClick={this.toggle}>Close</Button>

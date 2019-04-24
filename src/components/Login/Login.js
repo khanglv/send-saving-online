@@ -5,12 +5,14 @@ import {
     Form, 
     FormGroup, 
     Label, 
-    Input
+    Input,
 } from 'reactstrap';
 import Footer from '../Footer/Footer';
 import {connect} from 'react-redux';
 import {login} from '../../stores/actions/loginAction';
-import {ModalPopup} from '../Modal/Modal';
+import {ModalAlert} from '../Modal/Modal';
+import GuideLogin from './Guide';
+import MarketInfo from './MarketInfo';
 
 class Login extends Component {
     constructor(props) {
@@ -19,13 +21,22 @@ class Login extends Component {
         this.state = {
             idAccount: "",
             password: "",
-            isOpen: false
+            isOpen: false,
+            dataSend: "^~^"
         };
     }
 
     onSubmit = () => {
         // this.props.history.push('/main');
         this.props.onLogin(this.state.idAccount, this.state.password);
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (!nextProps.isFetching && !nextProps.isAuthenticated && nextProps.messageAlert) {
+            prevState.isOpen = true;
+            // this.props.onRequest(this.state.idAccount);
+        }
+        return null;
     }
 
     componentDidMount(){
@@ -64,7 +75,7 @@ class Login extends Component {
     render() {
         return (
             <div className="container">
-                <ModalPopup open={this.state.isOpen} onClose={this.onCloseAlert}/>
+                <ModalAlert open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSend}/>
                 <div>
                     <div className="col-md-8 left">
                         <img style={{with: '10vw', paddingTop: 20, paddingBottom: 20}} src="/images/header/logo.png" alt='logo'/>
@@ -116,15 +127,41 @@ class Login extends Component {
                     <div>
                         <img style={{width: '100%', height: '3rem'}} src="/images/header/stockboard-bg.png" alt="stock" />
                         <div style={{position: 'relative'}}>
-                            <div className="pointer" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
-                            <div className="pointer" style={Object.assign({}, styles.boxStock, styles.boxStockHNX)} onClick={this.onGotoHNX}>HNX</div>
-                            <div className="pointer" style={Object.assign({}, styles.boxStock, styles.boxStockUPCOM)} onClick={this.onGotoUPCOM}>UPCOM</div>
+                            <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
+                            <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHNX)} onClick={this.onGotoHNX}>HNX</div>
+                            <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockUPCOM)} onClick={this.onGotoUPCOM}>UPCOM</div>
                         </div>
                     </div>
                 </div>
                 <div style={styles.body_detail}>
-                    {/* <Button outline color="info" onClick={this.onTest}>testAlert</Button>
-                    <Button outline color="info" onClick={this.onTestPopup}>testPopup</Button> */}
+                    <div style={styles.body_detail_head}>
+                        <b>THÔNG TIN THỊ TRƯỜNG</b>
+                        <Button outline color="info" onClick={this.onTest}>Click Alert</Button>
+
+                    </div>
+                    <div style={styles.body_detail_main}>
+                        <div className="col-md-6" style={{ height: "14rem",}}>
+                            <Table style={{marginBottom: 0}}>
+                                <tbody>
+                                    <tr style={{ color: '#00377a', fontSize: 12 }}>
+                                        <th>CHỈ SỐ</th>
+                                        <th>ĐÓNG CỬA</th>
+                                        <th>THAY ĐỔI</th>
+                                        <th>THAY ĐỔI(%)</th>
+                                    </tr>
+                                </tbody>    
+                            </Table>
+                            <div style={{ height: "13rem", overflow: "auto" }}>
+                                <MarketInfo />
+                            </div>    
+                        </div>
+                    </div>
+                    <div style={styles.body_detail_head}>
+                        <b>THÔNG BÁO</b>
+                    </div>
+                    <div className="col-md-3" style={styles.modalMenuOptions}>
+                        <GuideLogin/>
+                    </div>
                 </div>
                 <Footer/>
             </div>
@@ -134,14 +171,17 @@ class Login extends Component {
 
 const mapStateToProps = state =>{
     return{
-        messageAlert: state.message,
-        token: state.accessToken
+        messageAlert: state.login.message,
+        token: state.login.accessToken,
+        isFetching: state.login.isFetching,
+        isAuthenticated: state.login.isAuthenticated,
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
         onLogin: (idAccount, password)=> dispatch(login(idAccount, password)),
+        // onRequest: (idAccount)=> dispatch(loginRequest(idAccount)),
     }
 }
 
@@ -168,6 +208,20 @@ const styles = {
         width: '100%',
         height: 600,
         border: '1px solid #dee2e6',
+        position: 'relative'
+    },
+    body_detail_head:{
+        padding: 7,
+        paddingLeft: '2em',
+        backgroundColor: '#fff',
+        width: '100%',
+        fontFamily: 'Times New Roman',
+        color: '#00377a',
+        fontSize: 12,
+    },
+    body_detail_main:{
+        height: '45%',
+        border: '1px solid #dee2e6',
     },
     boxStock:{
         top: -36,
@@ -186,5 +240,10 @@ const styles = {
     },
     boxStockUPCOM:{
         right: '1rem',
-    }
+    },
+    modalMenuOptions:{
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+    },
 }

@@ -6,6 +6,8 @@ const initialState = {
     password: '',
     accessToken: '',
     message: '',
+    isFetching: false,
+    isAuthenticated: false,
 }
 
 const reducer = (state = initialState, action)=>{
@@ -13,8 +15,9 @@ const reducer = (state = initialState, action)=>{
         case LOGIN_REQUEST:
             return{
                 ...state,
-                idAccount: action.idAccount,
-                password: action.password
+                isFetching: true,
+                isAuthenticated: false,
+                message: '',
             }
         case LOGIN_SUCCESS:
             return{
@@ -27,6 +30,8 @@ const reducer = (state = initialState, action)=>{
         case LOGIN_FAILED:
             return {
                 ...state,
+                isFetching: false,
+                isAuthenticated: false,
                 message: action.message,
             }  
         default: 

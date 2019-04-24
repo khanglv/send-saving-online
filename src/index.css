@@ -29,3 +29,16 @@ code {
 .pointer{
   cursor: pointer;
 }
+
+.hasHover{
+
+}
+div.hasHover:hover{
+    background-color: #fff!important;
+    color: #00377a!important;
+}
+.lstGItem{}
+.lstGItem:hover, a:hover {
+  background-color: #477cbd!important;
+  color: #fff!important;
+}

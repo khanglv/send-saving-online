@@ -15,10 +15,10 @@ const loginSuccess= (info)=>{
     }
 }
 
-const loginFailed = (mes)=>{
+const loginFailed = (errorMessage)=>{
     return {
         type: LOGIN_FAILED,
-        message: mes
+        message: errorMessage
     }
 }
 
