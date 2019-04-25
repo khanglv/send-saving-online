@@ -21,8 +21,8 @@ export default class MarketInfo extends Component {
                 <tbody style={{fontSize: 12, height: '100%'}}>
                     {items.map((item) => {
                         return (
-                            <tr key={item.name}>
-                                <th scope="row">{item.name}</th>
+                            <tr key={item.name} className="itemMarketInfo">
+                                <td >{item.name}</td>
                                 <td style={{ color: 'rgb(14, 142, 11)' }}>{item.link}</td>
                                 <td style={{ color: 'rgb(14, 142, 11)' }}>Otto</td>
                                 <td style={{ color: 'rgb(14, 142, 11)' }}>@mdo</td>

@@ -1,34 +1,38 @@
 import axios from 'axios';
 
 const BASE_URL = "http://utiltradex.ddns.net:3000/api/v1";
+const TIME_OUT = 10000;
 const IDVerify = "vcsc";
 const PassVerify = "vcsc";
+const accessToken = sessionStorage.getItem('accessTokenKey');
 // const IDLogin = "068C003249";
 // const passLogin = "techx123";
 
 
 const doRequest = async (options) => {
-    const response = await axios(options).then(res => {
-        console.log(JSON.stringify(res));
-    }).catch(err => {
-        return err.response
-    });
-    try {
-        return response.data;
-    } catch (err) {
-        console.error(err);
+    console.log("token " + accessToken);
+    try{
+        const response = await axios(options);
+        if(response.status>= 200 && response.status < 300){
+            return response.data;
+        }
+    }catch(err){
+        if(err.response){
+            return err.response.data;
+        }else{
+            alert("Server không phản hồi trong thời gian cho phép, thử lại !!!");
+        }
     }
 }
 
 const callApi = (options, needAuth = false)=>{
     if(needAuth){
-        let tmpToken = "daylatoken";
-        if(tmpToken){
+        if(accessToken){
             options = {
                 ...options,
                 headers: {
                     ...options.headers,
-                    Authorization: `jwt ${tmpToken}`
+                    Authorization: `jwt ${accessToken}`
                 }
             }
         }else{
@@ -51,6 +55,7 @@ export const loginApi = (username, password)=>{
     const options = {
         url: url,
         method: "POST",
+        timeout: TIME_OUT,
         config: {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"

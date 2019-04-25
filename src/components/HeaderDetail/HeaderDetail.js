@@ -12,11 +12,11 @@ class HeaderDetail extends Component{
     }
 
     componentDidMount(){
-        let tmp = [this.state.firstName, this.state.lastName];
-        localStorage.setItem('myName', tmp);
+        
     }
 
     onLogout = ()=>{
+        sessionStorage.removeItem('accessTokenKey');
         this.props.history.push('/login');
     }
     
@@ -39,7 +39,7 @@ class HeaderDetail extends Component{
                     <Table bordered style={{marginBottom: 0}}>
                         <tbody>
                             <tr>
-                                <th style={{width: '20%'}}><span style={{color: '#0579f5', fontFamily: 'Times New Roman'}}>TRADING</span> <span style={styles.fontTimeNew}>ONLINE</span></th>
+                                <th style={{width: '20%'}}><span style={{color: '#0579f5', fontFamily: 'Times New Roman'}}>SAVINGS</span> <span style={styles.fontTimeNew}>BONDS</span></th>
                                 <th style={{width: '80%'}}>
                                     <span style={styles.positionEndItem}>
                                         <span>012345678</span>&nbsp;|&nbsp;&nbsp;<span onClick={this.onLogout} style={{cursor: 'pointer'}}>Thoát</span>
@@ -49,7 +49,12 @@ class HeaderDetail extends Component{
                         </tbody>
                     </Table>
                     <div>
-                        <img style={{width: '100%', height: '6vh'}} src="/images/header/stockboard-bg.png" alt="stock" />
+                        <img style={{width: '100%', height: '3rem'}} src="/images/header/stockboard-bg.png" alt="stock" />
+                        <div style={{position: 'relative'}}>
+                            <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
+                            <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHNX)} onClick={this.onGotoHNX}>HNX</div>
+                            <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockUPCOM)} onClick={this.onGotoUPCOM}>UPCOM</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,5 +80,23 @@ const styles = {
     },
     fontTimeNew:{
         fontFamily: 'Times New Roman',
-    }
+    },
+    boxStock:{
+        top: -36,
+        border: '1px solid #dee2e6',
+        paddingLeft: 5,
+        paddingRight: 5,
+        color: '#dee2e6',
+        borderRadius: 3,
+        position: 'absolute'
+    },
+    boxStockHSX:{
+        right: '9.5rem',
+    },
+    boxStockHNX:{
+        right: '6rem',
+    },
+    boxStockUPCOM:{
+        right: '1rem',
+    },
 }

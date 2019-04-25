@@ -1,7 +1,7 @@
 import * as api from '../../api/api';
 import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILED} from './actionTypes';
 
-const loginRequest = (username)=>{
+export const loginRequest = (username)=>{
     return {
         type: LOGIN_REQUEST,
         username
@@ -15,7 +15,7 @@ const loginSuccess= (info)=>{
     }
 }
 
-const loginFailed = (errorMessage)=>{
+const loginFailed = (errorMessage, status)=>{
     return {
         type: LOGIN_FAILED,
         message: errorMessage
@@ -25,15 +25,12 @@ const loginFailed = (errorMessage)=>{
 export const login = (username, password)=> (dispatch)=>{
     dispatch(loginRequest(username));
     return api.loginApi(username, password).then((response)=>{
-        if(response && response.success){
-            const data = response;
-            if (data && data.data && !data.error) {
-                return dispatch(loginSuccess(data.data));
-            }
-                return dispatch(loginFailed(data.error));
+        if(response && response.accessToken){
+            sessionStorage.setItem('accessTokenKey', response.accessToken);
+            return dispatch(loginSuccess(response));
         }
         return dispatch(loginFailed(response.message));
     }).catch(err=>{
-        alert("lỗi: " + JSON.stringify(err));
+        console.log("login err " + JSON.stringify(err));
     });
 }

@@ -22,10 +22,10 @@ const reducer = (state = initialState, action)=>{
         case LOGIN_SUCCESS:
             return{
                 ...state,
-                idAccount: action.info.idAccount,
-                password: action.info.password,
+                isFetching: true,
+                isAuthenticated: true,
                 message: '',
-                accessToken: action.data
+                accessToken: action.info.accessToken
             }
         case LOGIN_FAILED:
             return {

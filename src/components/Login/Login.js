@@ -9,7 +9,7 @@ import {
 } from 'reactstrap';
 import Footer from '../Footer/Footer';
 import {connect} from 'react-redux';
-import {login} from '../../stores/actions/loginAction';
+import {login, loginRequest} from '../../stores/actions/loginAction';
 import {ModalAlert} from '../Modal/Modal';
 import GuideLogin from './Guide';
 import MarketInfo from './MarketInfo';
@@ -31,10 +31,12 @@ class Login extends Component {
         this.props.onLogin(this.state.idAccount, this.state.password);
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps(nextProps) {
         if (!nextProps.isFetching && !nextProps.isAuthenticated && nextProps.messageAlert) {
-            prevState.isOpen = true;
-            // this.props.onRequest(this.state.idAccount);
+            return {isOpen: true, dataSend: "Tài khoản hoặc mật khẩu không đúng !!!"}
+        }
+        if(nextProps.isFetching && nextProps.isAuthenticated){
+            nextProps.history.push('/main');
         }
         return null;
     }
@@ -53,6 +55,7 @@ class Login extends Component {
     }
 
     onCloseAlert = ()=>{
+        this.props.onLoginRequest(this.state.idAccount);
         this.setState({isOpen: false});
     }
 
@@ -136,8 +139,6 @@ class Login extends Component {
                 <div style={styles.body_detail}>
                     <div style={styles.body_detail_head}>
                         <b>THÔNG TIN THỊ TRƯỜNG</b>
-                        <Button outline color="info" onClick={this.onTest}>Click Alert</Button>
-
                     </div>
                     <div style={styles.body_detail_main}>
                         <div className="col-md-6" style={{ height: "14rem",}}>
@@ -181,7 +182,7 @@ const mapStateToProps = state =>{
 const mapDispatchToProps = dispatch =>{
     return{
         onLogin: (idAccount, password)=> dispatch(login(idAccount, password)),
-        // onRequest: (idAccount)=> dispatch(loginRequest(idAccount)),
+        onLoginRequest: (idAccount)=> dispatch(loginRequest(idAccount)),
     }
 }
 

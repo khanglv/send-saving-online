@@ -24,12 +24,13 @@ export class ModalAlert extends React.Component {
     render() {
         return (
             <div>
-                <Modal returnFocusAfterClose={this.state.focusAfterClose} isOpen={this.props.open} >
+                <Modal returnFocusAfterClose={this.state.focusAfterClose} toggle={this.toggle} isOpen={this.props.open} >
+                    <ModalHeader className="text-center" style={styles.headerModel}>Thông báo</ModalHeader>
                     <ModalBody>
                         {this.props.dataSend}
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={this.toggle}>Close</Button>
+                        <Button color="primary" onClick={this.toggle}>Đóng</Button>
                     </ModalFooter>
                 </Modal>
             </div>
@@ -43,7 +44,6 @@ export class ModalPopup extends React.Component {
         this.state = {
             modal: false
         };
-
         this.toggle = this.toggle.bind(this);
     }
 
@@ -55,17 +55,25 @@ export class ModalPopup extends React.Component {
         // const externalCloseBtn = <button className="close" style={{ position: 'absolute', top: '15px', right: '15px' }} onClick={this.toggle}>&times;</button>;
         return (
             <div>
-                <Modal isOpen={this.props.open} toggle={this.toggle} centered size="lg">
-                    <ModalHeader className="text-center" style={{display: 'inline'}}>Modal title</ModalHeader>
+                <Modal isOpen={this.props.open} toggle={this.toggle} centered size="sm">
+                    <ModalHeader className="text-center" style={styles.headerModel}>{this.props.title}</ModalHeader>
                     <ModalBody>
-                        {this.props.form}
+                        {this.props.dataSend}
                     </ModalBody>
                     <ModalFooter>
                         <Button color="secondary" onClick={this.toggle}>Cancel</Button>{' '}
-                        <Button color="primary" onClick={this.toggle}>Do Something</Button>
+                        <Button color="primary" onClick={this.toggle}>OK</Button>
                     </ModalFooter>
                 </Modal>
             </div>
         );
+    }
+}
+
+const styles={
+    headerModel: {
+        display: 'inline',
+        color: '#fff', 
+        backgroundColor: 'rgba(18, 32, 71, 0.85)'
     }
 }

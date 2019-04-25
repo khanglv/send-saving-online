@@ -26,13 +26,17 @@ code {
   float: right;
 }
 
+.centerVertical{
+  display: flex!important;
+  align-items: center!important;
+}
+
 .pointer{
   cursor: pointer;
 }
 
-.hasHover{
-
-}
+/* set hover */
+.hasHover{}
 div.hasHover:hover{
     background-color: #fff!important;
     color: #00377a!important;
@@ -41,4 +45,25 @@ div.hasHover:hover{
 .lstGItem:hover, a:hover {
   background-color: #477cbd!important;
   color: #fff!important;
+}
+
+.itemMarketInfo{
+}
+.itemMarketInfo:hover{
+  border-left: 1px solid #00377a!important;
+  background: #D9EAF7;
+}
+
+.customInputDatePicker{
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+  padding: 5px
+}
+
+.customInputDatePicker, .react-datepicker-wrapper{
+  width: 100%;
+}
+.customInputDatePicker, .react-datepicker__input-container{
+  width: 100%;
 }
