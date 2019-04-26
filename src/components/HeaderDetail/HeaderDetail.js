@@ -2,27 +2,35 @@ import React, {Component} from 'react';
 import {
     Table
 } from 'reactstrap';
+import {ModalPopup} from '../Modal/Modal';
 class HeaderDetail extends Component{
     constructor(props){
         super(props);
         this.state={
             firstName: "Khang",
-            lastName: "Le"
+            lastName: "Le",
+            isOpen: false,
+            dataSendLogout: ""
         }
     }
 
-    componentDidMount(){
-        
+    onConFirmLogout = ()=>{
+        this.setState({isOpen: true, dataSendLogout: 'Bạn có muốn Thoát khỏi trang hay không?'});
     }
 
     onLogout = ()=>{
         sessionStorage.removeItem('accessTokenKey');
-        this.props.history.push('/login');
+        window.location.href = "/login";
+    }
+
+    onCloseAlert = ()=>{
+        this.setState({isOpen: false});
     }
     
     render(){
         return(
             <div>
+                <ModalPopup title="Xác nhận" open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSendLogout} onActionOK={this.onLogout}/>
                 <div>
                     <div className="col-md-8 left">
                         <img style={{with: '10vw', paddingTop: 30, paddingBottom: 30}} src='/images/header/logo.png' alt='logo'/>
@@ -42,7 +50,7 @@ class HeaderDetail extends Component{
                                 <th style={{width: '20%'}}><span style={{color: '#0579f5', fontFamily: 'Times New Roman'}}>SAVINGS</span> <span style={styles.fontTimeNew}>BONDS</span></th>
                                 <th style={{width: '80%'}}>
                                     <span style={styles.positionEndItem}>
-                                        <span>012345678</span>&nbsp;|&nbsp;&nbsp;<span onClick={this.onLogout} style={{cursor: 'pointer'}}>Thoát</span>
+                                        <span>012345678</span>&nbsp;|&nbsp;&nbsp;<span onClick={this.onConFirmLogout} style={{cursor: 'pointer'}}>Thoát</span>
                                     </span>
                                 </th>
                             </tr>

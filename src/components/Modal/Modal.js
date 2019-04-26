@@ -51,6 +51,10 @@ export class ModalPopup extends React.Component {
         this.props.onClose();
     }
 
+    onActionOK = ()=>{
+        this.props.onActionOK();
+    }
+
     render() {
         // const externalCloseBtn = <button className="close" style={{ position: 'absolute', top: '15px', right: '15px' }} onClick={this.toggle}>&times;</button>;
         return (
@@ -62,7 +66,7 @@ export class ModalPopup extends React.Component {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="secondary" onClick={this.toggle}>Cancel</Button>{' '}
-                        <Button color="primary" onClick={this.toggle}>OK</Button>
+                        <Button color="primary" onClick={this.onActionOK}>OK</Button>
                     </ModalFooter>
                 </Modal>
             </div>

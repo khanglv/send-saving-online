@@ -14,10 +14,6 @@ class Main extends Component{
             isOpenSaving: false
         };
     }
-
-    test = ()=>{
-        this.props.history.push('/login');
-    }
     
     onCloseAlert = ()=>{
         this.setState({isOpen: false});
@@ -35,6 +31,11 @@ class Main extends Component{
         this.setState({isOpenSaving: true});
     }
 
+    onLogoutTest = ()=>{
+        // this.props.history.push('/header');
+        window.location.href = "/login";
+    }
+
     render(){
         let dataSend = (
             <div>
@@ -48,9 +49,10 @@ class Main extends Component{
                 <ModalPopup title="OTP" dataSend={dataSend} open={this.state.isOpen} onClose={this.onCloseAlert} />
                 <HeaderDetail history={this.props.history}/>
                 <b style={{color: 'red'}}>DANH SÁCH NGÂN HÀNG VÀ BIỂU LÃI SUẤT</b>
-                <Button outline color="info" onClick={this.onTest}>testAlert</Button>
                 <TradeForm />
-                <Button outline color="info" onClick={this.onSendSaveMoney}>SendSaving</Button>
+                <Button outline color="info" onClick={this.onTest}>Check OTP</Button>&nbsp;
+                <Button outline color="info" onClick={this.onSendSaveMoney}>SendSaving</Button>&nbsp;
+                <Button outline color="info" onClick={this.onLogoutTest}>Logout</Button>&nbsp;
             </div>
         );
     }

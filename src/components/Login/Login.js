@@ -21,6 +21,8 @@ class Login extends Component {
         this.state = {
             idAccount: "",
             password: "",
+            isSaveId: false,
+            isSavePass: false,
             isOpen: false,
             dataSend: "^~^"
         };
@@ -28,7 +30,20 @@ class Login extends Component {
 
     onSubmit = () => {
         // this.props.history.push('/main');
-        this.props.onLogin(this.state.idAccount, this.state.password);
+        if(!this.state.idAccount || !this.state.password){
+            this.setState({isOpen: true, dataSend: "Bạn chưa nhập tài khoản hoặc mật khẩu, vui lòng kiểm tra lại."});
+        }else{
+            // NProgress.start();
+            let configLogin = {idAccount: '', password: ''};
+            if(this.state.isSaveId){
+                configLogin.idAccount = this.state.idAccount;
+            }
+            if(this.state.isSavePass){
+                configLogin.password = this.state.password;
+            }
+            localStorage.setItem("keyConfigLogin", JSON.stringify(configLogin));
+            this.props.onLogin(this.state.idAccount, this.state.password);
+        }
     }
 
     static getDerivedStateFromProps(nextProps) {
@@ -40,10 +55,15 @@ class Login extends Component {
         }
         return null;
     }
-
+    
     componentDidMount(){
-        let obj = localStorage.getItem('myName');
-        console.log("data " + JSON.stringify(obj));
+        let obj = JSON.parse(localStorage.getItem('keyConfigLogin'));
+        if(obj.idAccount){
+            this.setState({idAccount: obj.idAccount, isSaveId: true});
+        }
+        if(obj.password){
+            this.setState({password: obj.password, isSavePass: true});
+        }
     }
 
     onChangeAccount = (event)=>{
@@ -52,6 +72,14 @@ class Login extends Component {
 
     onChangePassword = (event)=>{
         this.setState({password: event.target.value});
+    }
+
+    handleChangeID = ()=>{
+        this.setState((prev)=>({isSaveId: !prev.isSaveId}));
+    }
+
+    handleChangePassword = ()=>{
+        this.setState( prev => ({isSavePass: !prev.isSavePass}));
     }
 
     onCloseAlert = ()=>{
@@ -111,12 +139,12 @@ class Login extends Component {
                                         </FormGroup>
                                         <FormGroup check inline>
                                             <Label check style={{ fontWeight: 'normal' }}>
-                                                <Input type="checkbox" /> Lưu ID
+                                                <Input type="checkbox" checked={this.state.isSaveId} onChange={this.handleChangeID} /> Lưu ID
                                                 </Label>
                                         </FormGroup>
                                         <FormGroup check inline>
                                             <Label check style={{ fontWeight: 'normal' }}>
-                                                <Input type="checkbox" /> Lưu mật khẩu
+                                                <Input type="checkbox" checked={this.state.isSavePass} onChange={this.handleChangePassword}/> Lưu mật khẩu
                                                 </Label>
                                         </FormGroup>
                                     </Form>

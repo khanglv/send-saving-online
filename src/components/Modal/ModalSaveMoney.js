@@ -92,7 +92,7 @@ export class ModalSaveMoney extends React.Component {
                                 </div>
                             </ListGroupItem>
                         </ListGroup>
-                        <ListGroup className="col-md-6 right">
+                        <ListGroup className="col-md-6 right" style={{paddingRight: 0}}>
                             <ListGroupItem className="centerVertical">
                                 <div className="col-md-6 left">
                                     Tên Khách hàng

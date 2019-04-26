@@ -1,4 +1,5 @@
 import axios from 'axios';
+import NProgress from 'nprogress';
 
 const BASE_URL = "http://utiltradex.ddns.net:3000/api/v1";
 const TIME_OUT = 10000;
@@ -10,13 +11,15 @@ const accessToken = sessionStorage.getItem('accessTokenKey');
 
 
 const doRequest = async (options) => {
-    console.log("token " + accessToken);
     try{
+        NProgress.start();
         const response = await axios(options);
         if(response.status>= 200 && response.status < 300){
+            NProgress.done();
             return response.data;
         }
     }catch(err){
+        NProgress.done();
         if(err.response){
             return err.response.data;
         }else{

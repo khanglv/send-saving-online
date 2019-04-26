@@ -2,8 +2,9 @@ import React from 'react';
 import {
     BrowserRouter,
     Route,
-    Switch
+    Switch,
 } from 'react-router-dom';
+
 import {Error404} from '../components/Error404/Error404';
 import Login from '../components/Login/Login';
 import HeaderDetail from '../components/HeaderDetail/HeaderDetail';
