@@ -91,6 +91,14 @@ export class ModalSaveMoney extends React.Component {
                                     <input style={styles.inputModal}></input>
                                 </div>
                             </ListGroupItem>
+                            <ListGroupItem className="centerVertical">
+                                <div className="col-md-6 left">
+                                    Tài khoản nhận gốc/lãi<i style={{color: 'red'}}>*</i>
+                                </div>
+                                <div className="col-md-6 right">
+                                    <input style={styles.inputModal}></input>
+                                </div>
+                            </ListGroupItem>
                         </ListGroup>
                         <ListGroup className="col-md-6 right" style={{paddingRight: 0}}>
                             <ListGroupItem className="centerVertical">
@@ -136,6 +144,20 @@ export class ModalSaveMoney extends React.Component {
                             <ListGroupItem className="centerVertical">
                                 <div className="col-md-6 left">
                                     Ngày đáo hạn
+                                </div>
+                                <div className="col-md-6 right">
+                                    <DatePicker
+                                        className="customInputDatePicker"
+                                        style={{width: '100%'}}
+                                        dateFormat="dd/MM/yyyy"
+                                        selected={this.state.startDate}
+                                        onChange={this.handleChange}
+                                    />
+                                </div>
+                            </ListGroupItem>
+                            <ListGroupItem className="centerVertical">
+                                <div className="col-md-6 left">
+                                    Ngày VPS thanh toán
                                 </div>
                                 <div className="col-md-6 right">
                                     <DatePicker

@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import {
     Table
 } from 'reactstrap';
@@ -13,8 +14,20 @@ var items = [
     { name: 'John1', link: 'https://bible.com/1/jhn.32' }
 ];
 
-export default class MarketInfo extends Component {
+class MarketInfo extends Component {
+    constructor(props){
+        super(props);
 
+        this.state = {
+            data: []
+        };
+    }
+    static getDerivedStateFromProps(nextProps) {
+        if (nextProps.data) {
+            return {data: nextProps.data}
+        }
+        return null;
+    }
     render() {
         return (
             <Table>
@@ -34,3 +47,17 @@ export default class MarketInfo extends Component {
         );
     }
 }
+
+const mapStateToProps = state =>{
+    return{
+        data: state.marketIndex.data
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps) (MarketInfo);

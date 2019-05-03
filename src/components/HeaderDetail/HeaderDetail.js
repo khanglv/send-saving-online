@@ -23,6 +23,18 @@ class HeaderDetail extends Component{
         window.location.href = "/login";
     }
 
+    onGotoHSX = ()=>{
+        window.open('http://priceboard1.vcsc.com.vn/vcsc/hose'); 
+    }
+
+    onGotoHNX = ()=>{
+        window.open('http://priceboard1.vcsc.com.vn/vcsc/hnx'); 
+    }
+
+    onGotoUPCOM = ()=>{
+        window.open('http://priceboard1.vcsc.com.vn/vcsc/upcom'); 
+    }
+
     onCloseAlert = ()=>{
         this.setState({isOpen: false});
     }
@@ -50,7 +62,7 @@ class HeaderDetail extends Component{
                                 <th style={{width: '20%'}}><span style={{color: '#0579f5', fontFamily: 'Times New Roman'}}>SAVINGS</span> <span style={styles.fontTimeNew}>BONDS</span></th>
                                 <th style={{width: '80%'}}>
                                     <span style={styles.positionEndItem}>
-                                        <span>012345678</span>&nbsp;|&nbsp;&nbsp;<span onClick={this.onConFirmLogout} style={{cursor: 'pointer'}}>Thoát</span>
+                                        <span>012345678</span>&nbsp;|&nbsp;&nbsp;<span onClick={this.onConFirmLogout} className="logout" style={{cursor: 'pointer'}}>Thoát</span>
                                     </span>
                                 </th>
                             </tr>

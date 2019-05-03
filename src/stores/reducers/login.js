@@ -5,6 +5,7 @@ const initialState = {
     idAccount: '',
     password: '',
     accessToken: '',
+    refreshToken: '',
     message: '',
     isFetching: false,
     isAuthenticated: false,
@@ -25,7 +26,8 @@ const reducer = (state = initialState, action)=>{
                 isFetching: true,
                 isAuthenticated: true,
                 message: '',
-                accessToken: action.info.accessToken
+                accessToken: action.info.accessToken,
+                refreshToken: action.info.refreshToken
             }
         case LOGIN_FAILED:
             return {

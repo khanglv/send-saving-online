@@ -5,14 +5,20 @@ const BASE_URL = "http://utiltradex.ddns.net:3000/api/v1";
 const TIME_OUT = 10000;
 const IDVerify = "vcsc";
 const PassVerify = "vcsc";
-const accessToken = sessionStorage.getItem('accessTokenKey');
-// const IDLogin = "068C003249";
-// const passLogin = "techx123";
-
+const accessToken = localStorage.getItem('accessTokenKey');
 
 const doRequest = async (options) => {
     try{
         NProgress.start();
+        options = {
+            ...options,
+            timeout: TIME_OUT,
+            config: {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            },
+        }
         const response = await axios(options);
         if(response.status>= 200 && response.status < 300){
             NProgress.done();
@@ -40,9 +46,10 @@ const callApi = (options, needAuth = false)=>{
             }
         }else{
             alert("Access Token not found");
+            window.location.href = "/login";
+            return;
         }
     }
-
     return doRequest(options);
 }
 
@@ -52,18 +59,23 @@ export const loginApi = (username, password)=>{
         "grant_type": "password", 
         "client_id": IDVerify, 
         "client_secret": PassVerify, 
-        "username": username, 
+        "username": username,
         "password": password
     };
     const options = {
         url: url,
         method: "POST",
-        timeout: TIME_OUT,
-        config: {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
-        },
+        data: data
+    }
+    return callApi(options);
+}
+
+export const getMarketIndexList = ()=>{
+    const url = `${BASE_URL}/market/index/list`;
+    const data = {};
+    const options = {
+        url: url,
+        method: "GET",
         data: data
     }
     return callApi(options);

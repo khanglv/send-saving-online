@@ -26,7 +26,7 @@ export const login = (username, password)=> (dispatch)=>{
     dispatch(loginRequest(username));
     return api.loginApi(username, password).then((response)=>{
         if(response && response.accessToken){
-            sessionStorage.setItem('accessTokenKey', response.accessToken);
+            localStorage.setItem('accessTokenKey', response.accessToken);
             return dispatch(loginSuccess(response));
         }
         return dispatch(loginFailed(response.message));

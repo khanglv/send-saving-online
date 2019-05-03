@@ -6,6 +6,10 @@ import {
     FormGroup, 
     Label, 
     Input,
+    Collapse,
+    CardBody, 
+    Card,
+    Alert
 } from 'reactstrap';
 import Footer from '../Footer/Footer';
 import {connect} from 'react-redux';
@@ -13,6 +17,7 @@ import {login, loginRequest} from '../../stores/actions/loginAction';
 import {ModalAlert} from '../Modal/Modal';
 import GuideLogin from './Guide';
 import MarketInfo from './MarketInfo';
+import {LineChartDemo} from './Chart';
 
 class Login extends Component {
     constructor(props) {
@@ -21,6 +26,8 @@ class Login extends Component {
         this.state = {
             idAccount: "",
             password: "",
+            collapse: false,
+            isOptionSetting: 1,
             isSaveId: false,
             isSavePass: false,
             isOpen: false,
@@ -56,13 +63,15 @@ class Login extends Component {
         return null;
     }
     
-    componentDidMount(){
+    componentDidMount() {
         let obj = JSON.parse(localStorage.getItem('keyConfigLogin'));
-        if(obj.idAccount){
-            this.setState({idAccount: obj.idAccount, isSaveId: true});
-        }
-        if(obj.password){
-            this.setState({password: obj.password, isSavePass: true});
+        if (obj) {
+            if (obj.idAccount) {
+                this.setState({ idAccount: obj.idAccount, isSaveId: true });
+            }
+            if (obj.password) {
+                this.setState({ password: obj.password, isSavePass: true });
+            }
         }
     }
 
@@ -89,6 +98,14 @@ class Login extends Component {
 
     onTest = ()=>{
         this.setState({isOpen: true});
+    }
+
+    showSetting = ()=>{
+        this.setState(state => ({ collapse: !state.collapse }));
+    }
+
+    handleSettingTimeout = (value)=>{
+        this.setState({isOptionSetting: value});
     }
 
     onGotoHSX = ()=>{
@@ -161,6 +178,36 @@ class Login extends Component {
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHNX)} onClick={this.onGotoHNX}>HNX</div>
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockUPCOM)} onClick={this.onGotoUPCOM}>UPCOM</div>
+                            <div style={styles.settingTimeout}>
+                                <Button className="fa fa-cogs" outline color="info" onClick={this.showSetting}></Button>
+                                <Collapse isOpen={this.state.collapse}>
+                                <Card>
+                                    <CardBody>
+                                        <Alert color="primary">Tự động ngắt kết nối</Alert>
+                                        <FormGroup check inline>
+                                            <Label check style={{ fontWeight: 'normal' }}>
+                                                <Input type="checkbox" checked={this.state.isOptionSetting===1} onChange={()=>this.handleSettingTimeout(1)}/> 30 phút
+                                                </Label>
+                                        </FormGroup>
+                                        <FormGroup check inline>
+                                            <Label check style={{ fontWeight: 'normal' }}>
+                                                <Input type="checkbox" checked={this.state.isOptionSetting===2} onChange={()=>this.handleSettingTimeout(2)}/> 1 giờ
+                                                </Label>
+                                        </FormGroup>
+                                        <FormGroup check inline>
+                                            <Label check style={{ fontWeight: 'normal' }}>
+                                                <Input type="checkbox" checked={this.state.isOptionSetting===3} onChange={()=>this.handleSettingTimeout(3)}/> 4 giờ
+                                                </Label>
+                                        </FormGroup>
+                                        <FormGroup check inline>
+                                            <Label check style={{ fontWeight: 'normal' }}>
+                                                <Input type="checkbox" checked={this.state.isOptionSetting===4} onChange={()=>this.handleSettingTimeout(4)}/> 8 giờ
+                                                </Label>
+                                        </FormGroup>
+                                    </CardBody>
+                                </Card>
+                                </Collapse>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -169,7 +216,7 @@ class Login extends Component {
                         <b>THÔNG TIN THỊ TRƯỜNG</b>
                     </div>
                     <div style={styles.body_detail_main}>
-                        <div className="col-md-6" style={{ height: "14rem",}}>
+                        <div className="col-md-6 left" style={{ height: "14rem",}}>
                             <Table style={{marginBottom: 0}}>
                                 <tbody>
                                     <tr style={{ color: '#00377a', fontSize: 12 }}>
@@ -183,6 +230,9 @@ class Login extends Component {
                             <div style={{ height: "13rem", overflow: "auto" }}>
                                 <MarketInfo />
                             </div>    
+                        </div>
+                        <div className="col-md-6 right" style={{fontSize: 12}}>
+                            <LineChartDemo />
                         </div>
                     </div>
                     <div style={styles.body_detail_head}>
@@ -269,6 +319,12 @@ const styles = {
     },
     boxStockUPCOM:{
         right: '1rem',
+    },
+    settingTimeout:{
+        position: 'absolute',
+        top: -37,
+        left: '1rem',
+        zIndex: 10000
     },
     modalMenuOptions:{
         position: 'absolute',
