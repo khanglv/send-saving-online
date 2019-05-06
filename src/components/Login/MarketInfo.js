@@ -4,47 +4,71 @@ import {
     Table
 } from 'reactstrap';
 
-var items = [
-    { name: 'Matthew', link: 'https://bible.com/1/mat.1' },
-    { name: 'Mark', link: 'https://bible.com/1/mrk.1' },
-    { name: 'Luke', link: 'https://bible.com/1/luk.1' },
-    { name: 'John', link: 'https://bible.com/1/jhn.1' },
-    { name: 'Lucat', link: 'https://bible.com/1/jhn.1' },
-    { name: 'David', link: 'https://bible.com/1/jhn.1' },
-    { name: 'John1', link: 'https://bible.com/1/jhn.32' }
-];
+import {marketIndexList} from '../../stores/actions/marketIndexAction';
 
 class MarketInfo extends Component {
     constructor(props){
         super(props);
 
         this.state = {
-            data: []
+            data: [],
+            codeActive: ''
         };
     }
+
+    componentDidMount(){
+        this.props.loadData();
+    }
+
     static getDerivedStateFromProps(nextProps) {
-        if (nextProps.data) {
-            return {data: nextProps.data}
+        if (nextProps.data.length > 0) {
+            return {codeActive: nextProps.data[0].code};
         }
         return null;
     }
+
+    onChooseOption = (code)=>{
+        this.setState({codeActive: code});
+    }
+
     render() {
         return (
-            <Table>
-                <tbody style={{fontSize: 12, height: '100%'}}>
-                    {items.map((item) => {
-                        return (
-                            <tr key={item.name} className="itemMarketInfo">
-                                <td >{item.name}</td>
-                                <td style={{ color: 'rgb(14, 142, 11)' }}>{item.link}</td>
-                                <td style={{ color: 'rgb(14, 142, 11)' }}>Otto</td>
-                                <td style={{ color: 'rgb(14, 142, 11)' }}>@mdo</td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </Table>
+            <div style={{ height: "14rem", overflow: "auto", fontSize: 12 }}>
+                <Table>  
+                    <tbody>
+                        <tr>
+                            <td style={styles.headerTable}>CHỈ SỐ</td>
+                            <td style={styles.headerTable}>ĐÓNG CỬA</td>
+                            <td style={styles.headerTable}>THAY ĐỔI</td>
+                            <td style={styles.headerTable}>THAY ĐỔI(%)</td>
+                        </tr>
+                        {this.props.data.map((item) => {
+                            return (
+                                <tr key={item.indexName} className="itemMarketInfo" onClick={()=>this.onChooseOption(item.code)} style={this.state.codeActive===item.code?styles.chooseOption: null}>
+                                    <td>{item.indexName}</td>
+                                    <td style={{ color: 'rgb(14, 142, 11)' }}>{item.last}</td>
+                                    <td style={{ color: 'rgb(14, 142, 11)' }}>{item.change}</td>
+                                    <td style={{ color: 'rgb(14, 142, 11)' }}>{item.rate}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </Table>
+            </div>
         );
+    }
+}
+
+const styles={
+    headerTable: {
+        position: 'sticky', 
+        top: 0,
+        backgroundColor: '#e9ecef',
+        color: '#00377a'
+    },
+    chooseOption:{
+        borderLeft: '1px solid red',
+        backgroundColor: '#D9EAF7'
     }
 }
 
@@ -56,7 +80,7 @@ const mapStateToProps = state =>{
 
 const mapDispatchToProps = dispatch =>{
     return{
-        
+        loadData: ()=> dispatch(marketIndexList()),
     }
 }
 

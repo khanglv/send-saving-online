@@ -2,6 +2,7 @@ import axios from 'axios';
 import NProgress from 'nprogress';
 
 const BASE_URL = "http://utiltradex.ddns.net:3000/api/v1";
+const BASE_URL_PUBLIC = "http://rest.dev.tradex.vn:3000/api/v1/vcsc";
 const TIME_OUT = 10000;
 const IDVerify = "vcsc";
 const PassVerify = "vcsc";
@@ -71,7 +72,7 @@ export const loginApi = (username, password)=>{
 }
 
 export const getMarketIndexList = ()=>{
-    const url = `${BASE_URL}/market/index/list`;
+    const url = `${BASE_URL_PUBLIC}/market/index/list`;
     const data = {};
     const options = {
         url: url,

@@ -216,20 +216,8 @@ class Login extends Component {
                         <b>THÔNG TIN THỊ TRƯỜNG</b>
                     </div>
                     <div style={styles.body_detail_main}>
-                        <div className="col-md-6 left" style={{ height: "14rem",}}>
-                            <Table style={{marginBottom: 0}}>
-                                <tbody>
-                                    <tr style={{ color: '#00377a', fontSize: 12 }}>
-                                        <th>CHỈ SỐ</th>
-                                        <th>ĐÓNG CỬA</th>
-                                        <th>THAY ĐỔI</th>
-                                        <th>THAY ĐỔI(%)</th>
-                                    </tr>
-                                </tbody>    
-                            </Table>
-                            <div style={{ height: "13rem", overflow: "auto" }}>
-                                <MarketInfo />
-                            </div>    
+                        <div className="col-md-6 left" style={{ height: "14rem"}}>
+                            <MarketInfo /> 
                         </div>
                         <div className="col-md-6 right" style={{fontSize: 12}}>
                             <LineChartDemo />

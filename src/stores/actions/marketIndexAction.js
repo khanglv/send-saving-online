@@ -5,7 +5,7 @@ import {
     MARKET_INDEX_LIST_FAILED
 } from './actionTypes';
 
-export const marketIndexList = (dispatch)=>{
+export const marketIndexList = fetchData => (dispatch)=>{
     dispatch({
         type: MARKET_INDEX_LIST_REQUEST,
     })

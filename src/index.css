@@ -13,6 +13,13 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+/* styles general */
+.p0{
+  padding: 0!important;
+}
+.p5{
+  padding: 5px!important;
+}
 
 .color-main{
   background-color: rgba(14, 24, 77, 0.03);
