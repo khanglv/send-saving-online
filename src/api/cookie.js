@@ -22,3 +22,9 @@ export const getCookie = (cookieName) => {
     }
     return '';
 };
+
+export const clearCookie = (name)=>{
+    if(getCookie(name)){
+        setCookie(name, '', -1, '/');
+    }
+}

@@ -7,30 +7,29 @@ import { ModalSaveMoney } from '../Modal/ModalSaveMoney';
 import {connect} from 'react-redux';
 import {verifyOTPRequest, verifyOTP} from '../../stores/actions/loginAction';
 
-const accessToken = localStorage.getItem('accessTokenKey');
-const accessTokenVerify = localStorage.getItem('accessTokenVerifyKey');
-
 class Main extends Component{
     constructor(props) {
         super(props);
-
         this.state = {
             isOpen: true,
             isOpenSaving: false,
-            codeOTP: null,
+            codeOTP: '',
             warningData: '',
-            checkVerify: false
+            checkVerify: false,
+            accessToken: localStorage.getItem('accessTokenKey'),
+            accessTokenVerify : localStorage.getItem('accessTokenVerifyKey')
         };
     }
     
     static getDerivedStateFromProps(nextProps, prevProps) {
-        if(accessToken===''|| accessToken === null){
+        if(prevProps.accessToken===''|| prevProps.accessToken === null || (nextProps.codeOTP === null && prevProps.accessTokenVerify === null)){
+            localStorage.removeItem('accessTokenKey');
             window.location.href = "/login";
         }else{
-            if (prevProps.checkVerify && !nextProps.isVerifyOTP && prevProps.codeOTP !== null) {
-                return {isOpen: true, warningData: "Mã nhập không đúng, vui lòng nhập lại", checkVerify: false}
-            }else if(accessTokenVerify || nextProps.isVerifyOTP){
+            if(prevProps.accessTokenVerify || nextProps.isVerifyOTP){
                 return {isOpen: false}
+            }else if (prevProps.checkVerify && !nextProps.isVerifyOTP && !nextProps.isAuthenticated) {
+                return {isOpen: true, warningData: "Mã nhập không đúng, vui lòng nhập lại", checkVerify: false}
             }
         }
         return null;
@@ -93,7 +92,9 @@ class Main extends Component{
 const mapStateToProps = state =>{
     return{
         codeOTP: state.login.otpIndex,
-        token: state.login.accessToken
+        token: state.login.accessToken,
+        isVerifyOTP: state.login.isVerifyOTP,
+        isAuthenticated: state.login.isAuthenticated,
     }
 }
 

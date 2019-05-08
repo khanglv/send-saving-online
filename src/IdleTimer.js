@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import IdleTimer from 'react-idle-timer';
 import {ModalConfirm} from './components/Modal/Modal';
+import {removeStorageToken} from './api/storage';
 import App from './App';
 
 export default class IdleTimerCom extends Component {
@@ -50,7 +51,7 @@ export default class IdleTimerCom extends Component {
     }
 
     _onIdle(e) {
-        localStorage.removeItem('accessTokenKey');
+        removeStorageToken();
         this.setState({isOpen: true, dataSendLogout: "Bạn đã không thao tác một thời gian dài, hệ thống sẽ tự động đăng xuất"})
     }
 }

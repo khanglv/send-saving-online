@@ -3,6 +3,7 @@ import {
     Table
 } from 'reactstrap';
 import {ModalPopup} from '../Modal/Modal';
+import {removeStorageToken} from '../../api/storage';
 class HeaderDetail extends Component{
     constructor(props){
         super(props);
@@ -17,7 +18,7 @@ class HeaderDetail extends Component{
     }
 
     onLogout = ()=>{
-        localStorage.removeItem('accessTokenKey');
+        removeStorageToken();
         window.location.href = "/login";
     }
 

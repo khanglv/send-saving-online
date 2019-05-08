@@ -42,7 +42,8 @@ const reducer = (state = initialState, action)=>{
         case VERIFY_OTP_REQUEST:
             return{
                 ...state,
-                isVerifyOTP: false
+                isVerifyOTP: false,
+                isAuthenticated: true,
             }
         case VERIFY_OTP_SUCCESS:
             return{
@@ -56,6 +57,7 @@ const reducer = (state = initialState, action)=>{
             return {
                 ...state,
                 isVerifyOTP: false,
+                isAuthenticated: false,
                 message: action.code,
             }        
         default: 

@@ -1,14 +1,14 @@
 import axios from 'axios';
 import NProgress from 'nprogress';
-import{setCookie, getCookie} from './cookie';
+import{setCookie, getCookie, clearCookie} from './cookie';
+import * as storage from './storage';
+import jwtDecode  from 'jwt-decode';
 
 const BASE_URL = "http://utiltradex.ddns.net:3000/api/v1";
 const BASE_URL_PUBLIC = "http://rest.dev.tradex.vn:3000/api/v1/vcsc";
 const TIME_OUT = 10000;
 const IDVerify = "vcsc";
 const PassVerify = "vcsc";
-const accessToken = localStorage.getItem('accessTokenKey');
-const accessTokenVerify = localStorage.getItem('accessTokenVerifyKey');
 const accessTokenAuth = getCookie("AUTH_KEY");
 
 const doRequest = async (options) => {
@@ -30,7 +30,15 @@ const doRequest = async (options) => {
         }
     }catch(err){
         NProgress.done();
+        console.log(err.response);
         if(err.response){
+            if(err.response.status === 401){
+                storage.removeStorageToken();
+                window.location.href = "/login";
+            }
+            if(err.response.status === 501){
+                alert("Request timeout, try again !!!");
+            }
             return err.response.data;
         }else{
             alert("Server không phản hồi trong thời gian cho phép, thử lại !!!");
@@ -40,6 +48,8 @@ const doRequest = async (options) => {
 
 const callApi = (options, needAuth = false)=>{
     if(needAuth){
+        const accessToken = storage.accessToken();
+        const accessTokenVerify = storage.accessTokenVerify();
         if(accessTokenVerify){
             options = {
                 ...options,
@@ -73,7 +83,7 @@ const callApi = (options, needAuth = false)=>{
     return doRequest(options);
 }
 
-export const checkAuth = ()=>{
+export const checkAuth = () => {
     const url = `${BASE_URL}/login`;
     const data = {
         "grant_type": "client_credentials", 
@@ -91,6 +101,16 @@ export const checkAuth = ()=>{
         console.log("Auth fail " + JSON.stringify(err));
         alert("Không thể xác thực Authentication");
     });
+}
+
+export const checkTokenOTPExpired = ()=>{
+    const accessTokenVerify = storage.accessTokenVerify()
+    if(accessTokenVerify){
+        if (jwtDecode(accessTokenVerify).exp < Date.now() / 1000) {
+            storage.removeStorageToken();
+            window.location.href = "/login";
+        }
+    }
 }
 
 export const loginApi = (username, password)=>{
