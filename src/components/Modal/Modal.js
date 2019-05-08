@@ -74,6 +74,38 @@ export class ModalPopup extends React.Component {
     }
 }
 
+export class ModalConfirm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            modal: false
+        };
+    }
+
+    onActionOK = ()=>{
+        this.props.onActionOK();
+    }
+
+    render() {
+        return (
+            <div>
+                <Modal isOpen={this.props.open} centered size="sm">
+                    <ModalHeader className="text-center" style={styles.headerModel}>{this.props.title}</ModalHeader>
+                    <ModalBody>
+                        {this.props.dataSend}
+                        <div className="text-center">
+                            <span style={{color: 'red'}}>{this.props.warning}</span>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={this.onActionOK}>OK</Button>
+                    </ModalFooter>
+                </Modal>
+            </div>
+        );
+    }
+}
+
 const styles={
     headerModel: {
         display: 'inline',

@@ -21,7 +21,9 @@ export const marketIndexList = fetchData => (dispatch)=>{
             })
         }
     }).catch((err)=>{
-        console.log(JSON.stringify(err));
+        return dispatch({
+            type: MARKET_INDEX_LIST_FAILED,
+        })
     });
 }
 

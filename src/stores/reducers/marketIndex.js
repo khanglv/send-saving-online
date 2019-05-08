@@ -25,7 +25,7 @@ const reducer = (state = initialState, action)=>{
         case MARKET_INDEX_LIST_FAILED:
             return {
                 ...state,
-                message: action.message,
+                message: "Bạn không có quyền truy cập data này",
             }  
         default: 
             return state;

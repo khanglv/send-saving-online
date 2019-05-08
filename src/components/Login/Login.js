@@ -22,6 +22,8 @@ import {LineChartDemo} from './Chart';
 class Login extends Component {
     constructor(props) {
         super(props);
+        localStorage.removeItem('accessTokenKey');
+        localStorage.removeItem('accessTokenVerifyKey');
 
         this.state = {
             idAccount: "",

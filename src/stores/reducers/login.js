@@ -1,14 +1,16 @@
-import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILED} from '../actions/actionTypes';
+import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILED, VERIFY_OTP_REQUEST, VERIFY_OTP_SUCCESS, VERIFY_OTP_FAILED} from '../actions/actionTypes';
 
 
 const initialState = {
     idAccount: '',
     password: '',
     accessToken: '',
+    otpIndex: null,
     refreshToken: '',
     message: '',
     isFetching: false,
     isAuthenticated: false,
+    isVerifyOTP: false
 }
 
 const reducer = (state = initialState, action)=>{
@@ -27,7 +29,8 @@ const reducer = (state = initialState, action)=>{
                 isAuthenticated: true,
                 message: '',
                 accessToken: action.info.accessToken,
-                refreshToken: action.info.refreshToken
+                refreshToken: action.info.refreshToken,
+                otpIndex: action.info.otpIndex
             }
         case LOGIN_FAILED:
             return {
@@ -35,7 +38,26 @@ const reducer = (state = initialState, action)=>{
                 isFetching: false,
                 isAuthenticated: false,
                 message: action.message,
-            }  
+            }
+        case VERIFY_OTP_REQUEST:
+            return{
+                ...state,
+                isVerifyOTP: false
+            }
+        case VERIFY_OTP_SUCCESS:
+            return{
+                ...state,
+                isVerifyOTP: true,
+                isAuthenticated: true,
+                accessToken: action.info.accessToken,
+                refreshToken: action.info.refreshToken,
+            }
+        case VERIFY_OTP_FAILED:
+            return {
+                ...state,
+                isVerifyOTP: false,
+                message: action.code,
+            }        
         default: 
             return state;
     }

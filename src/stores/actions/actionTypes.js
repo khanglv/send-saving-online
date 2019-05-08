@@ -2,6 +2,10 @@
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILED = 'LOGIN_FAILED';
+// Verify OTP
+export const VERIFY_OTP_REQUEST = 'VERIFY_OTP_REQUEST';
+export const VERIFY_OTP_SUCCESS = 'VERIFY_OTP_SUCCESS';
+export const VERIFY_OTP_FAILED = 'VERIFY_OTP_FAILED';
 
 // market index list
 export const MARKET_INDEX_LIST_REQUEST = 'MARKET_INDEX_LIST_REQUEST';

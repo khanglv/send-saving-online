@@ -7,8 +7,6 @@ class HeaderDetail extends Component{
     constructor(props){
         super(props);
         this.state={
-            firstName: "Khang",
-            lastName: "Le",
             isOpen: false,
             dataSendLogout: ""
         }
@@ -19,7 +17,7 @@ class HeaderDetail extends Component{
     }
 
     onLogout = ()=>{
-        sessionStorage.removeItem('accessTokenKey');
+        localStorage.removeItem('accessTokenKey');
         window.location.href = "/login";
     }
 
@@ -38,6 +36,10 @@ class HeaderDetail extends Component{
     onCloseAlert = ()=>{
         this.setState({isOpen: false});
     }
+
+    onMainClick = ()=>{
+        this.props.history.push('/main');
+    }
     
     render(){
         return(
@@ -45,7 +47,7 @@ class HeaderDetail extends Component{
                 <ModalPopup title="Xác nhận" open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSendLogout} onActionOK={this.onLogout}/>
                 <div>
                     <div className="col-md-8 left">
-                        <img style={{with: '10vw', paddingTop: 30, paddingBottom: 30}} src='/images/header/logo.png' alt='logo'/>
+                        <img className="pointer" onClick={this.onMainClick} style={{with: '10vw', paddingTop: 30, paddingBottom: 30}} src='/images/header/logo.png' alt='logo'/>
                     </div>
                     <div className="col-md-4 right">
                         <div className="right" style={{padding: 10}}>

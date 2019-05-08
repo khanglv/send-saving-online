@@ -20,9 +20,9 @@ class MarketInfo extends Component {
         this.props.loadData();
     }
 
-    static getDerivedStateFromProps(nextProps) {
-        if (nextProps.data.length > 0) {
-            return {codeActive: nextProps.data[0].code};
+    static getDerivedStateFromProps(nextProps, prevProps) {
+        if (nextProps.data.length > 0 && prevProps.codeActive === '') {
+            return {codeActive: nextProps.data[0].code, data: nextProps.data};
         }
         return null;
     }
@@ -42,16 +42,19 @@ class MarketInfo extends Component {
                             <td style={styles.headerTable}>THAY ĐỔI</td>
                             <td style={styles.headerTable}>THAY ĐỔI(%)</td>
                         </tr>
-                        {this.props.data.map((item) => {
-                            return (
-                                <tr key={item.indexName} className="itemMarketInfo" onClick={()=>this.onChooseOption(item.code)} style={this.state.codeActive===item.code?styles.chooseOption: null}>
-                                    <td>{item.indexName}</td>
-                                    <td style={{ color: 'rgb(14, 142, 11)' }}>{item.last}</td>
-                                    <td style={{ color: 'rgb(14, 142, 11)' }}>{item.change}</td>
-                                    <td style={{ color: 'rgb(14, 142, 11)' }}>{item.rate}</td>
-                                </tr>
-                            );
-                        })}
+                        {
+                            this.state.data.length === 0 ? <tr className="centerVertical"><td>No data</td></tr>:
+                            this.state.data.map((item) => {
+                                return (
+                                    <tr key={item.indexName} className="itemMarketInfo" onClick={()=>this.onChooseOption(item.code)} style={this.state.codeActive===item.code?styles.chooseOption: null}>
+                                        <td>{item.indexName}</td>
+                                        <td style={{ color: 'rgb(14, 142, 11)' }}>{item.last}</td>
+                                        <td style={{ color: 'rgb(14, 142, 11)' }}>{item.change}</td>
+                                        <td style={{ color: 'rgb(14, 142, 11)' }}>{item.rate}</td>
+                                    </tr>
+                                );
+                            })
+                        }
                     </tbody>
                 </Table>
             </div>

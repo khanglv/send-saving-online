@@ -1,5 +1,5 @@
 import * as api from '../../api/api';
-import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILED} from './actionTypes';
+import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILED, VERIFY_OTP_REQUEST, VERIFY_OTP_SUCCESS, VERIFY_OTP_FAILED} from './actionTypes';
 
 export const loginRequest = (username)=>{
     return {
@@ -30,6 +30,43 @@ export const login = (username, password)=> (dispatch)=>{
             return dispatch(loginSuccess(response));
         }
         return dispatch(loginFailed(response.message));
+    }).catch(err=>{
+        console.log("login err " + JSON.stringify(err));
+    });
+}
+
+// verify OTP
+
+
+export const verifyOTPRequest = (codeOTP)=>{
+    return {
+        type: VERIFY_OTP_REQUEST,
+        codeOTP
+    }
+}
+
+const verifyOTPSuccess= (info)=>{
+    return {
+        type: VERIFY_OTP_SUCCESS,
+        info
+    }
+}
+
+const verifyOTPFailed = (errorMessage)=>{
+    return {
+        type: VERIFY_OTP_FAILED,
+        message: errorMessage
+    }
+}
+
+export const verifyOTP = (codeOTP) => (dispatch)=>{
+    dispatch(verifyOTPRequest(codeOTP));
+    return api.verifyOTP(codeOTP).then((response)=>{
+        if(response && response.accessToken){
+            localStorage.setItem('accessTokenVerifyKey', response.accessToken);
+            return dispatch(verifyOTPSuccess(response));
+        }
+        return dispatch(verifyOTPFailed(response.message));
     }).catch(err=>{
         console.log("login err " + JSON.stringify(err));
     });
