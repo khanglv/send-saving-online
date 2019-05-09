@@ -106,6 +106,7 @@ class Login extends Component {
 
     handleSettingTimeout = (value)=>{
         this.setState({isOptionSetting: value});
+        localStorage.setItem("TimeoutDisconnect", this.state.isOptionSetting);
     }
 
     onGotoHSX = ()=>{

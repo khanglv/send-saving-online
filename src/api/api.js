@@ -4,7 +4,7 @@ import{setCookie, getCookie, clearCookie} from './cookie';
 import * as storage from './storage';
 import jwtDecode  from 'jwt-decode';
 
-const BASE_URL = "http://utiltradex.ddns.net:3000/api/v1";
+const BASE_URL = "http://vcsc.dev.tradex.vn:3000/api/v1";
 const BASE_URL_PUBLIC = "http://rest.dev.tradex.vn:3000/api/v1/vcsc";
 const TIME_OUT = 10000;
 const IDVerify = "vcsc";
@@ -42,6 +42,7 @@ const doRequest = async (options) => {
             return err.response.data;
         }else{
             alert("Server không phản hồi trong thời gian cho phép, thử lại !!!");
+            return;
         }
     }
 }
@@ -76,7 +77,6 @@ const callApi = (options, needAuth = false)=>{
             }
         }else{
             alert("Access Token not found");
-            window.location.href = "/login";
             return;
         }
     }
@@ -84,6 +84,17 @@ const callApi = (options, needAuth = false)=>{
 }
 
 export const checkAuth = () => {
+    if(accessTokenAuth){
+        if (jwtDecode(accessTokenAuth).exp < Date.now() / 1000) {
+            clearCookie("AUTH_KEY");
+            requestAuth();
+        }
+    }else{
+        requestAuth();
+    }
+}
+
+const requestAuth = ()=>{
     const url = `${BASE_URL}/login`;
     const data = {
         "grant_type": "client_credentials", 
@@ -100,6 +111,7 @@ export const checkAuth = () => {
     }).catch((err)=>{
         console.log("Auth fail " + JSON.stringify(err));
         alert("Không thể xác thực Authentication");
+        return;
     });
 }
 

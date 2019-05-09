@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import IdleTimer from 'react-idle-timer';
 import {ModalConfirm} from './components/Modal/Modal';
-import {removeStorageToken} from './api/storage';
+import {removeStorageToken, timeoutDisconnect} from './api/storage';
 import App from './App';
 
+const TIMEOUT_DISCONNECT = timeoutDisconnect();
 export default class IdleTimerCom extends Component {
     constructor(props) {
         super(props)
@@ -26,6 +27,23 @@ export default class IdleTimerCom extends Component {
     }
 
     render() {
+        let TimeOut = 30;
+        switch(TIMEOUT_DISCONNECT){
+            case 30:
+                TimeOut = 30;
+                break;
+            case 1:
+                TimeOut = 60;
+                break;
+            case 4:
+                TimeOut = 60*4;
+                break;
+            case 8:
+                TimeOut = 60*8;
+                break;        
+            default:
+                TimeOut = 30;
+        }
         return (
             <div>
                 <ModalConfirm title="Xác nhận" open={this.state.isOpen} dataSend={this.state.dataSendLogout} onActionOK={this.onLogout}/>
@@ -36,7 +54,7 @@ export default class IdleTimerCom extends Component {
                     onIdle={this.onIdle}
                     onAction={this.onAction}
                     debounce={250}
-                    timeout={1000 * 60 * 30} />
+                    timeout={1000 * 60 * TimeOut} />
                 <App />
             </div>
         )
