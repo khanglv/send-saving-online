@@ -143,7 +143,7 @@ class Login extends Component {
                             <tr>
                                 <th style={{width: '20%'}}>
                                 <div style={styles.titleTrading}>
-                                    <span style={{color: '#0579f5', fontFamily: 'Times New Roman'}}>SAVINGS</span>
+                                    <span style={{color: '#0579f5', fontFamily: 'Times New Roman'}}>V-</span>
                                     &nbsp;<span style={styles.fontTimeNew}>BONDS</span> 
                                 </div>
                                 </th>

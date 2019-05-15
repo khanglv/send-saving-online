@@ -77,6 +77,11 @@ div.hasHover:hover{
   text-decoration: underline;
 }
 
+/* style sidebar */
+.sidenav---sidenav---_2tBP{
+  background-color: #00377a!important;
+}
+
 /* Style Loading */
 .lds-spinner {
   color: official;

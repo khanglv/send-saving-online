@@ -9,6 +9,7 @@ import {Error404} from '../components/Error404/Error404';
 import Login from '../components/Login/Login';
 import HeaderDetail from '../components/HeaderDetail/HeaderDetail';
 import Main from '../components/Main/Main';
+import SideBarMenu from '../components/SideBarMenu/SideBarMenu';
 
 const accessToken = localStorage.getItem('accessTokenKey');
 
@@ -23,14 +24,14 @@ class RouteRUL extends Component{
         this.setState({isShowLoading : false});
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        var currentRouteName = window.location.pathname;
-        if(currentRouteName!=='/login' && !accessToken){
-            window.location.href = "/login";
-            return false;
-        }
-        return true;
-    }
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     var currentRouteName = window.location.pathname;
+    //     if(currentRouteName!=='/login' && !accessToken){
+    //         window.location.href = "/login";
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     render() {
         return (
@@ -46,6 +47,7 @@ class RouteRUL extends Component{
                                 <Route path="/login" component={Login} />
                                 <Route path="/main" component={Main} />
                                 <Route path="/header" component={HeaderDetail} />
+                                <Route exact path="/sidebar" component={SideBarMenu} />
                                 {/* nhập sai đường dẫn */}
                                 <Route exact path="*" component={Error404} />
                             </Switch>

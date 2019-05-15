@@ -9,7 +9,6 @@ const BASE_URL_PUBLIC = "http://rest.dev.tradex.vn:3000/api/v1/vcsc";
 const TIME_OUT = 10000;
 const IDVerify = "vcsc";
 const PassVerify = "vcsc";
-const accessTokenAuth = getCookie("AUTH_KEY");
 
 const doRequest = async (options) => {
     try{
@@ -51,6 +50,7 @@ const callApi = (options, needAuth = false)=>{
     if(needAuth){
         const accessToken = storage.accessToken();
         const accessTokenVerify = storage.accessTokenVerify();
+        const accessTokenAuth = getCookie("AUTH_KEY");
         if(accessTokenVerify){
             options = {
                 ...options,
@@ -77,21 +77,24 @@ const callApi = (options, needAuth = false)=>{
             }
         }else{
             alert("Access Token not found");
-            return;
+            checkAuth();
+            window.location.href = "/login";
+            return null;
         }
     }
     return doRequest(options);
 }
 
 export const checkAuth = () => {
-    if(accessTokenAuth){
-        if (jwtDecode(accessTokenAuth).exp < Date.now() / 1000) {
-            clearCookie("AUTH_KEY");
-            requestAuth();
-        }
-    }else{
-        requestAuth();
-    }
+    const accessTokenAuth = getCookie("AUTH_KEY");
+    // if(accessTokenAuth){
+    //     if (jwtDecode(accessTokenAuth).exp < Date.now() / 1000) {
+    //         clearCookie("AUTH_KEY");
+    //         requestAuth();
+    //     }
+    // }else{
+    //     requestAuth();
+    // }
 }
 
 const requestAuth = ()=>{
@@ -157,11 +160,11 @@ export const verifyOTP = (codeOTP)=>{
 
 export const getMarketIndexList = ()=>{
     const url = `${BASE_URL_PUBLIC}/market/index/list`;
-    const data = {};
-    const options = {
-        url: url,
-        method: "GET",
-        data: data
-    }
-    return callApi(options, true);
+    // const data = {};
+    // const options = {
+    //     url: url,
+    //     method: "GET",
+    //     data: data
+    // }
+    // return callApi(options, true);
 }
