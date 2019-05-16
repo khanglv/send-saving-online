@@ -12,11 +12,16 @@
 }
   
 .logo {
-    height: 5rem;
-    background: rgba(255, 255, 255, 0.2);
+    height: 6.6rem;
+    background: rgba(18, 32, 71, 0.85);
     color: #fff;
     display: flex;
     align-items: center;
+}
+
+.ant-layout-header{
+    height: 5vh!important;
+    line-height: 3vh!important;
 }
 
 .ant-menu-item{
@@ -24,11 +29,18 @@
     height: 50px!important;
 }
 
+.ant-menu-item-selected{
+    
+}
+
 .ant-menu-item:hover{
     background-color: #6988a7!important;
 }
 
-.aaaaa{
-    height: 100%!important; 
-    overflow: hidden!important;
+.ant-layout-sider{
+    height: 90vh;
+}
+
+.middle-text{
+    vertical-align: middle;
 }

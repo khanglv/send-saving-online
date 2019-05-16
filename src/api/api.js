@@ -40,7 +40,7 @@ const doRequest = async (options) => {
             }
             return err.response.data;
         }else{
-            alert("Server không phản hồi trong thời gian cho phép, thử lại !!!");
+            alert("Server không phản hồi, thử lại !!!");
             return;
         }
     }

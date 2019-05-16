@@ -46,9 +46,9 @@ class HeaderDetail extends Component{
         return(
             <div>
                 <ModalPopup title="Xác nhận" open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSendLogout} onActionOK={this.onLogout}/>
-                <div>
+                <div style={{height: '10vh'}}>
                     <div className="col-md-8 left">
-                        <img className="pointer" onClick={this.onMainClick} style={{with: '10vw', paddingTop: 30, paddingBottom: 30}} src='/images/header/logo.png' alt='logo'/>
+                        <img className="pointer" onClick={this.onMainClick} style={{with: '10vw', paddingTop: '2vh', paddingBottom: '2.1vh'}} src='/images/header/logo.png' alt='logo'/>
                     </div>
                     <div className="col-md-4 right">
                         <div className="right" style={{padding: 10}}>
@@ -58,7 +58,7 @@ class HeaderDetail extends Component{
                         </div>
                     </div>
                 </div>
-                <div>
+                {/* <div>
                     <Table bordered style={{marginBottom: 0}}>
                         <tbody>
                             <tr>
@@ -72,14 +72,14 @@ class HeaderDetail extends Component{
                         </tbody>
                     </Table>
                     <div>
-                        <img style={{width: '100%', height: '3rem'}} src="/images/header/stockboard-bg.png" alt="stock" />
+                        <img style={{width: '100%', height: '5vh'}} src="/images/header/stockboard-bg.png" alt="stock" />
                         <div style={{position: 'relative'}}>
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHNX)} onClick={this.onGotoHNX}>HNX</div>
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockUPCOM)} onClick={this.onGotoUPCOM}>UPCOM</div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         );
     }
@@ -105,13 +105,13 @@ const styles = {
         fontFamily: 'Times New Roman',
     },
     boxStock:{
-        top: -36,
+        top: '-4vh',
         border: '1px solid #dee2e6',
         paddingLeft: 5,
         paddingRight: 5,
         color: '#dee2e6',
         borderRadius: 3,
-        position: 'absolute'
+        position: 'absolute',
     },
     boxStockHSX:{
         right: '9.5rem',

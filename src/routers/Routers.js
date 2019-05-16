@@ -10,6 +10,7 @@ import Login from '../components/Login/Login';
 import HeaderDetail from '../components/HeaderDetail/HeaderDetail';
 import Main from '../components/Main/Main';
 import SideBarMenu from '../components/SideBarMenu/SideBarMenu';
+import TestMain from '../components/Test/TestMain';
 
 const accessToken = localStorage.getItem('accessTokenKey');
 
@@ -47,7 +48,8 @@ class RouteRUL extends Component{
                                 <Route path="/login" component={Login} />
                                 <Route path="/main" component={Main} />
                                 <Route path="/header" component={HeaderDetail} />
-                                <Route exact path="/sidebar" component={SideBarMenu} />
+                                <Route path="/sidebar" component={SideBarMenu} />
+                                <Route path="/test" component={TestMain} />
                                 {/* nhập sai đường dẫn */}
                                 <Route exact path="*" component={Error404} />
                             </Switch>

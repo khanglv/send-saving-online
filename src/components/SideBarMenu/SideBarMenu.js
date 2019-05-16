@@ -4,7 +4,7 @@ import 'antd/dist/antd.css';
 import { Layout, Menu, Icon } from 'antd';
 import Login from '../Login/Login';
 
-const { Header, Sider, Content } = Layout;
+const { Sider, Header } = Layout;
 
 export default class SideBarMenu extends Component {
     state = {
@@ -18,7 +18,7 @@ export default class SideBarMenu extends Component {
     };
     render() {
         return (
-            <Layout className="aaaaa">
+            <Layout>
                 <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
                     <div className="logo" >
                         <Icon
@@ -31,35 +31,53 @@ export default class SideBarMenu extends Component {
                     <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
                         <Menu.Item key="1">
                             <Icon type="user"/>
-                            <span>Trang chủ</span>
+                            <span className="middle-text">Trang chủ</span>
                         </Menu.Item>
                         <Menu.Item key="2">
                             <Icon type="video-camera" />
-                            <span>Option 1</span>
+                            <span className="middle-text">Option 1</span>
                         </Menu.Item>
                         <Menu.Item key="3">
                             <Icon type="upload" />
-                            <span>Option 2</span>
+                            <span className="middle-text">Option 2</span>
                         </Menu.Item>
-                        <Menu.Item key="4">
+                        <Menu.Item key="4" style={{position: 'absolute', bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
                             <Icon type="logout" />
-                            <span>Đăng xuất</span>
+                            <span className="middle-text">Đăng xuất</span>
                         </Menu.Item>
                     </Menu>
                 </Sider>
                 <Layout>
-                    <Content
-                        style={{
-                            margin: '24px 16px',
-                            padding: 24,
-                            background: '#fff',
-                            height: '50rem',
-                        }}
-                    >
-                        <Login></Login>
-                    </Content>
+                    <Header style={{ backgroundImage: `url(${"/images/header/stockboard-bg.png"})`, padding: 0, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}>
+                        <div style={{ position: 'relative' }}>
+                            <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
+                            <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHNX)} onClick={this.onGotoHNX}>HNX</div>
+                            <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockUPCOM)} onClick={this.onGotoUPCOM}>UPCOM</div>
+                        </div>
+                    </Header>
                 </Layout>
             </Layout>
         );
     }
 };
+
+const styles = {
+    boxStock:{
+        top: '1vh',
+        border: '1px solid #dee2e6',
+        paddingLeft: 5,
+        paddingRight: 5,
+        color: '#dee2e6',
+        borderRadius: 3,
+        position: 'absolute',
+    },
+    boxStockHSX:{
+        right: '9.5rem',
+    },
+    boxStockHNX:{
+        right: '6rem',
+    },
+    boxStockUPCOM:{
+        right: '1rem',
+    },
+}
