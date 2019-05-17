@@ -8,20 +8,25 @@
 }
   
 .trigger:hover {
-    color: #1890ff;
+    color: #1a8cc5;
 }
   
 .logo {
     height: 6.6rem;
-    background: rgba(18, 32, 71, 0.85);
+    background: linear-gradient(to right, #004b8f, #466f9c);
     color: #fff;
     display: flex;
     align-items: center;
+    border-bottom: 1px solid rgb(191, 208, 216);
 }
 
 .ant-layout-header{
     height: 5vh!important;
     line-height: 3vh!important;
+}
+
+.ant-menu-item-selected{
+    background: linear-gradient(to right, #547095, #9ca6b0)!important;
 }
 
 .ant-menu-item{
@@ -37,8 +42,13 @@
     background-color: #6988a7!important;
 }
 
+.ant-menu-dark, .ant-menu-dark .ant-menu-sub{
+    background: linear-gradient(to right, #004b8f, #466f9c)!important;
+}
+
 .ant-layout-sider{
-    height: 90vh;
+    height: 85vh;
+    background: linear-gradient(to right, #004b8f, #466f9c)!important;
 }
 
 .middle-text{

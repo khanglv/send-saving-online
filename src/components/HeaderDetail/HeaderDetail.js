@@ -1,26 +1,5 @@
 import React, {Component} from 'react';
-import {
-    Table
-} from 'reactstrap';
-import {ModalPopup} from '../Modal/Modal';
-import {removeStorageToken} from '../../api/storage';
 class HeaderDetail extends Component{
-    constructor(props){
-        super(props);
-        this.state={
-            isOpen: false,
-            dataSendLogout: ""
-        }
-    }
-
-    onConFirmLogout = ()=>{
-        this.setState({isOpen: true, dataSendLogout: 'Bạn có muốn Thoát khỏi trang hay không?'});
-    }
-
-    onLogout = ()=>{
-        removeStorageToken();
-        window.location.href = "/login";
-    }
 
     onGotoHSX = ()=>{
         window.open('http://priceboard1.vcsc.com.vn/vcsc/hose'); 
@@ -34,10 +13,6 @@ class HeaderDetail extends Component{
         window.open('http://priceboard1.vcsc.com.vn/vcsc/upcom'); 
     }
 
-    onCloseAlert = ()=>{
-        this.setState({isOpen: false});
-    }
-
     onMainClick = ()=>{
         this.props.history.push('/main');
     }
@@ -45,10 +20,9 @@ class HeaderDetail extends Component{
     render(){
         return(
             <div>
-                <ModalPopup title="Xác nhận" open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSendLogout} onActionOK={this.onLogout}/>
-                <div style={{height: '10vh'}}>
+                <div style={{height: '8vh'}}>
                     <div className="col-md-8 left">
-                        <img className="pointer" onClick={this.onMainClick} style={{with: '10vw', paddingTop: '2vh', paddingBottom: '2.1vh'}} src='/images/header/logo.png' alt='logo'/>
+                        <img className="pointer" onClick={this.onMainClick} style={{with: '10vw', paddingTop: '1vh'}} src='/images/header/logo.png' alt='logo'/>
                     </div>
                     <div className="col-md-4 right">
                         <div className="right" style={{padding: 10}}>
@@ -58,28 +32,26 @@ class HeaderDetail extends Component{
                         </div>
                     </div>
                 </div>
-                {/* <div>
-                    <Table bordered style={{marginBottom: 0}}>
-                        <tbody>
-                            <tr>
-                                <th style={{width: '20%'}}><span style={{color: '#0579f5', fontFamily: 'Times New Roman'}}>SAVINGS</span> <span style={styles.fontTimeNew}>BONDS</span></th>
-                                <th style={{width: '80%'}}>
-                                    <span style={styles.positionEndItem}>
-                                        <span>012345678</span>&nbsp;|&nbsp;&nbsp;<span onClick={this.onConFirmLogout} className="logout" style={{cursor: 'pointer'}}>Thoát</span>
-                                    </span>
-                                </th>
-                            </tr>
-                        </tbody>
-                    </Table>
-                    <div>
+                <div>
+                    <div style={styles.titleBody}>
+                        <div style={{ width: '20%', paddingLeft: '2vw'}} className="left"><span style={styles.fontTimeNew}>V-BONDS</span></div>
+                        <div style={{ width: '80%' }} className="right">
+                            <div style={styles.positionEndItem}>
+                                <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
+                                <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHNX)} onClick={this.onGotoHNX}>HNX</div>
+                                <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockUPCOM)} onClick={this.onGotoUPCOM}>UPCOM</div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* <div>
                         <img style={{width: '100%', height: '5vh'}} src="/images/header/stockboard-bg.png" alt="stock" />
                         <div style={{position: 'relative'}}>
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHNX)} onClick={this.onGotoHNX}>HNX</div>
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockUPCOM)} onClick={this.onGotoUPCOM}>UPCOM</div>
                         </div>
-                    </div>
-                </div> */}
+                    </div> */}
+                </div>
             </div>
         );
     }
@@ -103,23 +75,33 @@ const styles = {
     },
     fontTimeNew:{
         fontFamily: 'Times New Roman',
+        fontSize: 20
+    },
+    titleBody:{
+        marginBottom: 0, 
+        height: '7vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        border: '1px solid #d5e0eb', 
+        background: '#004b8f',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        color: '#fff'
     },
     boxStock:{
-        top: '-4vh',
         border: '1px solid #dee2e6',
         paddingLeft: 5,
         paddingRight: 5,
         color: '#dee2e6',
         borderRadius: 3,
-        position: 'absolute',
     },
     boxStockHSX:{
-        right: '9.5rem',
+        marginRight: '1rem',
     },
     boxStockHNX:{
-        right: '6rem',
+        marginRight: '1rem',
     },
     boxStockUPCOM:{
-        right: '1rem',
+        marginRight: '1rem',
     },
 }

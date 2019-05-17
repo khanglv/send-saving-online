@@ -60,7 +60,7 @@ export class ModalPopup extends React.Component {
         return (
             <div>
                 <Modal isOpen={this.props.open} toggle={this.toggle} centered size="sm">
-                    <ModalHeader className="text-center" style={styles.headerModel}>{this.props.title}</ModalHeader>
+                    <ModalHeader className="text-center" style={styles.headerModel}><span style={{color: '#fff'}}>{this.props.title}</span></ModalHeader>
                     <ModalBody>
                         {this.props.dataSend}
                     </ModalBody>
