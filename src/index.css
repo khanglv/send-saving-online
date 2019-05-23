@@ -20,6 +20,9 @@ code {
 .p5{
   padding: 5px!important;
 }
+.p-top10{
+  padding-top: 10px;
+}
 
 .color-main{
   background-color: rgba(14, 24, 77, 0.03);
@@ -79,7 +82,11 @@ div.hasHover:hover{
 
 /* style sidebar */
 .sidenav---sidenav---_2tBP{
-  background-color: #00377a!important;
+  background-color: #0c62ca!important;
+}
+
+.ant-message .anticon{
+  vertical-align: middle;
 }
 
 /* Style Loading */

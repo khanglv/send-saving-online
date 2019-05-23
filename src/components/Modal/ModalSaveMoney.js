@@ -9,7 +9,6 @@ import {
     ListGroupItem,
     Input
 } from 'reactstrap';
-import DatePicker from 'react-datepicker';
 
 export class ModalSaveMoney extends React.Component {
     constructor(props) {
@@ -146,28 +145,14 @@ export class ModalSaveMoney extends React.Component {
                                     Ngày đáo hạn
                                 </div>
                                 <div className="col-md-6 right">
-                                    <DatePicker
-                                        className="customInputDatePicker"
-                                        style={{width: '100%'}}
-                                        dateFormat="dd/MM/yyyy"
-                                        selected={this.state.startDate}
-                                        onChange={this.handleChange}
-                                    />
+                                    
                                 </div>
                             </ListGroupItem>
                             <ListGroupItem className="centerVertical">
                                 <div className="col-md-6 left">
                                     Ngày VPS thanh toán
                                 </div>
-                                <div className="col-md-6 right">
-                                    <DatePicker
-                                        className="customInputDatePicker"
-                                        style={{width: '100%'}}
-                                        dateFormat="dd/MM/yyyy"
-                                        selected={this.state.startDate}
-                                        onChange={this.handleChange}
-                                    />
-                                </div>
+                                
                             </ListGroupItem>
                         </ListGroup>
                         <label style={{color: 'red', fontStyle: 'italic', marginTop: 10}}>Lưu ý: Số tiền gửi (VND) được ghi nhận chẵn tới hàng nghìn đồng</label>

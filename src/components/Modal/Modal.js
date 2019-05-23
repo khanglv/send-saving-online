@@ -25,7 +25,7 @@ export class ModalAlert extends React.Component {
         return (
             <div>
                 <Modal returnFocusAfterClose={this.state.focusAfterClose} toggle={this.toggle} isOpen={this.props.open} >
-                    <ModalHeader className="text-center" style={styles.headerModel}>Thông báo</ModalHeader>
+                    <ModalHeader className="text-center" style={styles.headerModel}><span style={{color: '#fff'}}>Thông báo</span></ModalHeader>
                     <ModalBody>
                         {this.props.dataSend}
                     </ModalBody>
@@ -90,7 +90,7 @@ export class ModalConfirm extends React.Component {
         return (
             <div>
                 <Modal isOpen={this.props.open} centered size="sm">
-                    <ModalHeader className="text-center" style={styles.headerModel}>{this.props.title}</ModalHeader>
+                    <ModalHeader className="text-center" style={styles.headerModel}><span style={{color: '#fff'}}>{this.props.title}</span></ModalHeader>
                     <ModalBody>
                         {this.props.dataSend}
                         <div className="text-center">

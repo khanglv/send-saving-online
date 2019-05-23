@@ -4,8 +4,8 @@ import{setCookie, getCookie, clearCookie} from './cookie';
 import * as storage from './storage';
 import jwtDecode  from 'jwt-decode';
 
-const BASE_URL = "http://vcsc.dev.tradex.vn:3000/api/v1";
-const BASE_URL_PUBLIC = "http://rest.dev.tradex.vn:3000/api/v1/vcsc";
+const BASE_URL = "http://10.11.13.150:3000/api/v1";
+const BASE_URL_PUBLIC = "http://10.11.13.150:3001/api/v1/vcsc";
 const TIME_OUT = 10000;
 const IDVerify = "vcsc";
 const PassVerify = "vcsc";
@@ -33,11 +33,15 @@ const doRequest = async (options) => {
         if(err.response){
             if(err.response.status === 401){
                 storage.removeStorageToken();
-                window.location.href = "/login";
+                alert("Your request in valid, try again !!!");
             }
             if(err.response.status === 501){
                 alert("Request timeout, try again !!!");
             }
+            if(err.response.status === 403){
+                alert("Bạn không có quyền truy cập");
+            }
+        
             return err.response.data;
         }else{
             alert("Server không phản hồi, thử lại !!!");
@@ -46,11 +50,26 @@ const doRequest = async (options) => {
     }
 }
 
-const callApi = (options, needAuth = false)=>{
+const callApi = (options, needToken = false, needAuth = false)=>{
     if(needAuth){
+        const accessTokenAuth = getCookie("AUTH_KEY");
+        if(accessTokenAuth){
+            options = {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    Authorization: `jwt ${accessTokenAuth}`
+                }
+            }
+        }else{
+            alert("Token expired, refresh token");
+            requestAuth();
+            return null;
+        }
+    }
+    if(needToken){
         const accessToken = storage.accessToken();
         const accessTokenVerify = storage.accessTokenVerify();
-        const accessTokenAuth = getCookie("AUTH_KEY");
         if(accessTokenVerify){
             options = {
                 ...options,
@@ -67,17 +86,8 @@ const callApi = (options, needAuth = false)=>{
                     Authorization: `jwt ${accessToken}`
                 }
             }
-        }else if(accessTokenAuth){
-            options = {
-                ...options,
-                headers: {
-                    ...options.headers,
-                    Authorization: `jwt ${accessTokenAuth}`
-                }
-            }
         }else{
-            alert("Access Token not found");
-            checkAuth();
+            alert("Cann't verify, please login again");
             window.location.href = "/login";
             return null;
         }
@@ -87,14 +97,14 @@ const callApi = (options, needAuth = false)=>{
 
 export const checkAuth = () => {
     const accessTokenAuth = getCookie("AUTH_KEY");
-    // if(accessTokenAuth){
-    //     if (jwtDecode(accessTokenAuth).exp < Date.now() / 1000) {
-    //         clearCookie("AUTH_KEY");
-    //         requestAuth();
-    //     }
-    // }else{
-    //     requestAuth();
-    // }
+    if(accessTokenAuth){
+        if (jwtDecode(accessTokenAuth).exp < Date.now() / 1000) {
+            clearCookie("AUTH_KEY");
+            requestAuth();
+        }
+    }else{
+        requestAuth();
+    }
 }
 
 const requestAuth = ()=>{
@@ -142,7 +152,7 @@ export const loginApi = (username, password)=>{
         method: "POST",
         data: data
     }
-    return callApi(options);
+    return callApi(options, false, true);
 }
 
 export const verifyOTP = (codeOTP)=>{
@@ -155,16 +165,16 @@ export const verifyOTP = (codeOTP)=>{
         method: "POST",
         data: data
     }
-    return callApi(options, true);
+    return callApi(options, true, true);
 }
 
 export const getMarketIndexList = ()=>{
     const url = `${BASE_URL_PUBLIC}/market/index/list`;
-    // const data = {};
-    // const options = {
-    //     url: url,
-    //     method: "GET",
-    //     data: data
-    // }
-    // return callApi(options, true);
+    const data = {};
+    const options = {
+        url: url,
+        method: "GET",
+        data: data
+    }
+    return callApi(options, false, true);
 }

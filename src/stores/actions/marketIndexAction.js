@@ -10,22 +10,24 @@ export const marketIndexList = fetchData => (dispatch)=>{
         type: MARKET_INDEX_LIST_REQUEST,
     })
     try{
-        return api.getMarketIndexList().then((response)=>{
-            if(response){
-                return dispatch({
-                        type: MARKET_INDEX_LIST_SUCCESS,
-                        data: response
+        setTimeout(() => {
+            return api.getMarketIndexList().then((response)=>{
+                if(response){
+                    return dispatch({
+                            type: MARKET_INDEX_LIST_SUCCESS,
+                            data: response
+                        })
+                }else{
+                    return dispatch({
+                        type: MARKET_INDEX_LIST_FAILED,
                     })
-            }else{
+                }
+            }).catch((err)=>{
                 return dispatch({
                     type: MARKET_INDEX_LIST_FAILED,
                 })
-            }
-        }).catch((err)=>{
-            return dispatch({
-                type: MARKET_INDEX_LIST_FAILED,
-            })
-        });
+            });
+        }, 1500);
     }catch(er){
 
     }

@@ -25,14 +25,14 @@ class RouteRUL extends Component{
         this.setState({isShowLoading : false});
     }
 
-    // shouldComponentUpdate(nextProps, nextState) {
-    //     var currentRouteName = window.location.pathname;
-    //     if(currentRouteName!=='/login' && !accessToken){
-    //         window.location.href = "/login";
-    //         return false;
-    //     }
-    //     return true;
-    // }
+    shouldComponentUpdate(nextProps, nextState) {
+        var currentRouteName = window.location.pathname;
+        if(currentRouteName!=='/login' && !accessToken){
+            window.location.href = "/login";
+            return false;
+        }
+        return true;
+    }
 
     render() {
         return (
