@@ -3,16 +3,22 @@ import './style.css';
 import { Layout, Menu, Icon } from 'antd';
 import {ModalPopup} from '../Modal/Modal';
 import {removeStorageToken} from '../../api/storage';
+import { withRouter } from "react-router";
 
 const { Sider } = Layout;
 const SubMenu = Menu.SubMenu;
 
-export default class SideBarMenu extends Component {
-    state = {
-        collapsed: false,
-        isOpen: false,
-        dataSendLogout: ""
-    };
+class SideBarMenu extends Component {
+
+    constructor(props){
+        super(props);
+        this.state = {
+            collapsed: false,
+            isOpen: false,
+            dataSendLogout: "",
+            current: 'home',
+        };
+    }
 
     onConFirmLogout = ()=>{
         this.setState({isOpen: true, dataSendLogout: 'Bạn có muốn Thoát khỏi trang hay không?'});
@@ -32,11 +38,34 @@ export default class SideBarMenu extends Component {
             collapsed: !this.state.collapsed,
         });
     };
+
+    handleClick = (e) => {
+        this.setState({
+            current: e.key,
+        });
+        switch(e.key){
+            case "home": 
+                this.props.history.push('/main');
+                break;
+            case "directive":
+                this.props.history.push('/directive');
+                break;
+            case "bond":
+                this.props.history.push('/bonds-asset');
+                break;
+            case "soldBond":
+                this.props.history.push('/list-sold-bond');
+                break;
+            default: 
+                break;
+        }
+    };
+
     render() {
         return (
                 <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
                     <ModalPopup title="Xác nhận" open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSendLogout} onActionOK={this.onLogout}/>
-                    <div className="logo" >
+                    <div className="logo">
                         {!this.state.collapsed ? <span>KhangLv@vcsc</span> : null}
                         <Icon
                             className="trigger"
@@ -44,12 +73,12 @@ export default class SideBarMenu extends Component {
                             onClick={this.toggle}
                         />
                     </div>
-                    <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-                        <Menu.Item key="1">
-                            <Icon type="home"/>
+                    <Menu theme="dark" mode="inline" defaultOpenKeys={['home']} selectedKeys={[this.state.current]} onClick={this.handleClick}>
+                        <Menu.Item key="home">
+                            <Icon type="home" />
                             <span className="middle-text">Trang chủ</span>
                         </Menu.Item>
-                        <Menu.Item key="2">
+                        <Menu.Item key="directive">
                             <Icon type="form" />
                             <span className="middle-text">Đặt lệnh</span>
                         </Menu.Item>
@@ -62,13 +91,17 @@ export default class SideBarMenu extends Component {
                                 </span>
                             }
                         >
-                            <Menu.Item key="3">
+                            <Menu.Item key="stock">
                                 <Icon type="strikethrough" />
                                 <span className="middle-text">Cổ phiếu</span>
                             </Menu.Item>
-                            <Menu.Item key="4">
+                            <Menu.Item key="bond">
                                 <Icon type="rocket" />
                                 <span className="middle-text">Trái phiếu</span>
+                            </Menu.Item>
+                            <Menu.Item key="soldBond">
+                                <Icon type="history" />
+                                <span className="middle-text">Trái phiếu đã bán</span>
                             </Menu.Item>
                         </SubMenu>
                         <Menu.Item key="key_solution">
@@ -89,3 +122,5 @@ export default class SideBarMenu extends Component {
         );
     }
 };
+
+export default withRouter(SideBarMenu);

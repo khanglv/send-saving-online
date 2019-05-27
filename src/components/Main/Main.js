@@ -1,12 +1,8 @@
 import React, {Component} from 'react';
 import {ModalConfirm} from '../Modal/Modal';
-import HeaderDetail from '../HeaderDetail/HeaderDetail';
 import { ModalSaveMoney } from '../Modal/ModalSaveMoney';
 import {connect} from 'react-redux';
 import {verifyOTPRequest, verifyOTP} from '../../stores/actions/loginAction';
-
-import { Layout } from 'antd';
-import SideBarMenu from '../SideBarMenu/SideBarMenu';
 import BondSale from '../BondSale/BondSale';
 
 class Main extends Component{
@@ -80,13 +76,13 @@ class Main extends Component{
             <div>
                 <ModalSaveMoney title="LẬP YÊU CẦU GỬI TIỀN KỲ HẠN" dataSend={dataSend} open={this.state.isOpenSaving} onClose={this.onCloseModalSaveMoney} />
                 <ModalConfirm title="OTP" dataSend={dataSend} warning={this.state.warningData} open={this.state.isOpen} onActionOK={this.onVerifyOTP} />
-                <HeaderDetail history={this.props.history}/>
-                <Layout>
+                <BondSale/>
+                {/* <Layout>
                     <SideBarMenu/>
                     <Layout>
                         <BondSale/>
                     </Layout>
-                </Layout>
+                </Layout> */}
                 {/* <Button outline color="info" onClick={this.onTest}>Check OTP</Button>&nbsp;
                 <Button outline color="info" onClick={this.onSendSaveMoney}>SendSaving</Button>&nbsp;
                 <Button outline color="info" onClick={this.onLogoutTest}>Logout</Button>&nbsp; */}

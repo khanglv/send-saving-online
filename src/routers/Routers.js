@@ -7,10 +7,15 @@ import {
 
 import {Error404} from '../components/Error404/Error404';
 import Login from '../components/Login/Login';
-import HeaderDetail from '../components/HeaderDetail/HeaderDetail';
 import Main from '../components/Main/Main';
 import SideBarMenu from '../components/SideBarMenu/SideBarMenu';
+import Directive from '../components/Directive/Directive';
+import BondsAsset from '../components/MyAsset/MyBond';
+import MySoldBond from '../components/MyAsset/MySoldBond';
 import TestMain from '../components/Test/TestMain';
+import HeaderDetail from '../components/HeaderDetail/HeaderDetail';
+
+import { Layout } from 'antd';
 
 const accessToken = localStorage.getItem('accessTokenKey');
 
@@ -41,20 +46,29 @@ class RouteRUL extends Component{
                         <div></div><div></div><div></div><div></div><div></div><div></div>
                         <div></div><div></div><div></div><div></div><div></div><div></div>
                     </div>
-                    :  <BrowserRouter>
-                        <div>
-                            <Switch>
-                                <Route exact path="/" component={Main}/>
-                                <Route path="/login" component={Login} />
-                                <Route path="/main" component={Main} />
-                                <Route path="/header" component={HeaderDetail} />
-                                <Route path="/sidebar" component={SideBarMenu} />
-                                <Route path="/test" component={TestMain} />
-                                {/* nhập sai đường dẫn */}
-                                <Route exact path="*" component={Error404} />
-                            </Switch>
-                        </div>
-                    </BrowserRouter>
+                : <BrowserRouter>
+                    <Route path="/login" component={Login} />
+                    <div>
+                        <HeaderDetail />
+                        <Layout>
+                            <SideBarMenu />
+                            <Layout>
+                                <Switch>
+                                    <Route exact path="/" component={Main} />
+                                    <Route path="/main" component={Main} />
+                                    <Route path="/sidebar" component={SideBarMenu} />
+                                    <Route path="/directive" component={Directive} />
+                                    <Route path="/bonds-asset" component={BondsAsset} />
+                                    <Route path="/list-sold-bond" component={MySoldBond} />
+                                    <Route path="/header" component={HeaderDetail} />
+                                    <Route path="/test" component={TestMain} />
+                                    {/* nhập sai đường dẫn */}
+                                    <Route exact path="*" component={Error404} />
+                                </Switch>
+                            </Layout>
+                        </Layout>
+                    </div>
+                </BrowserRouter>
         );
     }
 }

@@ -14,7 +14,7 @@ class HeaderDetail extends Component{
     }
 
     onMainClick = ()=>{
-        this.props.history.push('/main');
+        window.location.href = "/main";
     }
     
     render(){
@@ -34,7 +34,7 @@ class HeaderDetail extends Component{
                 </div>
                 <div>
                     <div style={styles.titleBody}>
-                        <div style={{ width: '20%', paddingLeft: '2vw'}} className="left"><span style={styles.fontTimeNew}>V-BONDS</span></div>
+                        <div style={{ width: '20%', paddingLeft: '2vw'}} className="left pointer" onClick={this.onMainClick}><span style={styles.fontTimeNew}>V-BONDS</span></div>
                         <div style={{ width: '80%' }} className="right">
                             <div style={styles.positionEndItem}>
                                 <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>

@@ -5,9 +5,10 @@ import {
     Card,
     CardHeader,
     CardBody,
-    CardFooter
+    CardFooter,
+    Alert,
 } from 'reactstrap';
-import { Button } from 'antd';
+import { Button, Tag } from 'antd';
 import {ModalBuyBond, DetailBond} from '../Modal/ModalBuyBond';
 import data from './dataTmp.json';
 
@@ -39,61 +40,14 @@ class BondSale extends Component{
             <div style={{padding: 20, height: '85vh'}}>
                 <ModalBuyBond open={this.state.isOpen} onClose={this.onCloseAlert} data={this.state.detailData}/>
                 <DetailBond openDetail={this.state.isOpenDetail} onCloseDetail={this.onCloseAlertDetail} data={this.state.detailData} />
-                {/* <div>
-                    <b>Danh sách trái phiếu nhà đầu tư bán</b>
-                    <Container style={{paddingTop: '2rem'}}>
-                        <Row>
-                            <Col>
-                                <FormGroup>
-                                    <Label for="exampleSelect" style={styles.labelOption}>Tổ chức phát hành</Label>
-                                    <Input type="select" name="select" id="exampleSelect" style={{background: 'none'}}>
-                                        <option>Tất cả</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                    </Input>
-                                </FormGroup>
-                            </Col>
-                            <Col>
-                            <FormGroup>
-                                    <Label for="exampleSelect" style={styles.labelOption}>Chương trình bán</Label>
-                                    <Input type="select" name="select" id="exampleSelect" style={{background: 'none'}}>
-                                        <option>Tất cả</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                    </Input>
-                                </FormGroup>
-                            </Col>
-                            <Col>
-                            <FormGroup>
-                                    <Label for="exampleSelect" style={styles.labelOption}>Gói thanh toán</Label>
-                                    <Input type="select" name="select" id="exampleSelect" style={{background: 'none'}}>
-                                        <option>Tất cả</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                    </Input>
-                                </FormGroup>
-                            </Col>
-                            <Col>
-                            <FormGroup>
-                                    <Label for="exampleSelect" style={styles.labelOption}>Năm đáo hạn</Label>
-                                    <Input type="select" name="select" id="exampleSelect" style={{background: 'none'}}>
-                                        <option>Tất cả</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                    </Input>
-                                </FormGroup>
-                            </Col>
-                        </Row>
-                    </Container>
-                </div> */}
+                <Alert color="primary" style={{marginBottom: 0}}>
+                    <Tag color="green" style={{cursor: 'pointer'}}>Tất cả</Tag>&nbsp;
+                    <Tag color="blue" style={{cursor: 'pointer'}}>Mới</Tag>&nbsp;
+                    <Tag color="red" style={{cursor: 'pointer'}}>Phổ biến nhất</Tag>
+                    {/* <Badge color="success" className="pointer">Tất cả</Badge>&nbsp;
+                    <Badge color="primary" className="pointer">Mới</Badge>&nbsp;
+                    <Badge color="danger" className="pointer">Phổ biến nhất</Badge> */}
+                </Alert>
                 <Row >
                     {data.map((item)=>{
                         return (

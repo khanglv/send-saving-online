@@ -24,6 +24,10 @@ code {
   padding-top: 10px;
 }
 
+.p-top20{
+  padding-top: 20px;
+}
+
 .color-main{
   background-color: rgba(14, 24, 77, 0.03);
 }
@@ -62,6 +66,16 @@ div.hasHover:hover{
   background: #D9EAF7;
 }
 
+.customIconHover{
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.customIconHover:hover{
+  color: #528fc7;
+}
+
+/* custom date picker */
 .customInputDatePicker{
   width: 100%;
   border-radius: 5px;
@@ -78,6 +92,10 @@ div.hasHover:hover{
 
 .logout:hover{
   text-decoration: underline;
+}
+
+.customDatePicker > div > .ant-calendar-picker-input{
+  min-height: 38px!important;
 }
 
 /* style sidebar */

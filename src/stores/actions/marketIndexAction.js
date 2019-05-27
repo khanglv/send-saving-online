@@ -9,8 +9,8 @@ export const marketIndexList = fetchData => (dispatch)=>{
     dispatch({
         type: MARKET_INDEX_LIST_REQUEST,
     })
-    try{
-        setTimeout(() => {
+     setTimeout(() => {
+        try{
             return api.getMarketIndexList().then((response)=>{
                 if(response){
                     return dispatch({
@@ -27,9 +27,9 @@ export const marketIndexList = fetchData => (dispatch)=>{
                     type: MARKET_INDEX_LIST_FAILED,
                 })
             });
-        }, 1500);
-    }catch(er){
+        }catch(er){
 
-    }
+        }
+    }, 1500);
 }
 
