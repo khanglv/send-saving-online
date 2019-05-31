@@ -7,15 +7,13 @@ import {
 
 import {Error404} from '../components/Error404/Error404';
 import Login from '../components/Login/Login';
-import Main from '../components/Main/Main';
-import SideBarMenu from '../components/SideBarMenu/SideBarMenu';
-import Directive from '../components/Directive/Directive';
-import BondsAsset from '../components/MyAsset/MyBond';
-import MySoldBond from '../components/MyAsset/MySoldBond';
-import TestMain from '../components/Test/TestMain';
-import HeaderDetail from '../components/HeaderDetail/HeaderDetail';
-
-import { Layout } from 'antd';
+import {
+    FMain, 
+    FDirective, 
+    FBondsAsset,
+    FTestMain, 
+    FBondInvestor
+} from './MainGeneral';
 
 const accessToken = localStorage.getItem('accessTokenKey');
 
@@ -47,27 +45,17 @@ class RouteRUL extends Component{
                         <div></div><div></div><div></div><div></div><div></div><div></div>
                     </div>
                 : <BrowserRouter>
-                    <Route path="/login" component={Login} />
-                    <div>
-                        <HeaderDetail />
-                        <Layout>
-                            <SideBarMenu />
-                            <Layout>
-                                <Switch>
-                                    <Route exact path="/" component={Main} />
-                                    <Route path="/main" component={Main} />
-                                    <Route path="/sidebar" component={SideBarMenu} />
-                                    <Route path="/directive" component={Directive} />
-                                    <Route path="/bonds-asset" component={BondsAsset} />
-                                    <Route path="/list-sold-bond" component={MySoldBond} />
-                                    <Route path="/header" component={HeaderDetail} />
-                                    <Route path="/test" component={TestMain} />
-                                    {/* nhập sai đường dẫn */}
-                                    <Route exact path="*" component={Error404} />
-                                </Switch>
-                            </Layout>
-                        </Layout>
-                    </div>
+                    <Switch>
+                        <Route path="/login" component={Login} />
+                        <Route exact path="/" component={FMain} />
+                        <Route path="/main" component={FMain} />
+                        <Route path="/directive" component={FDirective} />
+                        <Route path="/bonds-asset" component={FBondsAsset} />
+                        <Route path="/bond-investor" component={FBondInvestor} />
+                        <Route path="/test" component={FTestMain} />
+                        {/* nhập sai đường dẫn */}
+                        <Route exact path="*" component={Error404} />
+                    </Switch>
                 </BrowserRouter>
         );
     }

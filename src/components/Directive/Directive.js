@@ -23,7 +23,7 @@ export default class Directive extends Component{
                 <div style={styles.viewOptionLeft}>
                     <div className="p-top10" style={{position: 'relative'}}>
                         <Label for="exampleSelect" style={styles.labelInput}>Mã trái phiếu</Label>
-                        <Input id="exampleSelect" style={{background: 'none'}}> </Input>
+                        <Input id="exampleSelect" style={{background: 'none'}} />
                     </div>
                     <div className="p-top20">
                         <Row>

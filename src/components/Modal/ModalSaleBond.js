@@ -29,7 +29,7 @@ class ModalSaleBond extends React.Component {
     }
 
     onSaleForInvestor = ()=>{
-        this.props.history.push('/list-sold-bond');
+        this.props.history.push('/bond-investor');
     }
 
     render() {

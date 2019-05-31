@@ -86,7 +86,8 @@ const styles = {
         background: '#004b8f',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
-        color: '#fff'
+        color: '#fff',
+        width: '100vw'
     },
     boxStock:{
         border: '1px solid #dee2e6',

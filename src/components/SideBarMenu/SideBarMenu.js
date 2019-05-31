@@ -16,7 +16,7 @@ class SideBarMenu extends Component {
             collapsed: false,
             isOpen: false,
             dataSendLogout: "",
-            current: 'home',
+            current: window.location.pathname,
         };
     }
 
@@ -44,19 +44,22 @@ class SideBarMenu extends Component {
             current: e.key,
         });
         switch(e.key){
-            case "home": 
+            case "/main": 
                 this.props.history.push('/main');
                 break;
-            case "directive":
+            case "/directive":
                 this.props.history.push('/directive');
                 break;
-            case "bond":
+            case "/bonds-asset":
                 this.props.history.push('/bonds-asset');
                 break;
-            case "soldBond":
+            case "/list-sold-bond":
                 this.props.history.push('/list-sold-bond');
                 break;
-            default: 
+            case "/bond-investor":
+                this.props.history.push('/bond-investor');
+                break;    
+            default:
                 break;
         }
     };
@@ -73,12 +76,12 @@ class SideBarMenu extends Component {
                             onClick={this.toggle}
                         />
                     </div>
-                    <Menu theme="dark" mode="inline" defaultOpenKeys={['home']} selectedKeys={[this.state.current]} onClick={this.handleClick}>
-                        <Menu.Item key="home">
+                    <Menu theme="dark" mode="inline" defaultOpenKeys={['sub2']} selectedKeys={[this.state.current]} onClick={this.handleClick}>
+                        <Menu.Item key="/main">
                             <Icon type="home" />
                             <span className="middle-text">Trang chủ</span>
                         </Menu.Item>
-                        <Menu.Item key="directive">
+                        <Menu.Item key="/directive">
                             <Icon type="form" />
                             <span className="middle-text">Đặt lệnh</span>
                         </Menu.Item>
@@ -86,7 +89,7 @@ class SideBarMenu extends Component {
                             key="sub2"
                             title={
                                 <span>
-                                    <Icon type="user-add" />
+                                    <Icon type="shopping-cart" />
                                     <span>Tài sản của tôi</span>
                                 </span>
                             }
@@ -95,22 +98,22 @@ class SideBarMenu extends Component {
                                 <Icon type="strikethrough" />
                                 <span className="middle-text">Cổ phiếu</span>
                             </Menu.Item>
-                            <Menu.Item key="bond">
+                            <Menu.Item key="/bonds-asset">
                                 <Icon type="rocket" />
                                 <span className="middle-text">Trái phiếu</span>
                             </Menu.Item>
-                            <Menu.Item key="soldBond">
+                            <Menu.Item key="/list-sold-bond">
                                 <Icon type="history" />
                                 <span className="middle-text">Trái phiếu đã bán</span>
                             </Menu.Item>
                         </SubMenu>
+                        <Menu.Item key="/bond-investor">
+                            <Icon type="gitlab" />
+                            <span className="middle-text">Trái phiếu nhà đầu tư</span>
+                        </Menu.Item>
                         <Menu.Item key="key_solution">
                             <Icon type="solution" />
                             <span className="middle-text">Quản lý tài khoản</span>
-                        </Menu.Item>
-                        <Menu.Item key="key_database">
-                            <Icon type="database" theme="filled"/>
-                            <span className="middle-text">Database</span>
                         </Menu.Item>
                         
                         <Menu.Item key="key_logout" onClick={this.onConFirmLogout} style={{position: 'absolute', bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>

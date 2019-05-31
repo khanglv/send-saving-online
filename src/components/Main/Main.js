@@ -4,6 +4,10 @@ import { ModalSaveMoney } from '../Modal/ModalSaveMoney';
 import {connect} from 'react-redux';
 import {verifyOTPRequest, verifyOTP} from '../../stores/actions/loginAction';
 import BondSale from '../BondSale/BondSale';
+import BondInvestor from '../BondInvestor/BondInvestor';
+import { Tabs } from 'antd';
+
+const { TabPane } = Tabs;
 
 class Main extends Component{
     constructor(props) {
@@ -76,16 +80,24 @@ class Main extends Component{
             <div>
                 <ModalSaveMoney title="LẬP YÊU CẦU GỬI TIỀN KỲ HẠN" dataSend={dataSend} open={this.state.isOpenSaving} onClose={this.onCloseModalSaveMoney} />
                 <ModalConfirm title="OTP" dataSend={dataSend} warning={this.state.warningData} open={this.state.isOpen} onActionOK={this.onVerifyOTP} />
-                <BondSale/>
-                {/* <Layout>
-                    <SideBarMenu/>
-                    <Layout>
+                <Tabs defaultActiveKey="1" style={{ padding: 20, paddingTop: 0}}>
+                    <TabPane
+                        tab={
+                            <span>Trái phiếu VCSC</span>
+                        }
+                        key="1"
+                    >
                         <BondSale/>
-                    </Layout>
-                </Layout> */}
-                {/* <Button outline color="info" onClick={this.onTest}>Check OTP</Button>&nbsp;
-                <Button outline color="info" onClick={this.onSendSaveMoney}>SendSaving</Button>&nbsp;
-                <Button outline color="info" onClick={this.onLogoutTest}>Logout</Button>&nbsp; */}
+                    </TabPane>
+                    <TabPane
+                        tab={
+                            <span>Trái phiếu nhà đầu tư</span>
+                        }
+                        key="2"
+                    >
+                        <BondInvestor />
+                    </TabPane>
+                </Tabs>
             </div>
         );
     }

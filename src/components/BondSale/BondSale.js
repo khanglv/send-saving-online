@@ -37,7 +37,7 @@ class BondSale extends Component{
 
     render(){
         return(
-            <div style={{padding: 20, height: '85vh'}}>
+            <div >
                 <ModalBuyBond open={this.state.isOpen} onClose={this.onCloseAlert} data={this.state.detailData}/>
                 <DetailBond openDetail={this.state.isOpenDetail} onCloseDetail={this.onCloseAlertDetail} data={this.state.detailData} />
                 <Alert color="primary" style={{marginBottom: 0}}>
