@@ -17,7 +17,7 @@ import {
 
 const accessToken = localStorage.getItem('accessTokenKey');
 
-class RouteRUL extends Component{
+class RouteURL extends Component{
     constructor(props){
         super(props);
         this.state = {
@@ -61,4 +61,4 @@ class RouteRUL extends Component{
     }
 }
 
-export default RouteRUL;
+export default RouteURL;
