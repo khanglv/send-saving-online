@@ -3,12 +3,21 @@ import NProgress from 'nprogress';
 import{setCookie, getCookie, clearCookie} from './cookie';
 import * as storage from './storage';
 import jwtDecode  from 'jwt-decode';
+import { notification } from 'antd';
 
 const BASE_URL = "http://10.11.13.150:3000/api/v1";
 const BASE_URL_PUBLIC = "http://10.11.13.150:3001/api/v1/vcsc";
 const TIME_OUT = 10000;
 const IDVerify = "vcsc";
 const PassVerify = "vcsc";
+
+const openNotificationWithIcon = (type, data) => {
+    notification[type]({
+        message: 'Thông báo',
+        description: data,
+    });
+};
+
 
 const doRequest = async (options) => {
     try{
@@ -32,19 +41,18 @@ const doRequest = async (options) => {
         console.log(err.response);
         if(err.response){
             if(err.response.status === 401){
-                storage.removeStorageToken();
-                alert("Your request in valid, try again !!!");
+                openNotificationWithIcon('error', 'Your request in valid, try again !!!');
             }
             if(err.response.status === 501){
-                alert("Request timeout, try again !!!");
+                openNotificationWithIcon('error', 'Request timeout, try again !!!');
             }
             if(err.response.status === 403){
-                alert("Bạn không có quyền truy cập");
+                openNotificationWithIcon('error', 'Bạn không có quyền truy cập !!!');
             }
         
             return err.response.data;
         }else{
-            alert("Server không phản hồi, thử lại !!!");
+            openNotificationWithIcon('error', 'Server không phản hồi, thử lại !!!');
             return;
         }
     }
