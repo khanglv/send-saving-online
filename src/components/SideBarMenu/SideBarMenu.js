@@ -17,6 +17,7 @@ class SideBarMenu extends Component {
             isOpen: false,
             dataSendLogout: "",
             current: window.location.pathname,
+            accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
         };
     }
 
@@ -69,7 +70,10 @@ class SideBarMenu extends Component {
                 <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
                     <ModalPopup title="Xác nhận" open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSendLogout} onActionOK={this.onLogout}/>
                     <div className="logo">
-                        {!this.state.collapsed ? <span>KhangLv@vcsc</span> : null}
+                        {this.state.accountInfo ? !this.state.collapsed ? <div>
+                                <span>{this.state.accountInfo[0].accountName}</span><br/>
+                                <span>{this.state.accountInfo[0].accountNumber}</span>
+                            </div> : null : null}
                         <Icon
                             className="trigger"
                             type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}

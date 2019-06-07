@@ -10,7 +10,8 @@ const initialState = {
     message: '',
     isFetching: false,
     isAuthenticated: false,
-    isVerifyOTP: false
+    isVerifyOTP: false,
+    data: []
 }
 
 const reducer = (state = initialState, action)=>{
@@ -52,6 +53,7 @@ const reducer = (state = initialState, action)=>{
                 isAuthenticated: true,
                 accessToken: action.info.accessToken,
                 refreshToken: action.info.refreshToken,
+                data: action.info.userInfo
             }
         case VERIFY_OTP_FAILED:
             return {

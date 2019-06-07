@@ -2,7 +2,7 @@
 .trigger {
     font-size: 18px;
     line-height: 64px;
-    padding: 0 24px;
+    padding: 0 18px;
     cursor: pointer;
     transition: color 0.3s;
 }
@@ -19,6 +19,7 @@
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid rgb(191, 208, 216);
+    padding: 5px;
 }
 
 .ant-layout-header{
@@ -50,6 +51,8 @@
 .ant-layout-sider{
     height: 85vh;
     background: linear-gradient(to right, #004b8f, #466f9c)!important;
+    min-width: 15rem;
+    max-width: 15rem;
 }
 
 .middle-text{

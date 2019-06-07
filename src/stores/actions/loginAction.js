@@ -37,7 +37,6 @@ export const login = (username, password)=> (dispatch)=>{
 
 // verify OTP
 
-
 export const verifyOTPRequest = (codeOTP)=>{
     return {
         type: VERIFY_OTP_REQUEST,
@@ -64,6 +63,7 @@ export const verifyOTP = (codeOTP) => (dispatch)=>{
     return api.verifyOTP(codeOTP).then((response)=>{
         if(response && response.accessToken){
             localStorage.setItem('accessTokenVerifyKey', response.accessToken);
+            localStorage.setItem('accountInfoKey', JSON.stringify(response.userInfo.accounts))
             return dispatch(verifyOTPSuccess(response));
         }
         return dispatch(verifyOTPFailed(response.message));
