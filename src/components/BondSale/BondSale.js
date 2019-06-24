@@ -14,13 +14,15 @@ import {ModalBuyBond, DetailBond} from '../Modal/ModalBuyBond';
 import {connect} from 'react-redux';
 import {getListRoomVCSC} from '../../stores/actions/roomVCSCAction';
 import {getDetailBond} from '../../stores/actions/getDetailBondAction';
+import {getCashBalance} from '../../stores/actions/cashBalanceAction';
 import * as common from '../Common/Common';
 
 class BondSale extends Component{
     state = {
         isOpen: false,
         isOpenDetail: false,
-        lstData: []
+        lstData: [],
+        accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
     };
 
     componentDidMount(){
@@ -31,6 +33,12 @@ class BondSale extends Component{
         try {
             const res = await this.props.getListRoomVCSC();
             if(res.type === "ROOM_VCSC_FAILED"){
+                common.notify('error', 'Thao tác thất bại :( ');
+            }else{
+                this.setState({lstData: res.data});
+            }
+            const res2 =  await this.props.ongetCashBalance(this.state.accountInfo[0].accountNumber);
+            if(res2.type === "CASH_BALANCE_FAILED"){
                 common.notify('error', 'Thao tác thất bại :( ');
             }else{
                 this.setState({lstData: res.data});
@@ -48,8 +56,9 @@ class BondSale extends Component{
         this.setState({isOpenDetail: false});
     }
 
-    onActionBuyBond = (item)=>{
-        this.setState({isOpen: true, detailData: item});
+    onActionBuyBond = async(idBond)=>{
+        await this.props.getDetailBond(idBond);
+        await this.setState({isOpen: true, detailData: this.props.itemBond});
     }
 
     getDetailBond = async(idBond)=>{
@@ -60,7 +69,7 @@ class BondSale extends Component{
     render(){
         return(
             <div >
-                <ModalBuyBond open={this.state.isOpen} onClose={this.onCloseAlert}/>
+                <ModalBuyBond open={this.state.isOpen} onClose={this.onCloseAlert} data={{...this.state.detailData, "cashBalance": this.props.cashBalance}} />
                 <DetailBond openDetail={this.state.isOpenDetail} onCloseDetail={this.onCloseAlertDetail} data={this.state.detailData} />
                 <Alert color="primary" style={{marginBottom: 0}}>
                     <Tag color="green" style={{cursor: 'pointer'}}>Tất cả</Tag>&nbsp;
@@ -99,7 +108,7 @@ class BondSale extends Component{
                                                 <Button style={{width: '100%'}} onClick={()=>this.getDetailBond(item.BOND_ID)}>Chi tiết</Button>
                                             </Col>
                                             <Col>
-                                                <Button style={{width: '100%'}} type="primary" onClick={()=>this.onActionBuyBond(item)}>Mua</Button>
+                                                <Button style={{width: '100%'}} type="primary" onClick={()=>this.onActionBuyBond(item.BOND_ID)}>Mua</Button>
                                             </Col>
                                         </Row>
                                     </CardFooter>
@@ -116,7 +125,8 @@ class BondSale extends Component{
 const mapStateToProps = state =>{
     return{
         lstRoomVCSC: state.roomVCSC.data,
-        itemBond: state.getDetailBond.data
+        itemBond: state.getDetailBond.data,
+        cashBalance: state.cashBalance.data
     }
 }
 
@@ -124,6 +134,7 @@ const mapDispatchToProps = dispatch =>{
     return{
         getListRoomVCSC: ()=> dispatch(getListRoomVCSC()),
         getDetailBond: (idBond)=> dispatch(getDetailBond(idBond)),
+        ongetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber))
     }
 }
 

@@ -30,7 +30,9 @@ export class ModalBuyBond extends Component{
         super(props);
         this.state = {
             isOpenExpire: false,
-            isOpenSaleBeforeExpire: false
+            isOpenSaleBeforeExpire: false,
+            quantityBond: 0,
+            buyDate: moment(new Date(), dateFormat)
         }
     }
 
@@ -46,6 +48,14 @@ export class ModalBuyBond extends Component{
         this.setState({isOpenExpire: false});
     }
 
+    updateInputValue = (event)=>{
+        this.setState({[event.target.name]: event.target.value});
+    }
+
+    updateInputDate = name => (value)=>{
+        this.setState({[name]: value});
+    }
+
     onOpenSaleBeforeExpire = ()=>{
         this.setState({isOpenSaleBeforeExpire: true});
     }
@@ -55,21 +65,20 @@ export class ModalBuyBond extends Component{
     }
 
     render() {
-        // const data = this.props.data;
+        const data = this.props.data;
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
         return (
             <div>
-                <Modal isOpen={this.props.open} toggle={this.toggle} size="lg" centered>
+                {data ? <Modal isOpen={this.props.open} toggle={this.toggle} size="lg" centered>
                     <ModalHeader close={closeBtn} style={{backgroundColor: 'rgba(155, 183, 205, 0.48)'}}>Mua trái phiếu</ModalHeader>
                     <ModalBody>
                         <div>
-                            <p style={{color: 'red', fontSize: 18}}></p>
                             <Row>
                                 <Col>
                                     Mệnh giá
                                 </Col>
                                 <Col>
-                                    {/* {parseInt(data.MENHGIA).toLocaleString(undefined, {maximumFractionDigits:2})} VND */}
+                                    <Tag color="volcano" style={{fontSize: 16}}>{common.convertTextDecimal(data.MENHGIA)}</Tag> VND
                                 </Col>
                             </Row>
                             <Row className="p-top10">
@@ -77,7 +86,7 @@ export class ModalBuyBond extends Component{
                                     Ngày phát hành
                                 </Col>
                                 <Col>
-                                    20/05/2019
+                                    {common.convertDDMMYYYY(data.NGAYPH)}
                                 </Col>
                             </Row>
                             <Row className="p-top10">
@@ -85,7 +94,7 @@ export class ModalBuyBond extends Component{
                                     Ngày đáo hạn
                                 </Col>
                                 <Col>
-                                    20/05/2020
+                                    {common.convertDDMMYYYY(data.NGAYDH)}
                                 </Col>
                             </Row>
                             <Row className="p-top10">
@@ -93,7 +102,7 @@ export class ModalBuyBond extends Component{
                                     Ngày mua
                                 </Col>
                                 <Col>
-                                    <DatePicker defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
+                                    <DatePicker format={dateFormat} value={this.state.buyDate} onChange={this.updateInputDate('buyDate')}/>
                                 </Col>
                             </Row>
                             <Row className="p-top10">
@@ -101,18 +110,28 @@ export class ModalBuyBond extends Component{
                                     Số lượng
                                 </Col>
                                 <Col>
-                                    <Input type="number" id="exampleCity" style={{maxHeight: 34}}/>
+                                    <Input type="number" name="quantityBond" value={this.state.quantityBond} onChange={event => this.updateInputValue(event)} style={{maxHeight: 34}}/>
                                 </Col>
                             </Row>
                             <div className="right p-top10">
                                 Tổng số tiền đầu tư <br/>
-                                {/* <span style={{color: 'red', fontSize: 24}}>{parseInt(data.MENHGIA).toLocaleString(undefined, {maximumFractionDigits:2})} VND</span> */}
+                                <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.MENHGIA)} VND</span>
+                            </div>
+                            <div className="left p-top10">
+                                Tài sản hiện có <br/>
+                                <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(data.cashBalance.depositAmount)} VND</span>
                             </div>
                         </div>
                         <div className="clearfix"></div>
                         <Col style={styles.borderBottom} className="p-top10"></Col>
                         <div className="p-top10">
-                            <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired}/>
+                            <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} 
+                                data={{
+                                        ...data, 
+                                        "investMoney": this.state.quantityBond * data.MENHGIA,
+                                        "buyDate": this.state.buyDate
+                                    }}
+                            />
                             <SaleBeforeExpire openSaleBeforeExpire={this.state.isOpenSaleBeforeExpire} onCloseSaleExpire={this.onCloseSaleBeforeExpire} onCloseModalBuyBond={this.toggle}/>
                             <i>Lãi suất đầu tư đã tái đầu tư</i>
                             <div className="p-top10">
@@ -135,7 +154,7 @@ export class ModalBuyBond extends Component{
                             </div>
                         </div>
                     </ModalBody>
-                </Modal>
+                </Modal> : null }
             </div>
         )
     }
@@ -152,7 +171,7 @@ export class DetailBond extends Component{
         return(
             <div>
                 {data ? <Modal isOpen={this.props.openDetail} toggle={this.toggle} size="lg" centered>
-                    <ModalHeader style={{background: '#bac7df'}}>Thông tin trái phiếu</ModalHeader>
+                    <ModalHeader style={{backgroundColor: 'rgba(155, 183, 205, 0.48)'}}>Thông tin trái phiếu</ModalHeader>
                     <ModalBody>
                         <div>
                             <Row style={{padding: '1rem'}}>
@@ -193,10 +212,10 @@ export class DetailBond extends Component{
                             <div style={styles.borderBottomRadius}></div>
                             <Row className="p-top10" style={{padding: '1rem'}}>
                                 <Col sm="4">
-                                    Lãi suất
+                                    Lãi suất PH
                                 </Col>
-                                <Col sm="8" style={{color: 'red'}}>
-                                    {data.DIEUKHOAN_LS}
+                                <Col sm="8">
+                                    <span style={{color: 'red'}}>{data.LAISUAT_HH}</span>(%)
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
@@ -236,6 +255,11 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                         </div>
+                        <Col style={styles.borderBottom} className="p-top10"></Col>
+                        <div className="p-top10">
+                            <i style={{color: '#722ed1'}}>Điều khoản lãi suất</i> <br />
+                            <span>{data.DIEUKHOAN_LS}</span>
+                        </div>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onClick={this.toggle}>Đóng</Button>{' '}
@@ -273,9 +297,9 @@ export class KeepExpireBond extends Component{
     }
 
     render(){
-        let dataTmp = 1024214000;
+        const data = this.props.data;
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
-        let Bondprev = (
+        let Bondprev = data ? (
             <div>
                 <Alert color="primary" className="text-center">
                     Thông tin trái phiếu
@@ -286,8 +310,8 @@ export class KeepExpireBond extends Component{
                         Gốc đầu tư
                     </div>
                     <div className="right">
-                        01/05/2019<br/>
-                        {dataTmp.toLocaleString(undefined, {maximumFractionDigits:2})} VND
+                        {common.convertDDMMYYYY(data.buyDate)}<br/>
+                        <span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> VND
                     </div>
                 </div>
                 <Row className="p-top10">
@@ -332,7 +356,7 @@ export class KeepExpireBond extends Component{
                 <div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Tổng tiền nhận</div>
-                        <div className="right" style={{color: 'red'}}>{dataTmp.toLocaleString(undefined, {maximumFractionDigits:2})} VND</div>
+                        <div className="right" style={{color: 'red'}}> VND</div>
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Gốc đầu tư</div>
@@ -356,7 +380,7 @@ export class KeepExpireBond extends Component{
                     <Icon type="right" style={styles.iconNext2}/>
                 </div>
             </div>
-        );
+        ) : null;
 
         let Bondnext = (
             <div>

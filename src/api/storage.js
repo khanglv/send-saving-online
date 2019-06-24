@@ -6,7 +6,6 @@ export const accessTokenBonds = ()=>{
     return localStorage.getItem('accessTokenBondsKey');
 }
 
-
 export const accountInfo = ()=>{
     return JSON.parse(localStorage.getItem('accountInfoKey'));
 }

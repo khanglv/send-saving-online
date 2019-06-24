@@ -42,6 +42,7 @@ const doRequest = async (options) => {
             }
             if(err.response.status === 403){
                 common.notify('error', 'Bạn không có quyền truy cập !!!');
+                window.location.href = "/login";
             }
         
             return err.response.data;
@@ -173,6 +174,22 @@ export const verifyOTP = (codeOTP)=>{
         }
     }
     return doRequest(options);
+}
+
+export const getCashBalance = (accountNumber)=>{
+    const url = `${BASE_URL}/equity/account/cashBalance?accountNumber=${accountNumber}`;
+    const data = {
+        "accountNumber": accountNumber,
+        "subNumber": "",
+        "bankCode": "",
+        "bankAccount": ""
+    };
+    const options = {
+        url: url,
+        method: "GET",
+        data: data
+    }
+    return callApi(options, true, false);
 }
 
 export const getMarketIndexList = ()=>{
