@@ -13,11 +13,13 @@ import {
 } from 'reactstrap';
 import Footer from '../Footer/Footer';
 import {connect} from 'react-redux';
-import {login, loginRequest} from '../../stores/actions/loginAction';
-import {ModalAlert} from '../Modal/Modal';
+import {login, loginRequest, verifyOTPRequest, verifyOTP} from '../../stores/actions/loginAction';
+import {verifyBonds} from '../../stores/actions/verifyBondAction';
+import {ModalAlert, ModalConfirm} from '../Modal/Modal';
 import GuideLogin from './Guide';
 import MarketInfo from './MarketInfo';
 import {LineChartDemo} from './Chart';
+import * as common from '../Common/Common';
 
 class Login extends Component {
     constructor(props) {
@@ -31,11 +33,15 @@ class Login extends Component {
             isSaveId: false,
             isSavePass: false,
             isOpen: false,
+            isOpenOTP: false,
+            codeOTP: '',
+            checkVerifyOTP: false,
+            isTokenAccessBonds: false,
             dataSend: "^~^"
         };
     }
 
-    onSubmit = () => {
+    onSubmit = async() => {
         // this.props.history.push('/main');
         if(!this.state.idAccount || !this.state.password){
             this.setState({isOpen: true, dataSend: "Bạn chưa nhập tài khoản hoặc mật khẩu, vui lòng kiểm tra lại."});
@@ -49,19 +55,43 @@ class Login extends Component {
                 configLogin.password = this.state.password;
             }
             localStorage.setItem("keyConfigLogin", JSON.stringify(configLogin));
-            this.props.onLogin(this.state.idAccount, this.state.password);
+            try {
+                const res = await this.props.onLogin(this.state.idAccount, this.state.password);
+                if(res.type === 'LOGIN_FAILED'){
+                    this.setState({ isOpen: true, dataSend: "Tài khoản hoặc mật khẩu không đúng !!!" });
+                }else{
+                    if(this.props.isAuthenticated){
+                        this.setState({isOpenOTP : true});
+                    }
+                }
+            } catch (error) {
+                
+            }
+            
         }
     }
 
-    static getDerivedStateFromProps(nextProps) {
-        if (!nextProps.isFetching && !nextProps.isAuthenticated && nextProps.messageAlert) {
-            return {isOpen: true, dataSend: "Tài khoản hoặc mật khẩu không đúng !!!"}
-        }
-        if(nextProps.isFetching && nextProps.isAuthenticated){
-            nextProps.history.push('/main');
-        }
-        return null;
-    }
+    // static getDerivedStateFromProps(nextProps, prevProps) {
+    //     if (nextProps.isVerifyOTP) {
+    //         if (!nextProps.isAuthenticateOTP) {
+    //             if(prevProps.checkVerifyOTP){
+    //                 return { isOpenOTP: true, warningData: "Mã nhập không đúng, vui lòng nhập lại", checkVerifyOTP: false }
+    //             }
+    //         } else {
+    //             nextProps.history.push('/main');
+    //             return { isOpenOTP: false }
+    //         }
+    //     } else {
+    //         if (!nextProps.isAuthenticated && nextProps.messageAlert) {
+    //             return { isOpen: true, dataSend: "Tài khoản hoặc mật khẩu không đúng !!!" }
+    //         } else {
+    //             if (nextProps.isAuthenticated) {
+    //                 return {isOpenOTP : true}
+    //             }
+    //         }
+    //     }
+    //     return null;
+    // }
     
     componentDidMount() {
         let obj = JSON.parse(localStorage.getItem('keyConfigLogin'));
@@ -96,10 +126,6 @@ class Login extends Component {
         this.setState({isOpen: false});
     }
 
-    onTest = ()=>{
-        this.setState({isOpen: true});
-    }
-
     showSetting = ()=>{
         this.setState(state => ({ collapse: !state.collapse }));
     }
@@ -107,6 +133,35 @@ class Login extends Component {
     handleSettingTimeout = (value)=>{
         this.setState({isOptionSetting: value});
         localStorage.setItem("TimeoutDisconnect", this.state.isOptionSetting);
+    }
+
+    updateInputValue = (evt)=>{
+        this.setState({
+            codeOTP: evt.target.value
+        });
+    }
+
+    onVerifyOTP = async()=>{
+        this.setState({checkVerifyOTP: true});
+        try {
+            const res = await this.props.onCheckVerifyOTP(this.state.codeOTP, this.props.accessToken);
+            if(res.type === 'VERIFY_OTP_FAILED'){
+                this.setState({ isOpenOTP: true, warningData: "Mã nhập không đúng, vui lòng nhập lại", checkVerifyOTP: false });
+            }else{
+                if(res.info.userInfo){
+                    const verifyBond = await this.props.onVerifyBonds(res.info.userInfo);
+                    if(verifyBond.message){
+                        common.notify("error", "Không thể xác thực api VBonds");
+                    }
+                    else{
+                        this.props.history.push('/main');
+                        return { isOpenOTP: false }
+                    }
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     onGotoHSX = ()=>{
@@ -122,8 +177,15 @@ class Login extends Component {
     }
 
     render() {
+        let dataSend = (
+            <div>
+                <label>Số thẻ OTP: {this.props.codeOTP}</label><br></br>
+                <input style={{width: '100%', padding: 5, borderRadius: 5, border: '1px solid #8e94b9'}} type="password" onChange={this.updateInputValue}></input>
+            </div>
+        );
         return (
             <div className="container">
+                <ModalConfirm title="OTP" dataSend={dataSend} warning={this.state.warningData} open={this.state.isOpenOTP} onActionOK={this.onVerifyOTP} />
                 <ModalAlert open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSend}/>
                 <div>
                     <div className="col-md-8 left">
@@ -241,8 +303,10 @@ const mapStateToProps = state =>{
     return{
         messageAlert: state.login.message,
         token: state.login.accessToken,
-        isFetching: state.login.isFetching,
         isAuthenticated: state.login.isAuthenticated,
+        codeOTP: state.login.otpIndex,
+        isVerifyOTP: state.login.isVerifyOTP,
+        isAuthenticateOTP: state.login.isAuthenticateOTP
     }
 }
 
@@ -250,6 +314,9 @@ const mapDispatchToProps = dispatch =>{
     return{
         onLogin: (idAccount, password)=> dispatch(login(idAccount, password)),
         onLoginRequest: (idAccount)=> dispatch(loginRequest(idAccount)),
+        onCheckVerifyOTP: (codeOTP)=> dispatch(verifyOTP(codeOTP)),
+        onVerifyOTPRequest: (codeOTP)=> dispatch(verifyOTPRequest(codeOTP)),
+        onVerifyBonds: (infoData)=> dispatch(verifyBonds(infoData))
     }
 }
 

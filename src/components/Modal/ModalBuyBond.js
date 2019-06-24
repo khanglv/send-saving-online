@@ -12,9 +12,9 @@ import {
     Badge,
     Alert
 } from 'reactstrap';
-import { DatePicker, Icon, Tabs, message } from 'antd';
+import { DatePicker, Icon, Tabs, message, Tag } from 'antd';
 import moment from 'moment';
-
+import * as common from '../Common/Common';
 const TabPane = Tabs.TabPane;
 const dateFormat = 'DD/MM/YYYY';
 const messSuccess = () => {
@@ -55,7 +55,7 @@ export class ModalBuyBond extends Component{
     }
 
     render() {
-        const data = this.props.data;
+        // const data = this.props.data;
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
         return (
             <div>
@@ -63,13 +63,13 @@ export class ModalBuyBond extends Component{
                     <ModalHeader close={closeBtn} style={{backgroundColor: 'rgba(155, 183, 205, 0.48)'}}>Mua trái phiếu</ModalHeader>
                     <ModalBody>
                         <div>
-                            <p style={{color: 'red', fontSize: 18}}>{data.MS_DN}</p>
+                            <p style={{color: 'red', fontSize: 18}}></p>
                             <Row>
                                 <Col>
                                     Mệnh giá
                                 </Col>
                                 <Col>
-                                    {parseInt(data.MENHGIA).toLocaleString(undefined, {maximumFractionDigits:2})} VND
+                                    {/* {parseInt(data.MENHGIA).toLocaleString(undefined, {maximumFractionDigits:2})} VND */}
                                 </Col>
                             </Row>
                             <Row className="p-top10">
@@ -106,7 +106,7 @@ export class ModalBuyBond extends Component{
                             </Row>
                             <div className="right p-top10">
                                 Tổng số tiền đầu tư <br/>
-                                <span style={{color: 'red', fontSize: 24}}>{parseInt(data.MENHGIA).toLocaleString(undefined, {maximumFractionDigits:2})} VND</span>
+                                {/* <span style={{color: 'red', fontSize: 24}}>{parseInt(data.MENHGIA).toLocaleString(undefined, {maximumFractionDigits:2})} VND</span> */}
                             </div>
                         </div>
                         <div className="clearfix"></div>
@@ -151,88 +151,88 @@ export class DetailBond extends Component{
         const data = this.props.data
         return(
             <div>
-                <Modal isOpen={this.props.openDetail} toggle={this.toggle} size="lg" centered>
+                {data ? <Modal isOpen={this.props.openDetail} toggle={this.toggle} size="lg" centered>
                     <ModalHeader style={{background: '#bac7df'}}>Thông tin trái phiếu</ModalHeader>
                     <ModalBody>
                         <div>
-                            <Row>
+                            <Row style={{padding: '1rem'}}>
                                 <Col sm="4">
                                     Tổ chức phát hành
                                 </Col>
                                 <Col sm="8" style={{color: 'red'}}>
-                                    {data.MS_DN}
+                                    <Tag color="volcano" style={{fontSize: 16}}>{data.TEN_DN}</Tag>
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10">
+                            <Row className="p-top10" style={{padding: '1rem'}}>
                                 <Col sm="4">
                                     Đăng kí kinh doanh
                                 </Col>
                                 <Col sm="8">
-                                    {data.SO_HD}
+                                    {data.MSDN}
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10">
+                            <Row className="p-top10" style={{padding: '1rem'}}>
                                 <Col sm="4">
                                     Loại trái phiếu
                                 </Col>
                                 <Col sm="8">
-                                    {data.TT_TRAIPHIEU}
+                                    <Tag color="geekblue" style={{fontSize: 16}}>{data.TENLOAI_TP}</Tag>
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10">
+                            <Row className="p-top10" style={{padding: '1rem'}}>
                                 <Col sm="4">
                                     Mệnh giá
                                 </Col>
-                                <Col sm="8" style={{color: 'red'}}>
-                                    {data.MENHGIA}
+                                <Col sm="8">
+                                    <span style={{color: 'red'}}>{common.convertTextDecimal(data.MENHGIA)}</span> VND
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10">
+                            <Row className="p-top10" style={{padding: '1rem'}}>
                                 <Col sm="4">
                                     Lãi suất
                                 </Col>
                                 <Col sm="8" style={{color: 'red'}}>
-                                    {data.LAISUAT_HH}
+                                    {data.DIEUKHOAN_LS}
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10">
-                                <Col sm="4">
-                                    Lãi suất tính
-                                </Col>
-                                <Col sm="8">
-                                    {data.TS_DAMBAO}
-                                </Col>
-                            </Row>
-                            <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10">
+                            <Row className="p-top10" style={{padding: '1rem'}}>
                                 <Col sm="4">
                                     Ngày phát hành
                                 </Col>
                                 <Col sm="8">
-                                    {data.NGAYPH}
+                                    {common.convertDDMMYYYY(data.NGAYPH)}
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10">
+                            <Row className="p-top10" style={{padding: '1rem'}}>
                                 <Col sm="4">
                                     Ngày đáo hạn
                                 </Col>
                                 <Col sm="8">
-                                    {data.NGAYDH}
+                                    {common.convertDDMMYYYY(data.NGAYDH)}
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10">
+                            <Row className="p-top10" style={{padding: '1rem'}}>
                                 <Col sm="4">
                                     Thanh toán gốc và lãi
                                 </Col>
                                 <Col sm="8">
-                                    {data.MS_KYHANTT}
+                                    Lãi trả <span style={{color: 'red'}}>{data.LOAI_TT}</span> tháng/lần, gốc trả cuối kì
+                                </Col>
+                            </Row>
+                            <div style={styles.borderBottomRadius}></div>
+                            <Row className="p-top10" style={{padding: '1rem'}}>
+                                <Col sm="4">
+                                    Trạng thái
+                                </Col>
+                                <Col sm="8">
+                                    {data.TRANGTHAI === 1 ? <span style={{color: 'green'}}>Đang niêm yết</span> : <span style={{color: '#f46f02'}}>Không còn niêm yết</span>}
                                 </Col>
                             </Row>
                         </div>
@@ -240,7 +240,7 @@ export class DetailBond extends Component{
                     <ModalFooter>
                         <Button color="primary" onClick={this.toggle}>Đóng</Button>{' '}
                     </ModalFooter>
-                </Modal>
+                </Modal> : null}
             </div>
         )
     }

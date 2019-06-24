@@ -3,21 +3,15 @@ import NProgress from 'nprogress';
 import{setCookie, getCookie, clearCookie} from './cookie';
 import * as storage from './storage';
 import jwtDecode  from 'jwt-decode';
-import { notification } from 'antd';
+import * as common from '../components/Common/Common';
+import moment from 'moment';
 
 const BASE_URL = "http://10.11.13.150:3000/api/v1";
-const BASE_URL_PUBLIC = "http://10.11.13.150:3001/api/v1/vcsc";
+const BASE_URL_PUBLIC = "http://10.11.13.150:3000/api/v1/";
+const BASE_URL_BONDS = "http://10.11.0.113:3001";
 const TIME_OUT = 10000;
 const IDVerify = "vcsc";
 const PassVerify = "vcsc";
-
-const openNotificationWithIcon = (type, data) => {
-    notification[type]({
-        message: 'Thông báo',
-        description: data,
-    });
-};
-
 
 const doRequest = async (options) => {
     try{
@@ -41,23 +35,24 @@ const doRequest = async (options) => {
         console.log(err.response);
         if(err.response){
             if(err.response.status === 401){
-                openNotificationWithIcon('error', 'Your request in valid, try again !!!');
+                common.notify('error', 'Your request in valid, try again !!!');
             }
             if(err.response.status === 501){
-                openNotificationWithIcon('error', 'Request timeout, try again !!!');
+                common.notify('error', 'Request timeout, try again !!!');
             }
             if(err.response.status === 403){
-                openNotificationWithIcon('error', 'Bạn không có quyền truy cập !!!');
+                common.notify('error', 'Bạn không có quyền truy cập !!!');
             }
         
             return err.response.data;
         }else{
-            openNotificationWithIcon('error', 'Server không phản hồi, thử lại !!!');
+            common.notify('error', 'Server không phản hồi, thử lại !!!');
             return;
         }
     }
 }
 
+//Xử lý api đăng nhập từ bên core
 const callApi = (options, needToken = false, needAuth = false)=>{
     if(needAuth){
         const accessTokenAuth = getCookie("AUTH_KEY");
@@ -95,7 +90,7 @@ const callApi = (options, needToken = false, needAuth = false)=>{
                 }
             }
         }else{
-            alert("Cann't verify, please login again");
+            common.notify('error', "Cann't verify, please login again");
             window.location.href = "/login";
             return null;
         }
@@ -131,7 +126,7 @@ const requestAuth = ()=>{
         setCookie("AUTH_KEY", response.accessToken);
     }).catch((err)=>{
         console.log("Auth fail " + JSON.stringify(err));
-        alert("Không thể xác thực Authentication");
+        common.notify('error', "Không thể xác thực Authentication");
         return;
     });
 }
@@ -164,6 +159,7 @@ export const loginApi = (username, password)=>{
 }
 
 export const verifyOTP = (codeOTP)=>{
+    const accessToken = storage.accessToken();
     const url = `${BASE_URL}/login/sec/verifyOTP`;
     const data = {
         "otp_value": codeOTP
@@ -171,9 +167,12 @@ export const verifyOTP = (codeOTP)=>{
     const options = {
         url: url,
         method: "POST",
-        data: data
+        data: data,
+        headers: {
+            Authorization: `jwt ${accessToken}`
+        }
     }
-    return callApi(options, true, true);
+    return doRequest(options);
 }
 
 export const getMarketIndexList = ()=>{
@@ -186,3 +185,60 @@ export const getMarketIndexList = ()=>{
     }
     return callApi(options, false, true);
 }
+
+//Xử lý api cho phần bonds
+const callApiBonds = (options, needAuth = true)=>{
+    if(needAuth){
+        const accessTokenAuthBonds = storage.accessTokenBonds();
+        if(accessTokenAuthBonds){
+            options = {
+                ...options,
+                headers: {
+                    Authorization: `Bearer ${accessTokenAuthBonds}`
+                }
+            }
+        }else{
+            common.notify('error', 'Không thể xác thực api');
+        }
+    }
+    return doRequest(options);
+}
+
+export const verifyBonds = (dataSend)=>{
+    const url = `${BASE_URL_BONDS}/login/core`;
+    const data = {
+        "MSNDT": dataSend.identifierNumber,
+        "LOAINDT": 'CA_NHAN',
+        "TENNDT": dataSend.accounts[0].accountName,
+        "CMND_GPKD": "174784920",
+        "NGAYCAP": moment(new Date()),
+        "NOICAP": "TPHCM",
+        "SO_TKCK": dataSend.accounts[0].accountNumber,
+        "MS_NGUOIGIOITHIEU": 'MS_01'
+    }
+    const options = {
+        url: url,
+        method: "POST",
+        data: data
+    }
+    return callApiBonds(options, false);
+}
+
+export const getListRoomVCSC = ()=>{
+    const url = `${BASE_URL_BONDS}/roomVCSC`;
+    const options = {
+        url: url,
+        method: "GET",
+    }
+    return callApiBonds(options);
+}
+
+export const getDetailBond = (idBond)=>{
+    const url = `${BASE_URL_BONDS}/bonds/${idBond}`;
+    const options = {
+        url: url,
+        method: "GET",
+    }
+    return callApiBonds(options);
+}
+

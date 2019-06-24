@@ -94,7 +94,7 @@ export class ModalConfirm extends React.Component {
                     <ModalBody>
                         {this.props.dataSend}
                         <div className="text-center">
-                            <span style={{color: 'red'}}>{this.props.warning}</span>
+                            <span style={{color: 'red', fontSize: 12}}>{this.props.warning}</span>
                         </div>
                     </ModalBody>
                     <ModalFooter>

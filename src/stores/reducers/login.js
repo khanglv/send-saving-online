@@ -8,8 +8,8 @@ const initialState = {
     otpIndex: null,
     refreshToken: '',
     message: '',
-    isFetching: false,
     isAuthenticated: false,
+    isAuthenticateOTP: false,
     isVerifyOTP: false,
     data: []
 }
@@ -19,15 +19,13 @@ const reducer = (state = initialState, action)=>{
         case LOGIN_REQUEST:
             return{
                 ...state,
-                isFetching: true,
-                isAuthenticated: false,
                 message: '',
             }
         case LOGIN_SUCCESS:
             return{
                 ...state,
-                isFetching: true,
                 isAuthenticated: true,
+                isVerifyOTP: false,
                 message: '',
                 accessToken: action.info.accessToken,
                 refreshToken: action.info.refreshToken,
@@ -36,21 +34,19 @@ const reducer = (state = initialState, action)=>{
         case LOGIN_FAILED:
             return {
                 ...state,
-                isFetching: false,
                 isAuthenticated: false,
                 message: action.message,
             }
         case VERIFY_OTP_REQUEST:
             return{
                 ...state,
-                isVerifyOTP: false,
-                isAuthenticated: true,
+                isVerifyOTP: true,
             }
         case VERIFY_OTP_SUCCESS:
             return{
                 ...state,
                 isVerifyOTP: true,
-                isAuthenticated: true,
+                isAuthenticateOTP: true,
                 accessToken: action.info.accessToken,
                 refreshToken: action.info.refreshToken,
                 data: action.info.userInfo
@@ -58,8 +54,8 @@ const reducer = (state = initialState, action)=>{
         case VERIFY_OTP_FAILED:
             return {
                 ...state,
-                isVerifyOTP: false,
-                isAuthenticated: false,
+                isVerifyOTP: true,
+                isAuthenticateOTP: false,
                 message: action.code,
             }        
         default: 

@@ -10,14 +10,35 @@ import {
 } from 'reactstrap';
 import { Button, Tag } from 'antd';
 import {ModalBuyBond, DetailBond} from '../Modal/ModalBuyBond';
-import data from './dataTmp.json';
+
+import {connect} from 'react-redux';
+import {getListRoomVCSC} from '../../stores/actions/roomVCSCAction';
+import {getDetailBond} from '../../stores/actions/getDetailBondAction';
+import * as common from '../Common/Common';
 
 class BondSale extends Component{
     state = {
         isOpen: false,
         isOpenDetail: false,
-        detailData: []
+        lstData: []
     };
+
+    componentDidMount(){
+        this.loadData();
+    }
+
+    loadData = async()=>{
+        try {
+            const res = await this.props.getListRoomVCSC();
+            if(res.type === "ROOM_VCSC_FAILED"){
+                common.notify('error', 'Thao tác thất bại :( ');
+            }else{
+                this.setState({lstData: res.data});
+            }
+        } catch (error) {
+            console.log("err load data " + error);
+        }
+    }
 
     onCloseAlert = ()=>{
         this.setState({isOpen: false});
@@ -31,31 +52,30 @@ class BondSale extends Component{
         this.setState({isOpen: true, detailData: item});
     }
 
-    onActionDetailBond = (item)=>{
-        this.setState({isOpenDetail: true, detailData: item});
+    getDetailBond = async(idBond)=>{
+        await this.props.getDetailBond(idBond);
+        await this.setState({isOpenDetail: true, detailData: this.props.itemBond});
     }
 
     render(){
         return(
             <div >
-                <ModalBuyBond open={this.state.isOpen} onClose={this.onCloseAlert} data={this.state.detailData}/>
+                <ModalBuyBond open={this.state.isOpen} onClose={this.onCloseAlert}/>
                 <DetailBond openDetail={this.state.isOpenDetail} onCloseDetail={this.onCloseAlertDetail} data={this.state.detailData} />
                 <Alert color="primary" style={{marginBottom: 0}}>
                     <Tag color="green" style={{cursor: 'pointer'}}>Tất cả</Tag>&nbsp;
                     <Tag color="blue" style={{cursor: 'pointer'}}>Mới</Tag>&nbsp;
                     <Tag color="red" style={{cursor: 'pointer'}}>Phổ biến nhất</Tag>
-                    {/* <Badge color="success" className="pointer">Tất cả</Badge>&nbsp;
-                    <Badge color="primary" className="pointer">Mới</Badge>&nbsp;
-                    <Badge color="danger" className="pointer">Phổ biến nhất</Badge> */}
                 </Alert>
                 <Row >
-                    {data.map((item)=>{
+                    {this.state.lstData.map((item)=>{
                         return (
-                            <Col xs="6" sm="3" key={item.ID}>
+                            item.FLAG === 1 ? 
+                            <Col xs="6" sm="3" key={item.BOND_ID}>
                                 <Card style={styles.itemCard}>
                                     <CardHeader style={{backgroundColor: '#fff'}}>
-                                        <b>{item.MS_DN}</b> - <b style={{ color: 'red' }}>{item.LAISUAT_HH}</b><span>/năm</span><br/>
-                                        <span style={{fontSize: 14}}>Kỳ hạn còn lại: {item.KYHAN_CONLAI} tháng</span>
+                                        <b>{item.MSTP}</b> - <b style={{ color: 'red' }}>{item.LAISUATNAM}(%)</b><span>/năm</span><br/>
+                                        <span style={{fontSize: 14}}>Kỳ hạn còn lại: {item.THANGCONLAI} tháng</span>
                                     </CardHeader>
                                     <CardBody>
                                         <Row>
@@ -63,20 +83,20 @@ class BondSale extends Component{
                                                 <span>
                                                     Hạn mức
                                                 </span><br/>
-                                                <span><b>{item.HANMUC_CHO}</b> tỷ</span>
+                                                <span><b>{common.convertTextDecimal(item.HANMUC)}</b> VND</span>
                                             </Col>
                                             <Col>
                                                 <span>
                                                     Đang chờ
                                                 </span><br/>
-                                                <span><b>{item.HANMUC_CHO}</b> tỷ</span>
+                                                <span><b>{common.convertTextDecimal(item.DANGCHO)}</b> VND</span>
                                             </Col>
                                         </Row>
                                     </CardBody>
                                     <CardFooter style={{backgroundColor: '#fff'}}>
                                         <Row>
                                             <Col>
-                                                <Button style={{width: '100%'}} onClick={()=>this.onActionDetailBond(item)}>Chi tiết</Button>
+                                                <Button style={{width: '100%'}} onClick={()=>this.getDetailBond(item.BOND_ID)}>Chi tiết</Button>
                                             </Col>
                                             <Col>
                                                 <Button style={{width: '100%'}} type="primary" onClick={()=>this.onActionBuyBond(item)}>Mua</Button>
@@ -84,7 +104,7 @@ class BondSale extends Component{
                                         </Row>
                                     </CardFooter>
                                 </Card>
-                            </Col>
+                            </Col> : null
                         )
                     })}
                 </Row>
@@ -93,7 +113,21 @@ class BondSale extends Component{
     }
 };
 
-export default BondSale;
+const mapStateToProps = state =>{
+    return{
+        lstRoomVCSC: state.roomVCSC.data,
+        itemBond: state.getDetailBond.data
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        getListRoomVCSC: ()=> dispatch(getListRoomVCSC()),
+        getDetailBond: (idBond)=> dispatch(getDetailBond(idBond)),
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps) (BondSale);
 
 const styles = {
     labelOption: {
