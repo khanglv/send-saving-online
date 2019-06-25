@@ -75,6 +75,10 @@ div.hasHover:hover{
   color: #528fc7;
 }
 
+.btnBuyBond:hover{
+  background: linear-gradient(to left, #49295f, #327976)!important;
+}
+
 /* custom date picker */
 .customInputDatePicker{
   width: 100%;
@@ -100,7 +104,7 @@ div.hasHover:hover{
 
 /* style sidebar */
 .sidenav---sidenav---_2tBP{
-  background-color: #0c62ca!important;
+  background-color: #2f80e2!important;
 }
 
 .ant-message .anticon{

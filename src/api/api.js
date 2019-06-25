@@ -192,6 +192,28 @@ export const getCashBalance = (accountNumber)=>{
     return callApi(options, true, false);
 }
 
+export const deductBankAccount = ()=>{
+    const url = `${BASE_URL}/equity/order`;
+    const data = {
+        "accountNumber": "string",
+        "subNumber": "string",
+        "orderQuantity": 0,
+        "orderPrice": 0,
+        "stockCode": "string",
+        "bankCode": "string",
+        "bankAccount": "string",
+        "sellBuyType": "BUY",
+        "orderType": "LO",
+        "securitiesType": "STOCK"
+    };
+    const options = {
+        url: url,
+        method: "POST",
+        data: data
+    }
+    return callApi(options, true, false);
+}
+
 export const getMarketIndexList = ()=>{
     const url = `${BASE_URL_PUBLIC}/market/index/list`;
     const data = {};
@@ -255,6 +277,16 @@ export const getDetailBond = (idBond)=>{
     const options = {
         url: url,
         method: "GET",
+    }
+    return callApiBonds(options);
+}
+
+export const buyBondsRoomVCSC = (dataSend)=>{
+    const url = `${BASE_URL_BONDS}/setCommand`;
+    const options = {
+        url: url,
+        method: "POST",
+        data: dataSend
     }
     return callApiBonds(options);
 }

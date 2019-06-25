@@ -15,13 +15,12 @@ import {
 import { DatePicker, Icon, Tabs, message, Tag } from 'antd';
 import moment from 'moment';
 import * as common from '../Common/Common';
+import * as formula from '../Common/Formula';
+import {buyBondsRoomVCSC} from '../../api/api';
 const TabPane = Tabs.TabPane;
 const dateFormat = 'DD/MM/YYYY';
 const messSuccess = () => {
     message.success('Thao tác thành công !!!');
-};
-const messFailed = () => {
-    message.error('Thao tác thất bại :( ');
 };
 
 export class ModalBuyBond extends Component{
@@ -78,7 +77,15 @@ export class ModalBuyBond extends Component{
                                     Mệnh giá
                                 </Col>
                                 <Col>
-                                    <Tag color="volcano" style={{fontSize: 16}}>{common.convertTextDecimal(data.MENHGIA)}</Tag> VND
+                                    {common.convertTextDecimal(data.MENHGIA)} VND
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    Giá trị hiện tại
+                                </Col>
+                                <Col>
+                                    <Tag color="volcano" style={{fontSize: 16}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</Tag> VND
                                 </Col>
                             </Row>
                             <Row className="p-top10">
@@ -115,7 +122,7 @@ export class ModalBuyBond extends Component{
                             </Row>
                             <div className="right p-top10">
                                 Tổng số tiền đầu tư <br/>
-                                <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.MENHGIA)} VND</span>
+                                <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI)} VND</span>
                             </div>
                             <div className="left p-top10">
                                 Tài sản hiện có <br/>
@@ -128,14 +135,15 @@ export class ModalBuyBond extends Component{
                             <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} 
                                 data={{
                                         ...data, 
-                                        "investMoney": this.state.quantityBond * data.MENHGIA,
-                                        "buyDate": this.state.buyDate
+                                        "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI,
+                                        "buyDate": this.state.buyDate,
+                                        "quantityBond": this.state.quantityBond,
                                     }}
                             />
                             <SaleBeforeExpire openSaleBeforeExpire={this.state.isOpenSaleBeforeExpire} onCloseSaleExpire={this.onCloseSaleBeforeExpire} onCloseModalBuyBond={this.toggle}/>
                             <i>Lãi suất đầu tư đã tái đầu tư</i>
                             <div className="p-top10">
-                                <div style={styles.noteBond} onClick={this.onOpenKeepExpire}>
+                                <div className="btnBuyBond" style={styles.noteBond} onClick={this.onOpenKeepExpire}>
                                     <div>
                                         <b style={{fontSize: 18}}>Giữ đến đáo hạn</b><br/>
                                         Lãi suất đầu tư dự kiến {}/năm<br/>
@@ -143,14 +151,14 @@ export class ModalBuyBond extends Component{
                                     </div>
                                     <Icon type="right" style={styles.iconNext}/>
                                 </div>
-                                <div style={Object.assign({}, styles.noteBond, {marginTop: 10})} onClick={this.onOpenSaleBeforeExpire}>
+                                {/* <div style={Object.assign({}, styles.noteBond, {marginTop: 10})} onClick={this.onOpenSaleBeforeExpire}>
                                     <div>
                                         <b style={{fontSize: 18}}>Bán trước đáo hạn</b><br/>
                                         Lãi suất đầu tư dự kiến từ {}/năm đến {}/năm<br/>
                                         Khi bán trái phiếu sau mỗi tháng
                                     </div>
                                     <Icon type="right" style={styles.iconNext}/>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </ModalBody>
@@ -206,7 +214,16 @@ export class DetailBond extends Component{
                                     Mệnh giá
                                 </Col>
                                 <Col sm="8">
-                                    <span style={{color: 'red'}}>{common.convertTextDecimal(data.MENHGIA)}</span> VND
+                                    <span>{common.convertTextDecimal(data.MENHGIA)}</span> VND
+                                </Col>
+                            </Row>
+                            <div style={styles.borderBottomRadius}></div>
+                            <Row className="p-top10" style={{padding: '1rem'}}>
+                                <Col sm="4">
+                                    Giá trị hiện tại
+                                </Col>
+                                <Col sm="8">
+                                    <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</span> VND
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
@@ -275,6 +292,7 @@ export class KeepExpireBond extends Component{
         super(props);
         this.state = {
             isExpireBondNext: false,
+            accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
         }
     }
 
@@ -291,13 +309,41 @@ export class KeepExpireBond extends Component{
         this.setState({isExpireBondNext: false});
     }
 
-    onConfirmBuy = ()=>{
-        this.toggle();
-        messFailed();
+    onConfirmBuy = async(data, lstTmpDateInterest)=>{
+        try {
+            let interestRateExpired = JSON.stringify(lstTmpDateInterest);
+            let dataTmp = {
+                "BOND_ID": data.BONDID,
+                "MS_NDT": "311819634",
+                "MS_ROOM": data.MSROOM,
+                "MS_NGUOI_GT": "MS_01",
+                "SOLUONG": data.quantityBond,
+                "DONGIA": data.GIATRI_HIENTAI,
+                "TONGGIATRI": data.investMoney,
+                "LAISUAT_DH": data.LAISUAT_HH,
+                "NGAY_DH": data.NGAYDH,
+                "NGAY_TRAITUC": interestRateExpired,
+                "NGAY_GD": data.buyDate,
+            }
+            const res = await buyBondsRoomVCSC(dataTmp);
+            if(res.error){
+                common.notify('error', 'Thao tác thất bại :( ');
+            }else{
+                common.notify('success', 'Thao tác thành công ^^ ');
+                this.toggle();
+            }
+        } catch (error) {
+            
+        }
     }
 
     render(){
         const data = this.props.data;
+        const lstTmpDateInterest = data ? formula.GenDateInterestRate(data.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_HH, []) : null;
+        let totalMoneyReceive = lstTmpDateInterest ? lstTmpDateInterest.reduce((total, currentValue)=> {
+            return total + JSON.parse(currentValue.interestRate);
+        }, 0) : null;
+          
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
         let Bondprev = data ? (
             <div>
@@ -318,9 +364,9 @@ export class KeepExpireBond extends Component{
                     <Col>
                         <Button style={{width: '100%'}} outline color="info">Chưa tái đầu tư</Button>
                     </Col>
-                    <Col>
+                    {/* <Col>
                         <Button style={{width: '100%'}} outline color="danger">Đã tái đầu tư</Button>
-                    </Col>
+                    </Col> */}
                 </Row>
                 <div style={styles.headerDetailBond}>Chi tiết dòng tiền</div>
                 <Table bordered>
@@ -328,51 +374,35 @@ export class KeepExpireBond extends Component{
                     <tr>
                         <th>Nội dung</th>
                         <th>Ngày nhận</th>
-                        <th>Lãi tái đầu tư</th>
                         <th>Tiền nhận (VND)</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>Coupon</td>
-                        <td>05/06/2020</td>
-                        <td>293.300</td>
-                        <td>48000000</td>
-                    </tr>
-                    <tr>
-                        <td>Coupon</td>
-                        <td>05/06/2020</td>
-                        <td>293.300</td>
-                        <td>48000000</td>
-                    </tr>
-                    <tr>
-                        <td>Coupon</td>
-                        <td>05/06/2020</td>
-                        <td>293.300</td>
-                        <td>48000000</td>
-                    </tr>
+                        {lstTmpDateInterest.map((item, index)=>
+                            <tr key={index}>
+                                <td>Coupon</td>
+                                <td>{common.convertDDMMYYYY(item.date)}</td>
+                                <td>{common.convertTextDecimal(item.interestRate*(data.investMoney)/100)} ({item.interestRate}%)</td>
+                            </tr>
+                        )}
                     </tbody>
                 </Table>
                 <div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Tổng tiền nhận</div>
-                        <div className="right" style={{color: 'red'}}> VND</div>
+                        <div className="right"><span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney + data.investMoney*totalMoneyReceive/100)}</span> VND</div>
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Gốc đầu tư</div>
-                        <div className="right">1330000001100</div>
+                        <div className="right">{common.convertTextDecimal(data.investMoney)}</div>
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Lãi đầu tư</div>
-                        <div className="right">1330000001100</div>
-                    </div>
-                    <div style={{display: 'flow-root'}}>
-                        <div className="left">Lãi suất đầu tư</div>
-                        <div className="right">7.2%</div>
+                        <div className="right">{totalMoneyReceive}(%)</div>
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Cho thời gian</div>
-                        <div className="right">24 tháng</div>
+                        <div className="right">{formula.diffMonth(data.NGAYPH, data.NGAYDH)} tháng</div>
                     </div>
                 </div>
                 <div style={{position: 'relative'}}>
@@ -392,26 +422,26 @@ export class KeepExpireBond extends Component{
                     <Row>
                         <Col sm="5">
                             Tên KH
-                                </Col>
+                        </Col>
                         <Col sm="7">
-                            Lê Viết Khang
-                                </Col>
+                            {this.state.accountInfo[0].accountName}
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             CMND/Hộ chiếu
-                                </Col>
+                        </Col>
                         <Col sm="7">
                             1747237290
-                                </Col>
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             Ngày cấp
-                                </Col>
+                        </Col>
                         <Col sm="7">
                             28/05/2012
-                                </Col>
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
@@ -419,31 +449,31 @@ export class KeepExpireBond extends Component{
                                 </Col>
                         <Col sm="7">
                             Công an Thanh Hóa
-                                </Col>
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             Địa chỉ
-                                </Col>
+                        </Col>
                         <Col sm="7">
                             Số 2, Lê Văn Huân, Tân Bình, Tp.HCM
-                                </Col>
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             SĐT
-                                </Col>
+                        </Col>
                         <Col sm="7">
                             0964666982
-                                </Col>
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             Số tài khoản
                                 </Col>
                         <Col sm="7">
-                            038095000298
-                                </Col>
+                            {this.state.accountInfo[0].accountNumber}
+                        </Col>
                     </Row>
                 </div>
 
@@ -452,58 +482,66 @@ export class KeepExpireBond extends Component{
                     <Row>
                         <Col sm="5">
                             Trái phiếu
-                                </Col>
+                        </Col>
                         <Col sm="7">
-                            IBond@vcsc-Vinpro
-                                </Col>
+                            {data.TENLOAI_TP}
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             Mệnh giá
-                                </Col>
+                        </Col>
                         <Col sm="7">
-                            100,000
-                                </Col>
+                            {common.convertTextDecimal(data.MENHGIA)}
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            Giá trị hiện tại
+                        </Col>
+                        <Col>
+                            {common.convertTextDecimal(data.GIATRI_HIENTAI)} VND
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             Ngày phát hành
-                                </Col>
+                        </Col>
                         <Col sm="7">
-                            28/05/2020
-                                </Col>
+                            {common.convertDDMMYYYY(data.NGAYPH)}
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             Ngày đáo hạn
-                                </Col>
+                        </Col>
                         <Col sm="7">
-                            28/05/2022
-                                </Col>
+                            {common.convertDDMMYYYY(data.NGAYDH)}
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             Ngày mua
-                                </Col>
+                        </Col>
                         <Col sm="7">
-                            23/05/2019
-                                </Col>
+                            {common.convertDDMMYYYY(data.buyDate)}
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             Số lượng đặt mua
-                                </Col>
+                        </Col>
                         <Col sm="7">
-                            3,000
-                                </Col>
+                            {data.quantityBond}
+                        </Col>
                     </Row>
                     <Row>
                         <Col sm="5">
                             Giá mua
-                                </Col>
+                        </Col>
                         <Col sm="7" style={{ color: 'red' }}>
-                            1,000,000,000
-                                </Col>
+                            <span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> VND
+                        </Col>
                     </Row>
                 </div>
 
@@ -516,7 +554,7 @@ export class KeepExpireBond extends Component{
                     </Col>
                     <Col sm="6">
                         <div style={{ position: 'relative' }}>
-                            <Button style={{ width: '100%' }} outline color="success" onClick={this.onConfirmBuy}>Xác nhận</Button>
+                            <Button style={{ width: '100%' }} outline color="success" onClick={()=>this.onConfirmBuy(data, lstTmpDateInterest)}>Xác nhận</Button>
                             <Icon type="double-right" style={styles.iconNext3} />
                         </div>
                     </Col>
@@ -649,7 +687,7 @@ const styles = {
         background: 'linear-gradient(to left, #5f2c82, #49a09d)',
         width: '100%',
         borderRadius: 3,
-        boxShadow: '0 2px 3px rgba(0,0,0,0.23)',
+        boxShadow: '0 5px 6px rgba(0,0,0,0.23)',
         position: 'relative',
         color: '#fff',
         cursor: 'pointer'
