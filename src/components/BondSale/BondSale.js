@@ -82,8 +82,8 @@ class BondSale extends Component{
                             item.FLAG === 1 ? 
                             <Col xs="6" sm="3" key={item.BOND_ID}>
                                 <Card style={styles.itemCard}>
-                                    <CardHeader style={{backgroundColor: '#fff'}}>
-                                        <b>{item.MSTP}</b> - <b style={{ color: 'red' }}>{item.LAISUATNAM}(%)</b><span>/năm</span><br/>
+                                    <CardHeader style={styles.headerCard}>
+                                        <b>{item.MSTP}</b> - <b>{item.LAISUATNAM}(%)</b><span>/năm</span><br/>
                                         <span style={{fontSize: 14}}>Kỳ hạn còn lại: {item.THANGCONLAI} tháng</span>
                                     </CardHeader>
                                     <CardBody>
@@ -108,7 +108,7 @@ class BondSale extends Component{
                                                 <Button style={{width: '100%'}} onClick={()=>this.getDetailBond(item.BOND_ID)}>Chi tiết</Button>
                                             </Col>
                                             <Col>
-                                                <Button style={{width: '100%'}} type="primary" onClick={()=>this.onActionBuyBond(item.BOND_ID)}>Mua</Button>
+                                                <Button type="primary" style={{width: '100%'}} onClick={()=>this.onActionBuyBond(item.BOND_ID)}>Mua</Button>
                                             </Col>
                                         </Row>
                                     </CardFooter>
@@ -151,7 +151,11 @@ const styles = {
     },
     itemCard:{
         marginTop: 30,
-        boxShadow: '0 2px 3px rgba(0,0,0,0.23)',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.23)',
         border: 'none'
+    },
+    headerCard:{
+        backgroundColor: '#4b81ba',
+        color: '#fff'
     }
 }

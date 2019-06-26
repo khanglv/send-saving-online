@@ -31,16 +31,22 @@ export class ModalBuyBond extends Component{
             isOpenExpire: false,
             isOpenSaleBeforeExpire: false,
             quantityBond: 0,
-            buyDate: moment(new Date(), dateFormat)
+            buyDate: moment(new Date(), dateFormat),
+            isShowWarning: false
         }
     }
 
     toggle = ()=> {
         this.props.onClose();
+        this.setState({isShowWarning: false});
     }
 
     onOpenKeepExpire = ()=>{
-        this.setState({isOpenExpire: true});
+        if(this.state.quantityBond === 0){
+            this.setState({isShowWarning: true});
+        }else{
+            this.setState({isOpenExpire: true, isShowWarning: false});
+        }
     }
 
     onCloseExpired = ()=>{
@@ -118,6 +124,7 @@ export class ModalBuyBond extends Component{
                                 </Col>
                                 <Col>
                                     <Input type="number" name="quantityBond" value={this.state.quantityBond} onChange={event => this.updateInputValue(event)} style={{maxHeight: 34}}/>
+                                    {this.state.isShowWarning ? <i style={{color: 'orange', fontSize: 14}}>Cần phải nhập số lượng trái phiếu</i> : null}
                                 </Col>
                             </Row>
                             <div className="right p-top10">
@@ -182,7 +189,7 @@ export class DetailBond extends Component{
                     <ModalHeader style={{backgroundColor: 'rgba(155, 183, 205, 0.48)'}}>Thông tin trái phiếu</ModalHeader>
                     <ModalBody>
                         <div>
-                            <Row style={{padding: '1rem'}}>
+                            <Row style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Tổ chức phát hành
                                 </Col>
@@ -191,7 +198,7 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10" style={{padding: '1rem'}}>
+                            <Row className="p-top10" style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Đăng kí kinh doanh
                                 </Col>
@@ -200,7 +207,7 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10" style={{padding: '1rem'}}>
+                            <Row className="p-top10" style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Loại trái phiếu
                                 </Col>
@@ -209,7 +216,7 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10" style={{padding: '1rem'}}>
+                            <Row className="p-top10" style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Mệnh giá
                                 </Col>
@@ -218,7 +225,7 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10" style={{padding: '1rem'}}>
+                            <Row className="p-top10" style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Giá trị hiện tại
                                 </Col>
@@ -227,7 +234,7 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10" style={{padding: '1rem'}}>
+                            <Row className="p-top10" style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Lãi suất PH
                                 </Col>
@@ -236,7 +243,7 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10" style={{padding: '1rem'}}>
+                            <Row className="p-top10" style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Ngày phát hành
                                 </Col>
@@ -245,7 +252,7 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10" style={{padding: '1rem'}}>
+                            <Row className="p-top10" style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Ngày đáo hạn
                                 </Col>
@@ -254,7 +261,7 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10" style={{padding: '1rem'}}>
+                            <Row className="p-top10" style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Thanh toán gốc và lãi
                                 </Col>
@@ -263,7 +270,7 @@ export class DetailBond extends Component{
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
-                            <Row className="p-top10" style={{padding: '1rem'}}>
+                            <Row className="p-top10" style={{padding: '0.7rem'}}>
                                 <Col sm="4">
                                     Trạng thái
                                 </Col>
@@ -311,7 +318,13 @@ export class KeepExpireBond extends Component{
 
     onConfirmBuy = async(data, lstTmpDateInterest)=>{
         try {
-            let interestRateExpired = JSON.stringify(lstTmpDateInterest);
+            const dataTranfer = await lstTmpDateInterest.map((item)=>{
+                return{
+                    ...item,
+                    "moneyReceived": (item.interestRate)*(data.investMoney)/100
+                }
+            });
+
             let dataTmp = {
                 "BOND_ID": data.BONDID,
                 "MS_NDT": "311819634",
@@ -321,8 +334,7 @@ export class KeepExpireBond extends Component{
                 "DONGIA": data.GIATRI_HIENTAI,
                 "TONGGIATRI": data.investMoney,
                 "LAISUAT_DH": data.LAISUAT_HH,
-                "NGAY_DH": data.NGAYDH,
-                "NGAY_TRAITUC": interestRateExpired,
+                "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": data.buyDate,
             }
             const res = await buyBondsRoomVCSC(dataTmp);
@@ -345,6 +357,7 @@ export class KeepExpireBond extends Component{
         }, 0) : null;
           
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
+        
         let Bondprev = data ? (
             <div>
                 <Alert color="primary" className="text-center">
@@ -419,130 +432,147 @@ export class KeepExpireBond extends Component{
                 </Alert>
                 <div>
                     <Badge color="primary" style={{ fontSize: 14 }}>Thông tin khách hàng</Badge>
-                    <Row>
-                        <Col sm="5">
-                            Tên KH
-                        </Col>
-                        <Col sm="7">
-                            {this.state.accountInfo[0].accountName}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            CMND/Hộ chiếu
-                        </Col>
-                        <Col sm="7">
-                            1747237290
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Ngày cấp
-                        </Col>
-                        <Col sm="7">
-                            28/05/2012
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Nơi cấp
-                                </Col>
-                        <Col sm="7">
-                            Công an Thanh Hóa
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Địa chỉ
-                        </Col>
-                        <Col sm="7">
-                            Số 2, Lê Văn Huân, Tân Bình, Tp.HCM
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            SĐT
-                        </Col>
-                        <Col sm="7">
-                            0964666982
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Số tài khoản
-                                </Col>
-                        <Col sm="7">
-                            {this.state.accountInfo[0].accountNumber}
-                        </Col>
-                    </Row>
+                    <div style={{padding: 5, paddingLeft: 10}}>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Tên KH
+                            </Col>
+                            <Col sm="7">
+                                {this.state.accountInfo[0].accountName}
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                CMND/Hộ chiếu
+                            </Col>
+                            <Col sm="7">
+                                1747237290
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Ngày cấp
+                            </Col>
+                            <Col sm="7">
+                                28/05/2012
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Nơi cấp
+                                    </Col>
+                            <Col sm="7">
+                                Công an Thanh Hóa
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Địa chỉ
+                            </Col>
+                            <Col sm="7">
+                                Số 2, Lê Văn Huân, Tân Bình, Tp.HCM
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                SĐT
+                            </Col>
+                            <Col sm="7">
+                                0964666982
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Số tài khoản
+                                    </Col>
+                            <Col sm="7">
+                                {this.state.accountInfo[0].accountNumber}
+                            </Col>
+                        </Row>
+                    </div>
                 </div>
 
                 <div className="p-top10">
                     <Badge color="primary" style={{ fontSize: 14 }}>Thông tin đặt mua</Badge>
-                    <Row>
-                        <Col sm="5">
-                            Trái phiếu
-                        </Col>
-                        <Col sm="7">
-                            {data.TENLOAI_TP}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Mệnh giá
-                        </Col>
-                        <Col sm="7">
-                            {common.convertTextDecimal(data.MENHGIA)}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            Giá trị hiện tại
-                        </Col>
-                        <Col>
-                            {common.convertTextDecimal(data.GIATRI_HIENTAI)} VND
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Ngày phát hành
-                        </Col>
-                        <Col sm="7">
-                            {common.convertDDMMYYYY(data.NGAYPH)}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Ngày đáo hạn
-                        </Col>
-                        <Col sm="7">
-                            {common.convertDDMMYYYY(data.NGAYDH)}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Ngày mua
-                        </Col>
-                        <Col sm="7">
-                            {common.convertDDMMYYYY(data.buyDate)}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Số lượng đặt mua
-                        </Col>
-                        <Col sm="7">
-                            {data.quantityBond}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm="5">
-                            Giá mua
-                        </Col>
-                        <Col sm="7" style={{ color: 'red' }}>
-                            <span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> VND
-                        </Col>
-                    </Row>
+                    <div style={{padding: 5, paddingLeft: 10}}>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Trái phiếu
+                            </Col>
+                            <Col sm="7">
+                                {data.TENLOAI_TP}
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Mệnh giá
+                            </Col>
+                            <Col sm="7">
+                                {common.convertTextDecimal(data.MENHGIA)}
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Giá trị hiện tại
+                            </Col>
+                            <Col sm="7">
+                                {common.convertTextDecimal(data.GIATRI_HIENTAI)} VND
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Ngày phát hành
+                            </Col>
+                            <Col sm="7">
+                                {common.convertDDMMYYYY(data.NGAYPH)}
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Ngày đáo hạn
+                            </Col>
+                            <Col sm="7">
+                                {common.convertDDMMYYYY(data.NGAYDH)}
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Ngày mua
+                            </Col>
+                            <Col sm="7">
+                                {common.convertDDMMYYYY(data.buyDate)}
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Số lượng đặt mua
+                            </Col>
+                            <Col sm="7">
+                                {data.quantityBond}
+                            </Col>
+                        </Row>
+                        <div style={styles.borderBottomRadius}></div>
+                        <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                Giá mua
+                            </Col>
+                            <Col sm="7" style={{ color: 'red' }}>
+                                <span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> VND
+                            </Col>
+                        </Row>
+                    </div>
                 </div>
 
                 <Row style={{ paddingTop: 20 }}>
@@ -717,7 +747,7 @@ const styles = {
         color: '#fff'
     },
     borderBottomRadius:{
-        borderBottom: '1px solid #e2e4ea'
+        borderBottom: '1px solid #f0f3f5'
     },
     headerDetailBond:{
         padding: 10,

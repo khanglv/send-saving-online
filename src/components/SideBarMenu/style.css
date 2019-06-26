@@ -58,3 +58,8 @@
 .middle-text{
     vertical-align: middle;
 }
+
+.middle-div{
+    display: flex!important;
+    align-items: center;
+}

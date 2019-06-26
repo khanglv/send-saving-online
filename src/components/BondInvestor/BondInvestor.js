@@ -156,7 +156,7 @@ const styles={
     labelOption: {
         position: 'absolute', 
         top: '-1rem', 
-        backgroundColor: '#f0f2f5', 
+        backgroundColor: '#fff', 
         left: '2rem', 
         paddingLeft: 5, 
         paddingRight: 5

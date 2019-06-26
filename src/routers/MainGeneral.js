@@ -15,7 +15,7 @@ const withSidebar = (View) =>
         <div>
             <Layout>
                 <SideBarMenu />
-                <Layout style={{height: '85vh'}}>
+                <Layout style={{height: '85vh', backgroundColor: '#fff'}}>
                     <View />
                 </Layout>
             </Layout>

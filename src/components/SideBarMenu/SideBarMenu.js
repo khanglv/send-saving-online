@@ -81,48 +81,48 @@ class SideBarMenu extends Component {
                         />
                     </div>
                     <Menu theme="dark" mode="inline" defaultOpenKeys={['sub2']} selectedKeys={[this.state.current]} onClick={this.handleClick}>
-                        <Menu.Item key="/main">
+                        <Menu.Item key="/main" className="middle-div">
                             <Icon type="home" />
-                            <span className="middle-text">Trang chủ</span>
+                            <span>Trang chủ</span>
                         </Menu.Item>
-                        <Menu.Item key="/directive">
+                        <Menu.Item key="/directive" className="middle-div">
                             <Icon type="form" />
-                            <span className="middle-text">Đặt lệnh</span>
+                            <span>Đặt lệnh</span>
                         </Menu.Item>
                         <SubMenu
                             key="sub2"
                             title={
-                                <span>
+                                <span className="middle-div">
                                     <Icon type="shopping-cart" />
                                     <span>Tài sản của tôi</span>
                                 </span>
                             }
                         >
-                            <Menu.Item key="stock">
+                            <Menu.Item key="stock" className="middle-div">
                                 <Icon type="strikethrough" />
-                                <span className="middle-text">Cổ phiếu</span>
+                                <span>Cổ phiếu</span>
                             </Menu.Item>
-                            <Menu.Item key="/bonds-asset">
+                            <Menu.Item key="/bonds-asset" className="middle-div">
                                 <Icon type="rocket" />
-                                <span className="middle-text">Trái phiếu</span>
+                                <span>Trái phiếu</span>
                             </Menu.Item>
-                            <Menu.Item key="/list-sold-bond">
+                            <Menu.Item key="/list-sold-bond" className="middle-div">
                                 <Icon type="history" />
-                                <span className="middle-text">Trái phiếu đã bán</span>
+                                <span>Trái phiếu đã bán</span>
                             </Menu.Item>
                         </SubMenu>
-                        <Menu.Item key="/bond-investor">
+                        <Menu.Item key="/bond-investor" className="middle-div">
                             <Icon type="gitlab" />
-                            <span className="middle-text">Trái phiếu nhà đầu tư</span>
+                            <span>Trái phiếu nhà đầu tư</span>
                         </Menu.Item>
-                        <Menu.Item key="key_solution">
+                        <Menu.Item key="key_solution" className="middle-div">
                             <Icon type="solution" />
-                            <span className="middle-text">Quản lý tài khoản</span>
+                            <span>Quản lý tài khoản</span>
                         </Menu.Item>
                         
-                        <Menu.Item key="key_logout" onClick={this.onConFirmLogout} style={{position: 'absolute', bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
+                        <Menu.Item key="key_logout" className="middle-div" onClick={this.onConFirmLogout} style={{position: 'absolute', bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
                             <Icon type="logout" />
-                            <span className="middle-text">Đăng xuất</span>
+                            <span>Đăng xuất</span>
                         </Menu.Item>
                     </Menu>
                 </Sider>
