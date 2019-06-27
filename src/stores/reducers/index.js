@@ -8,6 +8,7 @@ import getDetailBond from './getDetailBond';
 import cashBalance from './cashBalance';
 import deductBankAccount from './deductBankAccount';
 import buyBondsRoomVCSC from './buyBondsRoomVCSC';
+import getListBondsHave from './getListBondsHave';
 
 export default combineReducers({
     login: login,
@@ -17,5 +18,6 @@ export default combineReducers({
     getDetailBond: getDetailBond,
     cashBalance: cashBalance,
     deductBankAccount: deductBankAccount,
-    buyBondsRoomVCSC: buyBondsRoomVCSC
+    buyBondsRoomVCSC: buyBondsRoomVCSC,
+    getListBondsHave: getListBondsHave
 });

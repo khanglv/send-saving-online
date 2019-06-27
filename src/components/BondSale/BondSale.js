@@ -155,7 +155,7 @@ const styles = {
         border: 'none'
     },
     headerCard:{
-        backgroundColor: '#4b81ba',
+        backgroundColor: '#5073a2',
         color: '#fff'
     }
 }

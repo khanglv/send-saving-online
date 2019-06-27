@@ -5,8 +5,13 @@ import {
     Label
 } from 'reactstrap';
 import ModalSaleBond from '../../components/Modal/ModalSaleBond';
-import { Tabs, DatePicker, Icon, Tooltip, Table, Popconfirm } from 'antd';
+import ModalShowDateInterest from './ModalShowDateInterest';
+import { Tabs, DatePicker, Icon, Tooltip, Table, Popconfirm, Button } from 'antd';
 import moment from 'moment';
+
+import {connect} from 'react-redux';
+import {waitListBondsHave, currentListBondsHave} from '../../stores/actions/getListBondsHaveAction';
+import * as common from '../Common/Common';
 
 const TabPane = Tabs.TabPane;
 const dateFormat = 'DD/MM/YYYY';
@@ -18,22 +23,22 @@ class BondsAsset extends Component{
             {
                 title: 'STT',
                 dataIndex: 'key',
-                width: 30,
+                width: 30
             },
             {
                 title: 'Action',
                 dataIndex: 'operation',
-                width: 120,
+                width: 100,
                 render: (text, record) =>{
                     return(
                         this.state.dataSource.length >= 1 ?
                             <div>
-                                <Tooltip title="Duyệt" className="pointer">
-                                    <Icon type="check" style={{color: '#1cd356', fontSize: 16}}/>
+                                <Tooltip title="Mua thêm trái phiếu" className="pointer">
+                                    <Icon type="shopping-cart" style={{color: '#1cd356', fontSize: 16}}/>
                                 </Tooltip>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <Popconfirm title="Hủy duyệt lệnh này???" onConfirm={() => this.handleDelete()}>
-                                    <Tooltip title="Hủy duyệt" className="pointer">
-                                        <Icon type="close" style={{color: '#f5222d', fontSize: 16}}/>
+                                    <Tooltip title="Bán trái phiếu" className="pointer">
+                                        <Icon type="sliders" style={{color: '#f5222d', fontSize: 16}}/>
                                     </Tooltip>
                                 </Popconfirm>
                             </div>
@@ -44,11 +49,6 @@ class BondsAsset extends Component{
             {
                 title: 'Trái Phiếu', //1
                 dataIndex: 'MSTP',
-                width: 250
-            },
-            {
-                title: 'Nhà đầu tư', //2
-                dataIndex: 'TENNDT',
                 width: 250
             },
             {
@@ -72,20 +72,92 @@ class BondsAsset extends Component{
                 width: 220
             },
             {
-                title: 'Lãi suất',
+                title: 'Lãi suất (%)',
                 dataIndex: 'LAISUAT_DH',
-                width: 150
+                width: 100
             },
             {
                 title: 'Ngày giao dịch',
                 dataIndex: 'NGAY_GD',
                 width: 150
-            }
-        ]
+            },
+            {
+                title: 'Ngày trái tức',
+                dataIndex: 'NGAY_TRAITUC',
+                width: 150,
+                render: (NGAY_TRAITUC)=>{
+                    return (
+                        <Button className="middle-div" icon="exclamation-circle" onClick={()=>this.onDetailDateInterest(NGAY_TRAITUC)}>Xem chi tiết</Button>
+                    )
+                }
+            },
+            {
+                title: 'Ghi chú',
+                dataIndex: 'GHICHU',
+                width: 220
+            },
+        ];
+
         this.state = {
             isOpen: false,
-            dataSource: []
+            openModal: false,
+            dataSource: [],
+            dataSource_2: [],
+            lstSetCommand: []
         };
+    }
+
+    componentDidMount(){
+        this.loadData();
+    }
+
+    loadData = async()=>{
+        try {
+            const res = await this.props.getWaitListBondsHave('311819634');
+            if(res.type === "WAIT_LIST_BONDS_HAVE_FAILED"){
+                common.notify('error', 'Thao tác thất bại :( ');
+            }else{
+                const lstTmp = await (res.data.filter(item => item.FLAG === 1)).map((item, i) => {
+                    return {
+                        ...item,
+                        "NGAYTAO": common.convertDDMMYYYY(item.NGAYTAO),
+                        "NGAY_GD": common.convertDDMMYYYY(item.NGAY_GD),
+                        "NGAYHUY": common.convertDDMMYYYY(item.NGAYHUY),
+                        "DONGIA": common.convertTextDecimal(item.DONGIA),
+                        "TONGGIATRI": common.convertTextDecimal(item.TONGGIATRI),
+                        "key": i + 1
+                    }
+                })
+                this.setState({dataSource: lstTmp});
+            }
+            const res_2 = await this.props.getCurrentListBondsHave('311819634');
+            if(res_2.type === "CURRENT_LIST_BONDS_HAVE_FAILED"){
+                common.notify('error', 'Thao tác thất bại :( ');
+            }else{
+                const lstTmp_2 = await (res_2.data.filter(item => item.FLAG === 1)).map((item, i) => {
+                    return {
+                        ...item,
+                        "NGAYTAO": common.convertDDMMYYYY(item.NGAYTAO),
+                        "NGAY_GD": common.convertDDMMYYYY(item.NGAY_GD),
+                        "NGAYHUY": common.convertDDMMYYYY(item.NGAYHUY),
+                        "DONGIA": common.convertTextDecimal(item.DONGIA),
+                        "TONGGIATRI": common.convertTextDecimal(item.TONGGIATRI),
+                        "key": i + 1
+                    }
+                })
+                this.setState({dataSource_2: lstTmp_2});
+            }
+        } catch (error) {
+            console.log("err load data " + error);
+        }
+    }
+
+    onDetailDateInterest = (data)=>{
+        this.setState({openModal: true, lstSetCommand: data});
+    }
+
+    handleCloseModal = ()=>{
+        this.setState({openModal: false});
     }
 
     buyMoreBond = ()=>{
@@ -100,46 +172,68 @@ class BondsAsset extends Component{
         return(
             <div style={{padding: 10}}>
                 <ModalSaleBond open={this.state.isOpen} onClose={this.onClose}/>
+                <ModalShowDateInterest isOpen={this.state.openModal} isCloseModal={this.handleCloseModal} lstSetCommand={this.state.lstSetCommand}/>
                 <Tabs>
                     <TabPane tab="Trái phiếu hiện có" key="1">
-                        <Row>
-                        <Col sm="8"></Col>
-                        <Col sm="2">
-                            <div>
-                                <Label for="exampleSelect" style={styles.labelOption}>Từ ngày</Label>
-                                <DatePicker className="datePickerNone" defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
-                            </div>
-                        </Col>
-                        <Col sm="2">
-                            <div>
-                                <Label for="exampleSelect" style={styles.labelOption}>Đến ngày</Label>
-                                <DatePicker className="datePickerNone" defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
-                            </div>
-                        </Col>
-                </Row>
+                        <div className="p-top10" style={{padding: 10}}>
+                            <Table
+                                bordered
+                                dataSource={this.state.dataSource_2}
+                                size="small"
+                                columns={this.columns}
+                                pagination={{ pageSize: 15 }}
+                            />
+                        </div>
                     </TabPane>
                     <TabPane tab="Đang chờ duyệt" key="2">
-
+                        <div className="p-top10" style={{padding: 10}}>
+                            <Table
+                                bordered
+                                dataSource={this.state.dataSource}
+                                size="small"
+                                columns={this.columns}
+                                pagination={{ pageSize: 15 }}
+                            />
+                        </div>
                     </TabPane>
                     <TabPane tab="Lịch sử giao dịch" key="3">
-
+                        <Row>
+                            <Col sm="8"></Col>
+                            <Col sm="2">
+                                <div>
+                                    <Label for="exampleSelect" style={styles.labelOption}>Từ ngày</Label>
+                                    <DatePicker className="datePickerNone" defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
+                                </div>
+                            </Col>
+                            <Col sm="2">
+                                <div>
+                                    <Label for="exampleSelect" style={styles.labelOption}>Đến ngày</Label>
+                                    <DatePicker className="datePickerNone" defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
+                                </div>
+                            </Col>
+                        </Row>
                     </TabPane>
                 </Tabs>
-                <div className="p-top10" style={{padding: 10}}>
-                    <Table
-                        bordered
-                        dataSource={this.state.dataSource}
-                        size="small"
-                        columns={this.columns}
-                        pagination={{ pageSize: 15 }}
-                    />
-                </div>
             </div>
         );
     }
 }
 
-export default BondsAsset;
+const mapStateToProps = state =>{
+    return{
+        lstCurrentListBondsHave: state.getListBondsHave.data,
+        lstWaitListBondsHave: state.getListBondsHave.data,
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        getCurrentListBondsHave: (codeInvestor)=> dispatch(currentListBondsHave(codeInvestor)),
+        getWaitListBondsHave: (codeInvestor)=> dispatch(waitListBondsHave(codeInvestor)),
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps) (BondsAsset);
 
 const styles={
     customTable:{

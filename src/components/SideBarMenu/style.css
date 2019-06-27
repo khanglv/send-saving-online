@@ -13,7 +13,7 @@
   
 .logo {
     height: 6.6rem;
-    background: linear-gradient(to right, #004b8f, #466f9c);
+    background: linear-gradient(to right, #305585, #5073a2);
     color: #fff;
     display: flex;
     align-items: center;
@@ -36,21 +36,17 @@
     height: 50px!important;
 }
 
-.ant-menu-item-selected{
-    
-}
-
 .ant-menu-item:hover{
     background-color: #6988a7!important;
 }
 
 .ant-menu-dark, .ant-menu-dark .ant-menu-sub{
-    background: linear-gradient(to right, #004b8f, #466f9c)!important;
+    background: linear-gradient(to right, #305585, #5073a2)!important;
 }
 
 .ant-layout-sider{
     height: 85vh;
-    background: linear-gradient(to right, #004b8f, #466f9c)!important;
+    background: linear-gradient(to right, #305585, #5073a2)!important;
     min-width: 15rem;
     max-width: 15rem;
 }

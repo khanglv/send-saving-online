@@ -83,7 +83,7 @@ const styles = {
         display: 'flex', 
         alignItems: 'center', 
         border: '1px solid #d5e0eb', 
-        background: '#004b8f',
+        background: '#5073a2',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         color: '#fff',
