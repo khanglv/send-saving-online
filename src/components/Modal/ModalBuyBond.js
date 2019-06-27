@@ -42,7 +42,7 @@ export class ModalBuyBond extends Component{
     }
 
     onOpenKeepExpire = ()=>{
-        if(this.state.quantityBond === 0){
+        if(this.state.quantityBond === 0 || this.state.quantityBond === null){
             this.setState({isShowWarning: true});
         }else{
             this.setState({isOpenExpire: true, isShowWarning: false});
@@ -139,7 +139,7 @@ export class ModalBuyBond extends Component{
                         <div className="clearfix"></div>
                         <Col style={styles.borderBottom} className="p-top10"></Col>
                         <div className="p-top10">
-                            <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} 
+                            <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} onCloseBuyBond={this.toggle}
                                 data={{
                                         ...data, 
                                         "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI,
@@ -343,6 +343,7 @@ export class KeepExpireBond extends Component{
             }else{
                 common.notify('success', 'Thao tác thành công ^^ ');
                 this.toggle();
+                this.props.onCloseBuyBond();
             }
         } catch (error) {
             
@@ -411,7 +412,7 @@ export class KeepExpireBond extends Component{
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Lãi đầu tư</div>
-                        <div className="right">{totalMoneyReceive}(%)</div>
+                        <div className="right">{data.LAISUAT_HH}(%)</div>
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Cho thời gian</div>
@@ -506,7 +507,7 @@ export class KeepExpireBond extends Component{
                                 Trái phiếu
                             </Col>
                             <Col sm="7">
-                                {data.TENLOAI_TP}
+                                <b style={{color: '#4b81ba'}}>{data.MSTP}</b>
                             </Col>
                         </Row>
                         <div style={styles.borderBottomRadius}></div>

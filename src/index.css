@@ -102,6 +102,19 @@ div.hasHover:hover{
   min-height: 38px!important;
 }
 
+/* style table in ant design */
+.ant-table-thead > tr{
+  background: #4b79a1!important;
+}
+
+.ant-table-thead > tr > th{
+  color: #fff!important;
+}
+
+.ant-table-small > .ant-table-content > .ant-table-body{
+  margin: 0!important;
+}
+
 /* style sidebar */
 .sidenav---sidenav---_2tBP{
   background-color: #2f80e2!important;

@@ -7,7 +7,7 @@ export const getCashBalance = fetchData => async (dispatch) => {
     })
     try {
         const res = await api.getCashBalance(fetchData);
-        if (res && !res.error) {
+        if (res && !res.error && !res.message) {
             return dispatch({
                 type: CASH_BALANCE_SUCCESS,
                 data: res

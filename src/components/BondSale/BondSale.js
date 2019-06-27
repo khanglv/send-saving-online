@@ -37,7 +37,7 @@ class BondSale extends Component{
             }else{
                 this.setState({lstData: res.data});
             }
-            const res2 =  await this.props.ongetCashBalance(this.state.accountInfo[0].accountNumber);
+            const res2 =  await this.props.onGetCashBalance(this.state.accountInfo[0].accountNumber);
             if(res2.type === "CASH_BALANCE_FAILED"){
                 common.notify('error', 'Thao tác thất bại :( ');
             }else{
@@ -134,7 +134,7 @@ const mapDispatchToProps = dispatch =>{
     return{
         getListRoomVCSC: ()=> dispatch(getListRoomVCSC()),
         getDetailBond: (idBond)=> dispatch(getDetailBond(idBond)),
-        ongetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber))
+        onGetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber))
     }
 }
 

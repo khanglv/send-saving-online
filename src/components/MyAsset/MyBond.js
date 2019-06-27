@@ -2,19 +2,89 @@ import React, {Component} from 'react';
 import {
     Row, 
     Col,
-    Table,
+    Label
 } from 'reactstrap';
 import ModalSaleBond from '../../components/Modal/ModalSaleBond';
-import { DatePicker, Tag, Icon, Tooltip } from 'antd';
+import { Tabs, DatePicker, Icon, Tooltip, Table, Popconfirm } from 'antd';
 import moment from 'moment';
 
+const TabPane = Tabs.TabPane;
 const dateFormat = 'DD/MM/YYYY';
 
 class BondsAsset extends Component{
     constructor(props){
         super(props);
+        this.columns = [
+            {
+                title: 'STT',
+                dataIndex: 'key',
+                width: 30,
+            },
+            {
+                title: 'Action',
+                dataIndex: 'operation',
+                width: 120,
+                render: (text, record) =>{
+                    return(
+                        this.state.dataSource.length >= 1 ?
+                            <div>
+                                <Tooltip title="Duyệt" className="pointer">
+                                    <Icon type="check" style={{color: '#1cd356', fontSize: 16}}/>
+                                </Tooltip>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <Popconfirm title="Hủy duyệt lệnh này???" onConfirm={() => this.handleDelete()}>
+                                    <Tooltip title="Hủy duyệt" className="pointer">
+                                        <Icon type="close" style={{color: '#f5222d', fontSize: 16}}/>
+                                    </Tooltip>
+                                </Popconfirm>
+                            </div>
+                         : null
+                    )
+                }
+            },
+            {
+                title: 'Trái Phiếu', //1
+                dataIndex: 'MSTP',
+                width: 250
+            },
+            {
+                title: 'Nhà đầu tư', //2
+                dataIndex: 'TENNDT',
+                width: 250
+            },
+            {
+                title: 'MS Người giới thiệu', //3
+                dataIndex: 'MS_NGUOI_GT',
+                width: 150
+            },
+            {
+                title: 'Số lượng',
+                dataIndex: 'SOLUONG',
+                width: 100
+            },
+            {
+                title: 'Đơn giá',
+                dataIndex: 'DONGIA',
+                width: 200
+            },
+            {
+                title: 'Tổng giá trị',
+                dataIndex: 'TONGGIATRI',
+                width: 220
+            },
+            {
+                title: 'Lãi suất',
+                dataIndex: 'LAISUAT_DH',
+                width: 150
+            },
+            {
+                title: 'Ngày giao dịch',
+                dataIndex: 'NGAY_GD',
+                width: 150
+            }
+        ]
         this.state = {
             isOpen: false,
+            dataSource: []
         };
     }
 
@@ -30,80 +100,39 @@ class BondsAsset extends Component{
         return(
             <div style={{padding: 10}}>
                 <ModalSaleBond open={this.state.isOpen} onClose={this.onClose}/>
-                <Row>
-                    <Col sm="3">
-                        <div>
-                            <Tag color="orange">Từ ngày</Tag><br/>
-                            <DatePicker className="datePickerNone" defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
-                        </div>
-                    </Col>
-                    <Col sm="3">
-                        <div>
-                            <Tag color="orange">Đến ngày</Tag><br/>
-                            <DatePicker className="datePickerNone" defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
-                        </div>
-                    </Col>
+                <Tabs>
+                    <TabPane tab="Trái phiếu hiện có" key="1">
+                        <Row>
+                        <Col sm="8"></Col>
+                        <Col sm="2">
+                            <div>
+                                <Label for="exampleSelect" style={styles.labelOption}>Từ ngày</Label>
+                                <DatePicker className="datePickerNone" defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
+                            </div>
+                        </Col>
+                        <Col sm="2">
+                            <div>
+                                <Label for="exampleSelect" style={styles.labelOption}>Đến ngày</Label>
+                                <DatePicker className="datePickerNone" defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
+                            </div>
+                        </Col>
                 </Row>
-                <div className="p-top20">
-                    <Table striped style={styles.customTable}>
-                        <thead>
-                            <tr style={styles.headerTable}>
-                                <th></th>
-                                <th>Mã trái phiếu</th>
-                                <th>Tổng KL</th>
-                                <th>Khả dụng</th>
-                                <th>Đang mua</th>
-                                <th>Đang bán</th>
-                                <th>Đầu tư</th>
-                                <th>Ngày mua</th>
-                                <th>Kỳ hạn (tháng)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <Tooltip title="Mua thêm trái phiếu"><Icon className="customIconHover" type="select"/></Tooltip>&nbsp;&nbsp;&nbsp;
-                                    <Tooltip title="Bán trái phiếu" onClick={this.buyMoreBond}><Icon className="customIconHover" type="scissor"/></Tooltip>
-                                </td>
-                                <td>BONDS-VCSC-6050</td>
-                                <td>3000</td>
-                                <td>2900</td>
-                                <td><Icon style={{color: '#28a745'}} type="check" /></td>
-                                <td></td>
-                                <td>2,000,000,000 VND</td>
-                                <td>22/06/2019</td>
-                                <td>19</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <Tooltip title="Mua thêm trái phiếu"><Icon className="customIconHover" type="select"/></Tooltip>&nbsp;&nbsp;&nbsp;
-                                    <Tooltip title="Bán trái phiếu"><Icon className="customIconHover" type="scissor"/></Tooltip>
-                                </td>
-                                <td>BONDS-HINATACHI-6050</td>
-                                <td>3800</td>
-                                <td>2900</td>
-                                <td></td>
-                                <td><Icon style={{color: '#28a745'}} type="check" /></td>
-                                <td>4,500,000,000 VND</td>
-                                <td>22/06/2019</td>
-                                <td>19</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <Tooltip title="Mua thêm trái phiếu"><Icon className="customIconHover" type="select"/></Tooltip>&nbsp;&nbsp;&nbsp;
-                                    <Tooltip title="Bán trái phiếu"><Icon className="customIconHover" type="scissor"/></Tooltip>
-                                </td>
-                                <td>BONDS-VCSC-6050</td>
-                                <td>3000</td>
-                                <td>2900</td>
-                                <td><Icon style={{color: '#28a745'}} type="check" /></td>
-                                <td></td>
-                                <td>2,000,000,000 VND</td>
-                                <td>22/06/2019</td>
-                                <td>19</td>
-                            </tr>
-                        </tbody>
-                    </Table>
+                    </TabPane>
+                    <TabPane tab="Đang chờ duyệt" key="2">
+
+                    </TabPane>
+                    <TabPane tab="Lịch sử giao dịch" key="3">
+
+                    </TabPane>
+                </Tabs>
+                <div className="p-top10" style={{padding: 10}}>
+                    <Table
+                        bordered
+                        dataSource={this.state.dataSource}
+                        size="small"
+                        columns={this.columns}
+                        pagination={{ pageSize: 15 }}
+                    />
                 </div>
             </div>
         );
@@ -120,5 +149,16 @@ const styles={
     headerTable:{
         backgroundColor: '#528fc7',
         color: '#fff'
-    }
+    },
+    labelOption: {
+        position: 'absolute', 
+        top: '-0.8rem', 
+        backgroundColor: '#fff', 
+        left: '1.5rem', 
+        paddingLeft: 5, 
+        paddingRight: 5,
+        fontSize: 13,
+        color: '#4b81ba',
+        zIndex: '1000'
+    },
 }
