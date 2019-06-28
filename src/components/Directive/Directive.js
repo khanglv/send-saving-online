@@ -221,14 +221,14 @@ class Directive extends Component{
                             <b>{data.MSTP}</b>
                         </Alert>
                         <span>
-                            <i>Đáo hạn:</i> <span>{common.convertDDMMYYYY(data.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <span>{data.TEN_DN}</span>
+                            <i>Đáo hạn:</i> <span className="index-color">{common.convertDDMMYYYY(data.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <b className="index-color">{data.TEN_DN}</b>
                         </span>
                     </div>
                     <div className="p-top10">
                         <Tabs>
                             <TabPane tab="Giữ đến đáo hạn" key="1">
                                 <Table bordered>
-                                    <thead>
+                                    <thead style={{background: '#4b81ba', color: '#fff'}}>
                                         <tr>
                                             <th>Nội dung</th>
                                             <th>Ngày nhận</th>
@@ -247,19 +247,19 @@ class Directive extends Component{
                                 </Table>
                                 <div style={{paddingBottom: 10}}>
                                     <div style={{ display: 'flow-root' }}>
-                                        <b className="left">Tổng tiền nhận</b>
+                                        <b className="left index-color">Tổng tiền nhận</b>
                                         <div className="right"><span style={{ color: 'red' }}>{common.convertTextDecimal((this.state.quantityBond * data.GIATRI_HIENTAI) * (1 + totalMoneyReceive / 100))}</span> VND</div>
                                     </div>
                                     <div style={{ display: 'flow-root' }}>
-                                        <b className="left">Gốc đầu tư</b>
+                                        <b className="left index-color">Gốc đầu tư</b>
                                         <div className="right">{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI)}</div>
                                     </div>
                                     <div style={{ display: 'flow-root' }}>
-                                        <b className="left">Lãi đầu tư</b>
+                                        <b className="left index-color">Lãi đầu tư</b>
                                         <div className="right">{data.LAISUAT_HH}(%)</div>
                                     </div>
                                     <div style={{ display: 'flow-root' }}>
-                                        <b className="left">Cho thời gian</b>
+                                        <b className="left index-color">Cho thời gian</b>
                                         <div className="right">{formula.diffMonth(data.NGAYPH, data.NGAYDH)} tháng</div>
                                     </div>
                                 </div>
@@ -302,6 +302,7 @@ class Directive extends Component{
                             </TabPane> */}
                         </Tabs>
                     </div>
+                    <div className="p-top10" style={styles.borderBottomRadius}></div>
                     <div className="p-top10">
                         <div style={{color: 'red'}}>*Lưu ý</div>
                         <span>{data.DIEUKHOAN_LS}</span>

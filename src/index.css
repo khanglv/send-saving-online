@@ -32,6 +32,10 @@ code {
   background-color: rgba(14, 24, 77, 0.03);
 }
 
+.index-color{
+  color: #4b81ba
+}
+
 .left{
   float: left;
 }

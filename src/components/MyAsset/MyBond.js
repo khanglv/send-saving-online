@@ -12,6 +12,7 @@ import moment from 'moment';
 import {connect} from 'react-redux';
 import {waitListBondsHave, currentListBondsHave} from '../../stores/actions/getListBondsHaveAction';
 import * as common from '../Common/Common';
+import { withRouter } from "react-router";
 
 const TabPane = Tabs.TabPane;
 const dateFormat = 'DD/MM/YYYY';
@@ -34,10 +35,10 @@ class BondsAsset extends Component{
                         this.state.dataSource.length >= 1 ?
                             <div>
                                 <Tooltip title="Mua thêm trái phiếu" className="pointer">
-                                    <Icon type="shopping-cart" style={{color: '#1cd356', fontSize: 16}}/>
+                                    <Icon type="shopping-cart" style={{color: '#4b81ba', fontSize: 16}} onClick={this.buyMoreBonds}/>
                                 </Tooltip>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                <Popconfirm title="Hủy duyệt lệnh này???" onConfirm={() => this.handleDelete()}>
-                                    <Tooltip title="Bán trái phiếu" className="pointer">
+                                <Popconfirm title="Bán trái phiếu này???" onConfirm={() => this.handleDelete()}>
+                                    <Tooltip title="Bán trái phiếu" placement="right" className="pointer">
                                         <Icon type="sliders" style={{color: '#f5222d', fontSize: 16}}/>
                                     </Tooltip>
                                 </Popconfirm>
@@ -49,7 +50,14 @@ class BondsAsset extends Component{
             {
                 title: 'Trái Phiếu', //1
                 dataIndex: 'MSTP',
-                width: 250
+                width: 250,
+                render: (MSTP, record)=>{
+                    return(
+                        <div>
+                            {record.TRANGTHAI_LENH === 1 ? <Icon type="check-circle" theme="filled" style={{ color: '#1cd356'}}/> : null}&nbsp;{MSTP}
+                        </div>
+                    )
+                }
             },
             {
                 title: 'MS Người giới thiệu', //3
@@ -152,6 +160,10 @@ class BondsAsset extends Component{
         }
     }
 
+    buyMoreBonds = ()=>{
+        this.props.history.push('/main');
+    }
+
     onDetailDateInterest = (data)=>{
         this.setState({openModal: true, lstSetCommand: data});
     }
@@ -233,7 +245,7 @@ const mapDispatchToProps = dispatch =>{
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps) (BondsAsset);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps) (BondsAsset));
 
 const styles={
     customTable:{
