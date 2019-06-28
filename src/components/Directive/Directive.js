@@ -103,13 +103,14 @@ class Directive extends Component{
                     common.notify('error', 'Thao tác thất bại :( ');
                 }else{
                     common.notify('success', 'Thao tác thành công ^^ ');
-                    this.setState(
+                    await this.setState(
                         {
                             detailBond: {},
                             quantityBond: 0,
                             buyDate: moment(new Date(), dateFormat),
                         }
                     );
+                    await this.loadData();
                 }
             } catch (error) {
                 

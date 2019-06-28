@@ -132,7 +132,7 @@ export class ModalBuyBond extends Component{
                                 <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI)} VND</span>
                             </div>
                             <div className="left p-top10">
-                                Tài sản hiện có <br/>
+                                Tài sản tài khoản hiện có <br/>
                                 <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(data.cashBalance.depositAmount)} VND</span>
                             </div>
                         </div>
