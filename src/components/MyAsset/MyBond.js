@@ -139,10 +139,10 @@ class BondsAsset extends Component{
                 this.setState({dataSource: lstTmp});
             }
             const res_2 = await this.props.getListBondsOfInvestor('311819634', 0);
-            if(res.type === "GET_LIST_BONDS_OF_INVESTOR_FAILED"){
+            if(res_2.type === "GET_LIST_BONDS_OF_INVESTOR_FAILED"){
                 common.notify('error', 'Thao tác thất bại :( ');
             }else{
-                const lstTmp = await (res_2.data.filter(item => item.FLAG === 1)).map((item, i) => {
+                const lstTmp_2 = await (res_2.data.filter(item => item.FLAG === 1)).map((item, i) => {
                     return {
                         ...item,
                         "NGAYTAO": common.convertDDMMYYYY(item.NGAYTAO),
@@ -153,7 +153,7 @@ class BondsAsset extends Component{
                         "key": i + 1
                     }
                 })
-                this.setState({dataSource_2: lstTmp});
+                this.setState({dataSource_2: lstTmp_2});
             }
         } catch (error) {
             console.log("err load data " + error);
