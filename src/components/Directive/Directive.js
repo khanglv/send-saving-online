@@ -9,7 +9,7 @@ import {
     FormGroup,
     Button
 } from 'reactstrap';
-import { Tabs, DatePicker } from 'antd';
+import { Tabs, DatePicker, Select } from 'antd';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
@@ -20,6 +20,7 @@ import {getCashBalance} from '../../stores/actions/cashBalanceAction';
 import {buyBondsRoomVCSC} from '../../api/api';
 
 const TabPane = Tabs.TabPane;
+const { Option } = Select;
 const dateFormat = 'DD/MM/YYYY';
 
 class Directive extends Component{
@@ -65,7 +66,7 @@ class Directive extends Component{
     }
 
     updateSelectedValue = async(event)=>{
-        const res = await this.props.getDetailBond(event.target.value);
+        const res = await this.props.getDetailBond(event);
         this.setState({detailBond: res.data});
     }
 
@@ -130,15 +131,20 @@ class Directive extends Component{
                 <div style={styles.viewOptionLeft}>
                     <div className="p-top10" style={{position: 'relative'}}>
                         <Label for="exampleSelect" style={styles.labelInput}>Mã trái phiếu</Label>
-                        <Input type="select" name="codeBond" style={{ background: 'none' }} onChange={event => this.updateSelectedValue(event)}>
+                        <Select showSearch name="codeBond" style={{ background: 'none', width: '100%' }}
+                            value={data.BONDID}
+                            onChange={event => this.updateSelectedValue(event)}
+                            filterOption={(input, option) =>
+                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }>
                             {
-                                this.props.lstRoomVCSC.map((item) => {
+                                this.props.lstRoomVCSC.filter(item => item.FLAG === 1).map((item) => {
                                     return (
-                                        item.FLAG === 1 ? <option key={item.BOND_ID} value={item.BOND_ID}>{item.MSTP}</option> : null
+                                        <Option key={item.BOND_ID} value={item.BOND_ID}>{item.MSTP}</Option>
                                     )
                                 })
                             }
-                        </Input>
+                        </Select>
                     </div>
                     <div className="p-top20">
                         <Row>
@@ -357,7 +363,9 @@ const styles = {
         left: '1rem', 
         paddingLeft: 5, 
         paddingRight: 5,
-        color: '#4b81ba'
+        color: '#4b81ba',
+        fontSize: 13,
+        zIndex: '1000'
     },
     labelOption: {
         position: 'absolute', 
