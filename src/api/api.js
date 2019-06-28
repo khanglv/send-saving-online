@@ -291,17 +291,8 @@ export const buyBondsRoomVCSC = (dataSend)=>{
     return callApiBonds(options);
 }
 
-export const currentListBondsHave = (idInvestor)=>{
-    const url = `${BASE_URL_BONDS}/investors/${idInvestor}/1`;
-    const options = {
-        url: url,
-        method: "GET"
-    }
-    return callApiBonds(options);
-}
-
-export const waitListBondsHave = (idInvestor)=>{
-    const url = `${BASE_URL_BONDS}/investors/${idInvestor}/0`;
+export const getListBondsOfInvestor = (idInvestor, status)=>{
+    const url = `${BASE_URL_BONDS}/investors/${idInvestor}/${status}`;
     const options = {
         url: url,
         method: "GET"

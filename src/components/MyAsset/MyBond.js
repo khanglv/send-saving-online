@@ -10,7 +10,7 @@ import { Tabs, DatePicker, Icon, Tooltip, Table, Popconfirm, Button } from 'antd
 import moment from 'moment';
 
 import {connect} from 'react-redux';
-import {waitListBondsHave, currentListBondsHave} from '../../stores/actions/getListBondsHaveAction';
+import {getListBondsOfInvestor} from '../../stores/actions/getListBondsOfInvestorAction';
 import * as common from '../Common/Common';
 import { withRouter } from "react-router";
 
@@ -121,8 +121,8 @@ class BondsAsset extends Component{
 
     loadData = async()=>{
         try {
-            const res = await this.props.getWaitListBondsHave('311819634');
-            if(res.type === "WAIT_LIST_BONDS_HAVE_FAILED"){
+            const res = await this.props.getListBondsOfInvestor('311819634', 1);
+            if(res.type === "GET_LIST_BONDS_OF_INVESTOR_FAILED"){
                 common.notify('error', 'Thao tác thất bại :( ');
             }else{
                 const lstTmp = await (res.data.filter(item => item.FLAG === 1)).map((item, i) => {
@@ -138,11 +138,11 @@ class BondsAsset extends Component{
                 })
                 this.setState({dataSource: lstTmp});
             }
-            const res_2 = await this.props.getCurrentListBondsHave('311819634');
-            if(res_2.type === "CURRENT_LIST_BONDS_HAVE_FAILED"){
+            const res_2 = await this.props.getListBondsOfInvestor('311819634', 0);
+            if(res.type === "GET_LIST_BONDS_OF_INVESTOR_FAILED"){
                 common.notify('error', 'Thao tác thất bại :( ');
             }else{
-                const lstTmp_2 = await (res_2.data.filter(item => item.FLAG === 1)).map((item, i) => {
+                const lstTmp = await (res_2.data.filter(item => item.FLAG === 1)).map((item, i) => {
                     return {
                         ...item,
                         "NGAYTAO": common.convertDDMMYYYY(item.NGAYTAO),
@@ -153,7 +153,7 @@ class BondsAsset extends Component{
                         "key": i + 1
                     }
                 })
-                this.setState({dataSource_2: lstTmp_2});
+                this.setState({dataSource_2: lstTmp});
             }
         } catch (error) {
             console.log("err load data " + error);
@@ -190,7 +190,7 @@ class BondsAsset extends Component{
                         <div className="p-top10" style={{padding: 10}}>
                             <Table
                                 bordered
-                                dataSource={this.state.dataSource_2}
+                                dataSource={this.state.dataSource}
                                 size="small"
                                 columns={this.columns}
                                 pagination={{ pageSize: 15 }}
@@ -201,7 +201,7 @@ class BondsAsset extends Component{
                         <div className="p-top10" style={{padding: 10}}>
                             <Table
                                 bordered
-                                dataSource={this.state.dataSource}
+                                dataSource={this.state.dataSource_2}
                                 size="small"
                                 columns={this.columns}
                                 pagination={{ pageSize: 15 }}
@@ -233,15 +233,13 @@ class BondsAsset extends Component{
 
 const mapStateToProps = state =>{
     return{
-        lstCurrentListBondsHave: state.getListBondsHave.data,
-        lstWaitListBondsHave: state.getListBondsHave.data,
+        lstBondsOfInvestor: state.getListBondsOfInvestor.data,
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
-        getCurrentListBondsHave: (codeInvestor)=> dispatch(currentListBondsHave(codeInvestor)),
-        getWaitListBondsHave: (codeInvestor)=> dispatch(waitListBondsHave(codeInvestor)),
+        getListBondsOfInvestor: (codeInvestor, status)=> dispatch(getListBondsOfInvestor(codeInvestor, status)),
     }
 }
 
