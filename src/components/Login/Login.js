@@ -13,7 +13,7 @@ import {
 } from 'reactstrap';
 import Footer from '../Footer/Footer';
 import {connect} from 'react-redux';
-import {login, loginRequest, verifyOTPRequest, verifyOTP} from '../../stores/actions/loginAction';
+import {login, loginRequest, verifyOTPRequest, verifyOTP, getUser} from '../../stores/actions/loginAction';
 import {verifyBonds} from '../../stores/actions/verifyBondAction';
 import {ModalAlert, ModalConfirm} from '../Modal/Modal';
 import GuideLogin from './Guide';
@@ -149,7 +149,17 @@ class Login extends Component {
                 this.setState({ isOpenOTP: true, warningData: "Mã nhập không đúng, vui lòng nhập lại", checkVerifyOTP: false });
             }else{
                 if(res.info.userInfo){
-                    const verifyBond = await this.props.onVerifyBonds(res.info.userInfo);
+                    await this.props.getUser({"accountNumber": res.info.userInfo.accounts[0].accountNumber, "subNumber": res.info.userInfo.accounts[0].accountSubs[0].subNumber});
+                    const verifyBond = await this.props.onVerifyBonds(
+                        {
+                            "MSNDT": res.info.userInfo.accounts[0].accountNumber,
+                            "TENNDT": this.props.infoUser.customerName,
+                            "CMND_GPKD": this.props.infoUser.identifierNumber,
+                            "NOICAP": this.props.infoUser.identifierIssuePlace,
+                            "SO_TKCK": res.info.userInfo.accounts[0].accountNumber,
+                            "MS_NGUOIGIOITHIEU": this.props.infoUser.agencyCode,
+                            "NGAYCAP": common.splitStringDate(this.props.infoUser.identifierIssueDate),
+                        });
                     if(verifyBond.message){
                         common.notify("error", "Không thể xác thực api VBonds");
                     }
@@ -306,7 +316,8 @@ const mapStateToProps = state =>{
         isAuthenticated: state.login.isAuthenticated,
         codeOTP: state.login.otpIndex,
         isVerifyOTP: state.login.isVerifyOTP,
-        isAuthenticateOTP: state.login.isAuthenticateOTP
+        isAuthenticateOTP: state.login.isAuthenticateOTP,
+        infoUser: state.login.dataUser
     }
 }
 
@@ -316,7 +327,8 @@ const mapDispatchToProps = dispatch =>{
         onLoginRequest: (idAccount)=> dispatch(loginRequest(idAccount)),
         onCheckVerifyOTP: (codeOTP)=> dispatch(verifyOTP(codeOTP)),
         onVerifyOTPRequest: (codeOTP)=> dispatch(verifyOTPRequest(codeOTP)),
-        onVerifyBonds: (infoData)=> dispatch(verifyBonds(infoData))
+        onVerifyBonds: (infoData)=> dispatch(verifyBonds(infoData)),
+        getUser: (objData)=> dispatch(getUser(objData)),
     }
 }
 

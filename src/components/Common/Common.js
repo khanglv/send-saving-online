@@ -28,3 +28,11 @@ export const convertStringDate = (date)=>{
 export const convertTextDecimal = (number)=>{
     return parseInt(number).toLocaleString(undefined, {maximumFractionDigits:2})
 }
+
+export const splitStringDate = (a)=>{
+    let b = "/";
+    let tmp1 = [a.slice(0, 2), b, a.slice(2)].join('');
+    let tmp2 = [tmp1.slice(0, 5), b, tmp1.slice(5)].join('');
+    let result = convertToFormat(tmp2)
+    return result;
+}

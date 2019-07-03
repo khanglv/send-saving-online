@@ -9,7 +9,7 @@ import {
     FormGroup,
     Button
 } from 'reactstrap';
-import { Tabs, DatePicker, Select } from 'antd';
+import { Tabs, DatePicker, Select, Modal } from 'antd';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
@@ -22,6 +22,7 @@ import {buyBondsRoomVCSC} from '../../api/api';
 const TabPane = Tabs.TabPane;
 const { Option } = Select;
 const dateFormat = 'DD/MM/YYYY';
+const { confirm } = Modal;
 
 class Directive extends Component{
     constructor(props){
@@ -30,7 +31,8 @@ class Directive extends Component{
             detailBond: {},
             quantityBond: 0,
             buyDate: moment(new Date(), dateFormat),
-            isShowWarning: false
+            isShowWarning: false,
+            accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
         }
     }
 
@@ -47,7 +49,10 @@ class Directive extends Component{
                 let idBondDefault = res.data[0].BOND_ID;
                 const defaultData = await this.props.getDetailBond(idBondDefault);
                 if(defaultData){
-                    this.setState({detailBond: defaultData.data});
+                    this.setState({detailBond: {
+                        ...defaultData.data,
+                        "GIATRI_HIENTAI": defaultData.data.GIATRI_HIENTAI === null ? defaultData.data.MENHGIA : defaultData.data.GIATRI_HIENTAI
+                    }});
                 }
             }
             // const res2 =  await this.props.ongetCashBalance(this.state.accountInfo[0].accountNumber);
@@ -61,13 +66,35 @@ class Directive extends Component{
         }
     }
 
+    showConfirm = (data, lstTmpDateInterest)=> {
+        if(this.state.quantityBond === 0 || this.state.quantityBond === null){
+            this.setState({isShowWarning: true});
+        }else{
+            this.setState({isShowWarning: false});
+            let that = this;
+            confirm({
+                title: 'Xác nhận',
+                content: 'Bạn muốn mua trái phiếu hay không ?',
+                onOk() {
+                    that.onConfirmBuy(data, lstTmpDateInterest);
+                },
+                onCancel() {
+                    
+                },
+            });
+        }
+    }
+
     updateInputDate = name => (value)=>{
         this.setState({[name]: value});
     }
 
     updateSelectedValue = async(event)=>{
         const res = await this.props.getDetailBond(event);
-        this.setState({detailBond: res.data});
+        await this.setState({detailBond: {
+            ...res.data,
+            "GIATRI_HIENTAI": res.data.GIATRI_HIENTAI === null ? res.data.MENHGIA : res.data.GIATRI_HIENTAI
+        }});
     }
 
     updateInputValue = (event)=>{
@@ -75,52 +102,48 @@ class Directive extends Component{
     }
 
     onConfirmBuy = async(data, lstTmpDateInterest)=>{
-        if(this.state.quantityBond === 0 || this.state.quantityBond === null){
-            this.setState({isShowWarning: true});
-        }else{
-            this.setState({isShowWarning: false});
-            try {
-                const dataTranfer = await lstTmpDateInterest.map((item)=>{
-                    return{
-                        ...item,
-                        "moneyReceived": (item.interestRate)*(this.state.quantityBond * data.GIATRI_HIENTAI)/100
-                    }
-                });
-    
-                let dataTmp = {
-                    "BOND_ID": data.BONDID,
-                    "MS_NDT": "311819634",
-                    "MS_ROOM": data.MSROOM,
-                    "MS_NGUOI_GT": "MS_01",
-                    "SOLUONG": this.state.quantityBond,
-                    "DONGIA": data.GIATRI_HIENTAI,
-                    "TONGGIATRI": this.state.quantityBond * data.GIATRI_HIENTAI,
-                    "LAISUAT_DH": data.LAISUAT_HH,
-                    "NGAY_TRAITUC": JSON.stringify(dataTranfer),
-                    "NGAY_GD": this.state.buyDate,
+        try {
+            const dataTranfer = await lstTmpDateInterest.map((item)=>{
+                return{
+                    ...item,
+                    "moneyReceived": (item.interestRate)*(this.state.quantityBond * data.GIATRI_HIENTAI)/100
                 }
-                const res = await buyBondsRoomVCSC(dataTmp);
-                if(res.error){
-                    common.notify('error', 'Thao tác thất bại :( ');
-                }else{
-                    common.notify('success', 'Thao tác thành công ^^ ');
-                    await this.setState(
-                        {
-                            detailBond: {},
-                            quantityBond: 0,
-                            buyDate: moment(new Date(), dateFormat),
-                        }
-                    );
-                    await this.loadData();
-                }
-            } catch (error) {
-                
+            });
+
+            let dataTmp = {
+                "BOND_ID": data.BONDID,
+                "MS_NDT": this.state.accountInfo[0].accountNumber,
+                "MS_ROOM": data.MSROOM,
+                "MS_NGUOI_GT": "MS_01",
+                "SOLUONG": this.state.quantityBond,
+                "DONGIA": data.GIATRI_HIENTAI,
+                "TONGGIATRI": this.state.quantityBond * data.GIATRI_HIENTAI,
+                "LAISUAT_DH": data.LAISUAT_HH,
+                "NGAY_TRAITUC": JSON.stringify(dataTranfer),
+                "NGAY_GD": this.state.buyDate,
             }
+            const res = await buyBondsRoomVCSC(dataTmp);
+            if(res.error){
+                common.notify('error', 'Thao tác thất bại :( ');
+            }else{
+                common.notify('success', 'Thao tác thành công ^^ ');
+                await this.setState(
+                    {
+                        detailBond: {},
+                        quantityBond: 0,
+                        buyDate: moment(new Date(), dateFormat),
+                    }
+                );
+                await this.loadData();
+            }
+        } catch (error) {
+            
         }
     }
 
     render(){
         const data = this.state.detailBond;
+        // const  { detailBond = {} }= this.state;
         const lstTmpDateInterest = Object.keys(data).length > 0 ? formula.GenDateInterestRate(this.state.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_HH, []) : null;
         let totalMoneyReceive = lstTmpDateInterest ? lstTmpDateInterest.reduce((total, currentValue)=> {
             return total + JSON.parse(currentValue.interestRate);
@@ -177,7 +200,8 @@ class Directive extends Component{
                             </Col>
                         </Row>
                         <div>
-                            <i>Hạn mức:</i> <span style={{color: 'red'}}>{common.convertTextDecimal(data.HANMUC_CHO)}</span> - <i>Đơn giá</i> <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)} VND</span>
+                            <i>Hạn mức:</i> <span style={{color: 'red'}}>{common.convertTextDecimal(data.HANMUC_CHO)}</span>&nbsp;
+                             - <i>Đơn giá</i> <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)} VND</span>
                         </div>
                     </div>
                     <div className="p-top10" style={styles.borderBottomRadius}></div>
@@ -217,7 +241,7 @@ class Directive extends Component{
                                 <span style={{color: 'red', fontSize: 18}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI)} VND</span>
                             </Col>
                             <Col sm="5">
-                                <Button color="primary" onClick={()=>this.onConfirmBuy(data, lstTmpDateInterest)}>Đặt mua</Button>
+                                <Button color="primary" onClick={()=>this.showConfirm(data, lstTmpDateInterest)}>Đặt mua</Button>
                             </Col>
                         </Row>
                     </div>
@@ -355,6 +379,7 @@ const styles = {
         marginLeft: 10,
         borderRadius: 5,
         flex: 3,
+        overflow: 'auto'
     },
     labelInput: {
         position: 'absolute', 

@@ -6,7 +6,7 @@ import {
 } from 'reactstrap';
 import ModalSaleBond from '../../components/Modal/ModalSaleBond';
 import ModalShowDateInterest from './ModalShowDateInterest';
-import { Tabs, DatePicker, Icon, Tooltip, Table, Popconfirm, Button } from 'antd';
+import { Tabs, DatePicker, Icon, Tooltip, Table, Popconfirm } from 'antd';
 import moment from 'moment';
 
 import {connect} from 'react-redux';
@@ -92,10 +92,14 @@ class BondsAsset extends Component{
             {
                 title: 'Ngày trái tức',
                 dataIndex: 'NGAY_TRAITUC',
-                width: 150,
+                width: 130,
                 render: (NGAY_TRAITUC)=>{
                     return (
-                        <Button className="middle-div" icon="exclamation-circle" onClick={()=>this.onDetailDateInterest(NGAY_TRAITUC)}>Xem chi tiết</Button>
+                        <div className="text-center">
+                            <Tooltip title="Xem chi tiết" className="pointer">
+                                <Icon type="schedule" style={{fontSize: 18, color: '#4b79a1'}} onClick={()=>this.onDetailDateInterest(NGAY_TRAITUC)}/>
+                            </Tooltip>
+                        </div>
                     )
                 }
             },
@@ -111,7 +115,8 @@ class BondsAsset extends Component{
             openModal: false,
             dataSource: [],
             dataSource_2: [],
-            lstSetCommand: []
+            lstSetCommand: [],
+            accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
         };
     }
 
@@ -121,7 +126,7 @@ class BondsAsset extends Component{
 
     loadData = async()=>{
         try {
-            const res = await this.props.getListBondsOfInvestor('311819634', 1);
+            const res = await this.props.getListBondsOfInvestor(this.state.accountInfo[0].accountNumber, 1);
             if(res.type === "GET_LIST_BONDS_OF_INVESTOR_FAILED"){
                 common.notify('error', 'Thao tác thất bại :( ');
             }else{
@@ -138,7 +143,7 @@ class BondsAsset extends Component{
                 })
                 this.setState({dataSource: lstTmp});
             }
-            const res_2 = await this.props.getListBondsOfInvestor('311819634', 0);
+            const res_2 = await this.props.getListBondsOfInvestor(this.state.accountInfo[0].accountNumber, 0);
             if(res_2.type === "GET_LIST_BONDS_OF_INVESTOR_FAILED"){
                 common.notify('error', 'Thao tác thất bại :( ');
             }else{

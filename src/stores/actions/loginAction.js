@@ -1,5 +1,16 @@
 import * as api from '../../api/api';
-import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILED, VERIFY_OTP_REQUEST, VERIFY_OTP_SUCCESS, VERIFY_OTP_FAILED} from './actionTypes';
+import {
+    LOGIN_REQUEST, 
+    LOGIN_SUCCESS, 
+    LOGIN_FAILED, 
+    VERIFY_OTP_REQUEST, 
+    VERIFY_OTP_SUCCESS, 
+    VERIFY_OTP_FAILED,
+    GET_USER_REQUEST,
+    GET_USER_SUCCESS,
+    GET_USER_FAILED
+} from './actionTypes';
+
 export const loginRequest = (username)=>{
     return {
         type: LOGIN_REQUEST,
@@ -69,4 +80,29 @@ export const verifyOTP = (codeOTP) => (dispatch)=>{
     }).catch(err=>{
         console.log("login err " + JSON.stringify(err));
     });
+}
+
+export const getUser = fetchData => async (dispatch) => {
+    dispatch({
+        type: GET_USER_REQUEST,
+    })
+    try {
+        const res = await api.getUser(fetchData);
+        if (res && !res.error && !res.message) {
+            return dispatch({
+                type: GET_USER_SUCCESS,
+                data: res
+            })
+        } else {
+            return dispatch({
+                type: GET_USER_FAILED,
+                message: res.message,
+            })
+        }
+    } catch (er) {
+        return dispatch({
+            type: GET_USER_FAILED,
+            message: er,
+        })
+    }
 }

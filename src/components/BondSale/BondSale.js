@@ -58,12 +58,18 @@ class BondSale extends Component{
 
     onActionBuyBond = async(idBond)=>{
         await this.props.getDetailBond(idBond);
-        await this.setState({isOpen: true, detailData: this.props.itemBond});
+        await this.setState({isOpen: true, detailData: {
+            ...this.props.itemBond,
+            "GIATRI_HIENTAI": this.props.itemBond.GIATRI_HIENTAI === null ?this.props.itemBond.MENHGIA : this.props.itemBond.GIATRI_HIENTAI
+        }});
     }
 
     getDetailBond = async(idBond)=>{
         await this.props.getDetailBond(idBond);
-        await this.setState({isOpenDetail: true, detailData: this.props.itemBond});
+        await this.setState({isOpenDetail: true, detailData: {
+            ...this.props.itemBond,
+            "GIATRI_HIENTAI": this.props.itemBond.GIATRI_HIENTAI === null ?this.props.itemBond.MENHGIA : this.props.itemBond.GIATRI_HIENTAI
+        }});
     }
 
     render(){

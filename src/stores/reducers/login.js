@@ -1,4 +1,14 @@
-import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILED, VERIFY_OTP_REQUEST, VERIFY_OTP_SUCCESS, VERIFY_OTP_FAILED} from '../actions/actionTypes';
+import {
+    LOGIN_REQUEST,
+    LOGIN_SUCCESS, 
+    LOGIN_FAILED, 
+    VERIFY_OTP_REQUEST, 
+    VERIFY_OTP_SUCCESS, 
+    VERIFY_OTP_FAILED,
+    GET_USER_REQUEST,
+    GET_USER_SUCCESS,
+    GET_USER_FAILED
+} from '../actions/actionTypes';
 
 
 const initialState = {
@@ -11,7 +21,8 @@ const initialState = {
     isAuthenticated: false,
     isAuthenticateOTP: false,
     isVerifyOTP: false,
-    data: []
+    data: [],
+    dataUser: []
 }
 
 const reducer = (state = initialState, action)=>{
@@ -57,7 +68,22 @@ const reducer = (state = initialState, action)=>{
                 isVerifyOTP: true,
                 isAuthenticateOTP: false,
                 message: action.code,
-            }        
+            }
+        case GET_USER_REQUEST:
+            return {
+                ...state
+            }
+        case GET_USER_SUCCESS:
+            return {
+                ...state,
+                dataUser: action.data
+            }
+        case GET_USER_FAILED:
+            return {
+                ...state,
+                message: action.code,
+            }
+
         default: 
             return state;
     }

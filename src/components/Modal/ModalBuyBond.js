@@ -176,7 +176,6 @@ export class ModalBuyBond extends Component{
 }
 
 export class DetailBond extends Component{
-
     toggle = ()=> {
         this.props.onCloseDetail();
     }
@@ -212,7 +211,7 @@ export class DetailBond extends Component{
                                     Loại trái phiếu
                                 </Col>
                                 <Col sm="8">
-                                    <Tag color="geekblue" style={{fontSize: 16}}>{data.TENLOAI_TP}</Tag>
+                                    <Tag color="green" style={{fontSize: 16}}>{data.TENLOAI_TP}</Tag>
                                 </Col>
                             </Row>
                             <div style={styles.borderBottomRadius}></div>
@@ -327,7 +326,7 @@ export class KeepExpireBond extends Component{
 
             let dataTmp = {
                 "BOND_ID": data.BONDID,
-                "MS_NDT": "311819634",
+                "MS_NDT": this.state.accountInfo[0].accountNumber,
                 "MS_ROOM": data.MSROOM,
                 "MS_NGUOI_GT": "MS_01",
                 "SOLUONG": data.quantityBond,

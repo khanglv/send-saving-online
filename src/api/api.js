@@ -4,7 +4,6 @@ import{setCookie, getCookie, clearCookie} from './cookie';
 import * as storage from './storage';
 import jwtDecode  from 'jwt-decode';
 import * as common from '../components/Common/Common';
-import moment from 'moment';
 
 const BASE_URL = "http://10.11.13.150:3000/api/v1";
 const BASE_URL_PUBLIC = "http://10.11.13.150:3000/api/v1/";
@@ -192,6 +191,22 @@ export const getCashBalance = (accountNumber)=>{
     return callApi(options, true, false);
 }
 
+export const getUser = (objData)=>{
+    let accountNumber = objData.accountNumber;
+    let subNumber = objData.subNumber;
+    const url = `${BASE_URL}/equity/account/info?accountNumber=${accountNumber}&subNumber=${subNumber}`;
+    const data = {
+        "accountNumber": accountNumber,
+        "subNumber": subNumber
+    };
+    const options = {
+        url: url,
+        method: "GET",
+        data: data
+    }
+    return callApi(options, true, false);
+}
+
 export const deductBankAccount = ()=>{
     const url = `${BASE_URL}/equity/order`;
     const data = {
@@ -246,14 +261,8 @@ const callApiBonds = (options, needAuth = true)=>{
 export const verifyBonds = (dataSend)=>{
     const url = `${BASE_URL_BONDS}/login/core`;
     const data = {
-        "MSNDT": dataSend.identifierNumber,
+        ...dataSend,
         "LOAINDT": 'CA_NHAN',
-        "TENNDT": dataSend.accounts[0].accountName,
-        "CMND_GPKD": "174784920",
-        "NGAYCAP": moment(new Date()),
-        "NOICAP": "TPHCM",
-        "SO_TKCK": dataSend.accounts[0].accountNumber,
-        "MS_NGUOIGIOITHIEU": 'MS_01'
     }
     const options = {
         url: url,
