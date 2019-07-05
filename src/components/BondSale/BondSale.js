@@ -8,7 +8,7 @@ import {
     CardFooter,
     Alert,
 } from 'reactstrap';
-import { Button, Tag } from 'antd';
+import { Button, Tag, Input } from 'antd';
 import {ModalBuyBond, DetailBond} from '../Modal/ModalBuyBond';
 
 import {connect} from 'react-redux';
@@ -17,11 +17,14 @@ import {getDetailBond} from '../../stores/actions/getDetailBondAction';
 import {getCashBalance} from '../../stores/actions/cashBalanceAction';
 import * as common from '../Common/Common';
 
+const { Search } = Input;
+
 class BondSale extends Component{
     state = {
         isOpen: false,
         isOpenDetail: false,
         lstData: [],
+        items: [],
         accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
     };
 
@@ -72,6 +75,14 @@ class BondSale extends Component{
         }});
     }
 
+    filterList = (event)=>{
+        var updatedList = this.props.lstRoomVCSC;
+        updatedList = updatedList.filter(function(item){
+            return item.MSTP.toLowerCase().search( event.toLowerCase()) !== -1;
+        });
+        this.setState({lstData: updatedList});
+    }
+
     render(){
         return(
             <div >
@@ -80,7 +91,12 @@ class BondSale extends Component{
                 <Alert color="primary" style={{marginBottom: 0}}>
                     <Tag color="green" style={{cursor: 'pointer'}}>Tất cả</Tag>&nbsp;
                     <Tag color="blue" style={{cursor: 'pointer'}}>Mới</Tag>&nbsp;
-                    <Tag color="red" style={{cursor: 'pointer'}}>Phổ biến nhất</Tag>
+                    <Tag color="red" style={{ cursor: 'pointer' }}>Phổ biến nhất</Tag>
+                    <Search
+                        placeholder="Mã trái phiếu"
+                        onSearch={this.filterList}
+                        style={{ width: '10vw', float: 'right', top: '-0.2rem' }}
+                    />
                 </Alert>
                 <Row >
                     {this.state.lstData.map((item)=>{
@@ -93,6 +109,7 @@ class BondSale extends Component{
                                         <span style={{fontSize: 14}}>Kỳ hạn còn lại: {item.THANGCONLAI} tháng</span>
                                     </CardHeader>
                                     <CardBody>
+                                        <p>Số lượng: {common.convertTextDecimal(item.SL_DPH)}</p>
                                         <Row>
                                             <Col>
                                                 <span>

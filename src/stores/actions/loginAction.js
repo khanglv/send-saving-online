@@ -89,6 +89,7 @@ export const getUser = fetchData => async (dispatch) => {
     try {
         const res = await api.getUser(fetchData);
         if (res && !res.error && !res.message) {
+            localStorage.setItem('userInfoKey', JSON.stringify(res))
             return dispatch({
                 type: GET_USER_SUCCESS,
                 data: res

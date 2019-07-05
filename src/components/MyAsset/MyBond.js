@@ -6,9 +6,9 @@ import {
 } from 'reactstrap';
 import ModalSaleBond from '../../components/Modal/ModalSaleBond';
 import ModalShowDateInterest from './ModalShowDateInterest';
-import { Tabs, DatePicker, Icon, Tooltip, Table, Popconfirm } from 'antd';
+import { Tabs, DatePicker, Icon, Tooltip, Table, Modal } from 'antd';
 import moment from 'moment';
-
+import {updateSetCommand} from '../../api/api';
 import {connect} from 'react-redux';
 import {getListBondsOfInvestor} from '../../stores/actions/getListBondsOfInvestorAction';
 import * as common from '../Common/Common';
@@ -16,6 +16,7 @@ import { withRouter } from "react-router";
 
 const TabPane = Tabs.TabPane;
 const dateFormat = 'DD/MM/YYYY';
+const { confirm } = Modal;
 
 class BondsAsset extends Component{
     constructor(props){
@@ -37,11 +38,9 @@ class BondsAsset extends Component{
                                 <Tooltip title="Mua thêm trái phiếu" className="pointer">
                                     <Icon type="shopping-cart" style={{color: '#4b81ba', fontSize: 16}} onClick={this.buyMoreBonds}/>
                                 </Tooltip>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                <Popconfirm title="Bán trái phiếu này???" onConfirm={() => this.handleDelete()}>
-                                    <Tooltip title="Bán trái phiếu" placement="right" className="pointer">
-                                        <Icon type="sliders" style={{color: '#f5222d', fontSize: 16}}/>
-                                    </Tooltip>
-                                </Popconfirm>
+                                <Tooltip title="Bán trái phiếu" placement="right" className="pointer">
+                                    <Icon type="sliders" style={{color: '#f5222d', fontSize: 16}} onClick={()=>this.handleDelete(record)}/>
+                                </Tooltip>
                             </div>
                          : null
                     )
@@ -167,6 +166,38 @@ class BondsAsset extends Component{
 
     buyMoreBonds = ()=>{
         this.props.history.push('/main');
+    }
+
+    handleDelete = (data)=>{
+        let that = this;
+        confirm({
+            title: 'Xác nhận',
+            content: 'Bạn muốn bán trái phiếu hay không ?',
+            async onOk() {
+                try{
+                    const req = await updateSetCommand({
+                        MSDL: data.MSDL,
+                        MSTS: data.MSTS,
+                        status: 3,
+                    });
+                    if(!req.error) {
+                        that.loadData();
+                        common.notify("success", "Thao tác thành công !!!");
+                    }else{
+                        common.notify("error", "Thao tác thất bại :(");
+                    }
+                }catch(err){
+                    common.notify("error", "Thao tác thất bại :(");
+                }
+            },
+            onCancel() {
+                
+            },
+        });
+    }
+
+    updateBondsSale = ()=>{
+        
     }
 
     onDetailDateInterest = (data)=>{

@@ -10,6 +10,10 @@ export const accountInfo = ()=>{
     return JSON.parse(localStorage.getItem('accountInfoKey'));
 }
 
+export const userInfo = ()=>{
+    return JSON.parse(localStorage.getItem('userInfoKey'));
+}
+
 export const accessTokenVerify = ()=>{
     return localStorage.getItem('accessTokenVerifyKey');
 }
@@ -23,6 +27,7 @@ export const removeStorageToken = ()=>{
     localStorage.removeItem('accessTokenVerifyKey');
     localStorage.removeItem("TimeoutDisconnect");
     localStorage.removeItem("accountInfoKey");
+    localStorage.removeItem("userInfoKey");
     localStorage.removeItem("accessTokenBondsKey");
     return '';
 }

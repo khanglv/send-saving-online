@@ -309,3 +309,12 @@ export const getListBondsOfInvestor = (idInvestor, status)=>{
     return callApiBonds(options);
 }
 
+//Set command
+export const updateSetCommand = (data) => {
+    const options = {
+        url: `${BASE_URL_BONDS}/setCommand/updateStatus`,
+        method: "PUT",
+        data: data
+    }
+    return callApiBonds(options);
+}

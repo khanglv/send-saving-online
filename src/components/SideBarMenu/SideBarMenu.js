@@ -115,10 +115,10 @@ class SideBarMenu extends Component {
                             <Icon type="gitlab" />
                             <span>Trái phiếu nhà đầu tư</span>
                         </Menu.Item>
-                        <Menu.Item key="key_solution" className="middle-div">
+                        {/* <Menu.Item key="key_solution" className="middle-div">
                             <Icon type="solution" />
                             <span>Quản lý tài khoản</span>
-                        </Menu.Item>
+                        </Menu.Item> */}
                         
                         <Menu.Item key="key_logout" className="middle-div" onClick={this.onConFirmLogout} style={{position: 'absolute', bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
                             <Icon type="logout" />
