@@ -65,7 +65,7 @@ const callApi = (options, needToken = false, needAuth = false)=>{
                 }
             }
         }else{
-            alert("Token expired, refresh token");
+            common.notify('error', 'Token expired, refresh token');
             requestAuth();
             return null;
         }

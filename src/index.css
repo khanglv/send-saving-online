@@ -128,6 +128,10 @@ div.hasHover:hover{
   vertical-align: middle;
 }
 
+.ant-affix{
+  background: #fff;
+}
+
 /* Style Loading */
 .lds-spinner {
   color: official;

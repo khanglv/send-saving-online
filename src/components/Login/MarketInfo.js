@@ -33,7 +33,7 @@ class MarketInfo extends Component {
 
     render() {
         return (
-            <div style={{ height: "14rem", overflow: "auto", fontSize: 12 }}>
+            <div style={{ height: "35vh", overflow: "auto", fontSize: 12 }}>
                 <Table>  
                     <tbody>
                         <tr>

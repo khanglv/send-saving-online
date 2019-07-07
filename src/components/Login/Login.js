@@ -11,6 +11,7 @@ import {
     Card,
     Alert
 } from 'reactstrap';
+import { Affix } from 'antd';
 import Footer from '../Footer/Footer';
 import {connect} from 'react-redux';
 import {login, loginRequest, verifyOTPRequest, verifyOTP, getUser} from '../../stores/actions/loginAction';
@@ -194,21 +195,19 @@ class Login extends Component {
             </div>
         );
         return (
-            <div className="container">
+            <div className="container" style={{backgroundColor: '#fff'}}>
                 <ModalConfirm title="OTP" dataSend={dataSend} warning={this.state.warningData} open={this.state.isOpenOTP} onActionOK={this.onVerifyOTP} />
                 <ModalAlert open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSend}/>
-                <div>
-                    <div className="col-md-8 left">
-                        <img style={{with: '10vw', paddingTop: 20, paddingBottom: 20}} src="/images/header/logo.png" alt='logo'/>
-                    </div>
-                    <div className="col-md-4 right">
+                <Affix style={{height: '10vh'}}>
+                    <img style={{with: '10vw', paddingTop: '0.8rem'}} src="/images/header/logo.png" alt='logo'/>
+                    {/* <div className="col-md-4 right">
                         <div className="right" style={{padding: 10}}>
                             <img className='pointer' style={{width: '1vw', marginRight: '5px'}} src="/images/header/vi.png" alt='vn'/>
                             <img className='pointer' style={{width: '1vw', marginRight: '5px'}} src="/images/header/en.png" alt='en'/>
                             <img className='pointer' style={{width: '1vw', marginRight: '5px'}} src="/images/header/fr.png" alt='fr'/>
                         </div>
-                    </div>
-                </div>
+                    </div> */}
+                </Affix>
                 <div>
                     <Table bordered style={{marginBottom: 0}}>
                         <tbody>
@@ -245,7 +244,7 @@ class Login extends Component {
                             </tr>
                         </tbody>
                     </Table>
-                    <div>
+                    <Affix offsetTop={window.innerHeight/10}>
                         <img style={{width: '100%', height: '3rem'}} src="/images/header/stockboard-bg.png" alt="stock" />
                         <div style={{position: 'relative'}}>
                             <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
@@ -282,24 +281,24 @@ class Login extends Component {
                                 </Collapse>
                             </div>
                         </div>
-                    </div>
+                    </Affix>
                 </div>
                 <div style={styles.body_detail}>
                     <div style={styles.body_detail_head}>
                         <b>THÔNG TIN THỊ TRƯỜNG</b>
                     </div>
                     <div style={styles.body_detail_main}>
-                        <div className="col-md-6 left" style={{ height: "14rem"}}>
+                        <div className="col-md-6 col-xs-6 left" style={{ height: "14rem"}}>
                             <MarketInfo /> 
                         </div>
-                        <div className="col-md-6 right" style={{fontSize: 12}}>
+                        <div className="col-md-6 col-xs-6 right" style={{fontSize: 12}}>
                             <LineChartDemo />
                         </div>
                     </div>
                     <div style={styles.body_detail_head}>
                         <b>THÔNG BÁO</b>
                     </div>
-                    <div className="col-md-3" style={styles.modalMenuOptions}>
+                    <div className="col-md-3 col-6 col-sm-5" style={styles.modalMenuOptions}>
                         <GuideLogin/>
                     </div>
                 </div>
@@ -353,7 +352,7 @@ const styles = {
     },
     body_detail:{
         width: '100%',
-        height: 600,
+        height: '70vh',
         border: '1px solid #dee2e6',
         position: 'relative'
     },
