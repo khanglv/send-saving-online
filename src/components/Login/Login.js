@@ -298,7 +298,7 @@ class Login extends Component {
                     <div style={styles.body_detail_head}>
                         <b>THÔNG BÁO</b>
                     </div>
-                    <div className="col-md-3 col-6 col-sm-5" style={styles.modalMenuOptions}>
+                    <div className="col-lg-3 col-md-5 col-12 col-sm-5" style={styles.modalMenuOptions}>
                         <GuideLogin/>
                     </div>
                 </div>
