@@ -102,14 +102,14 @@ class BondSale extends Component{
                     {this.state.lstData.map((item)=>{
                         return (
                             item.FLAG === 1 ? 
-                            <Col xs="6" sm="3" key={item.BOND_ID}>
+                            <Col xs="12" sm="3" key={item.BOND_ID}>
                                 <Card style={styles.itemCard}>
                                     <CardHeader style={styles.headerCard}>
                                         <b>{item.MSTP}</b> - <b>{item.LAISUATNAM}(%)</b><span>/năm</span><br/>
                                         <span style={{fontSize: 14}}>Kỳ hạn còn lại: {item.THANGCONLAI} tháng</span>
                                     </CardHeader>
                                     <CardBody>
-                                        <p>Số lượng: {common.convertTextDecimal(item.SL_DPH)}</p>
+                                        <p>Số lượng: <b>{common.convertTextDecimal(item.SL_DPH)}</b></p>
                                         <Row>
                                             <Col>
                                                 <span>

@@ -31,8 +31,7 @@ export const convertTextDecimal = (number)=>{
 
 export const splitStringDate = (a)=>{
     let b = "/";
-    let tmp1 = [a.slice(0, 2), b, a.slice(2)].join('');
-    let tmp2 = [tmp1.slice(0, 5), b, tmp1.slice(5)].join('');
-    let result = convertToFormat(tmp2)
-    return result;
+    let tmp1 = [a.slice(0, 4), b, a.slice(4)].join('');
+    let tmp2 = [tmp1.slice(0, 7), b, tmp1.slice(7)].join('');
+    return new Date(tmp2).toISOString();;
 }

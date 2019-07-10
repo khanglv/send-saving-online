@@ -4,7 +4,7 @@ import {
     ListGroupItem,
 } from 'reactstrap';
 import './styles.css';
-import {Icon} from 'antd'
+import {Icon, Affix} from 'antd'
 
 export default class GuideLogin extends Component {
     constructor(props){
@@ -20,7 +20,7 @@ export default class GuideLogin extends Component {
     render(){
         return (
             <div>
-                {this.state.isDisplayGroup ? <div><Icon className="closeGroup" type="minus" onClick={this.onCloseGroup}/></div>
+                {this.state.isDisplayGroup ? <Affix offsetBottom={10}><Icon style={{top: '-1rem', backgroundColor: '#4b81ba'}} className="closeGroup" type="minus" onClick={this.onCloseGroup}/></Affix>
                 : <ListGroup className="bounce animated ">
                     <Icon className="closeGroup" type="minus" onClick={this.onCloseGroup}/>
                     <ListGroupItem style={styles.guideHeader}><span>Hướng dẫn</span></ListGroupItem>

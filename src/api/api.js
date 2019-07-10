@@ -176,10 +176,10 @@ export const verifyOTP = (codeOTP)=>{
 }
 
 export const getCashBalance = (accountNumber)=>{
-    const url = `${BASE_URL}/equity/account/cashBalance?accountNumber=${accountNumber}`;
+    const url = `${BASE_URL}/equity/account/cashBalance?accountNumber=${accountNumber}&subNumber=00`;
     const data = {
         "accountNumber": accountNumber,
-        "subNumber": "",
+        "subNumber": "00",
         "bankCode": "",
         "bankAccount": ""
     };

@@ -32,7 +32,7 @@ export class ModalBuyBond extends Component{
             isOpenSaleBeforeExpire: false,
             quantityBond: 0,
             buyDate: moment(new Date(), dateFormat),
-            isShowWarning: false
+            isShowWarning: 0
         }
     }
 
@@ -42,10 +42,18 @@ export class ModalBuyBond extends Component{
     }
 
     onOpenKeepExpire = ()=>{
-        if(this.state.quantityBond === 0 || this.state.quantityBond === null){
-            this.setState({isShowWarning: true});
+        if(this.state.quantityBond === 0 || this.state.quantityBond === null || this.state.quantityBond === ''){
+            this.setState({isShowWarning: 1});
         }else{
-            this.setState({isOpenExpire: true, isShowWarning: false});
+            if(this.state.quantityBond > this.props.data.SL_DPH){
+                this.setState({isShowWarning: 2});
+            }else{
+                if(this.state.quantityBond * this.props.data.GIATRI_HIENTAI > this.props.data.cashBalance.depositAmount){
+                    this.setState({isShowWarning: 3});
+                }else{
+                    this.setState({isOpenExpire: true, isShowWarning: 0});
+                }
+            }
         }
     }
 
@@ -78,55 +86,68 @@ export class ModalBuyBond extends Component{
                     <ModalHeader close={closeBtn} style={{backgroundColor: 'rgba(155, 183, 205, 0.48)'}}>Mua trái phiếu</ModalHeader>
                     <ModalBody>
                         <div>
+                            <Timeline>
                             <Row>
-                                <Col>
-                                    Mệnh giá
+                                <Col md="5">
+                                <Timeline.Item>Mệnh giá</Timeline.Item>
                                 </Col>
                                 <Col>
                                     {common.convertTextDecimal(data.MENHGIA)} VND
                                 </Col>
                             </Row>
                             <Row>
-                                <Col>
-                                    Giá trị hiện tại
+                                <Col md="5">
+                                <Timeline.Item>Giá trị hiện tại</Timeline.Item>
                                 </Col>
                                 <Col>
                                     <Tag color="volcano" style={{fontSize: 16}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</Tag> VND
                                 </Col>
                             </Row>
-                            <Row className="p-top10">
+                            <Row>
+                                <Col md="5">
+                                <Timeline.Item>Số lượng phát hành</Timeline.Item>
+                                </Col>
                                 <Col>
-                                    Ngày phát hành
+                                    {common.convertTextDecimal(data.SL_DPH)}
+                                </Col>
+                            </Row>
+                            <Row className="p-top10">
+                                <Col md="5">
+                                    <Timeline.Item dot={<Icon type="clock-circle-o" />}>Ngày phát hành</Timeline.Item>
                                 </Col>
                                 <Col>
                                     {common.convertDDMMYYYY(data.NGAYPH)}
                                 </Col>
                             </Row>
                             <Row className="p-top10">
-                                <Col>
-                                    Ngày đáo hạn
+                                <Col md="5">
+                                <Timeline.Item dot={<Icon type="clock-circle-o" />}>Ngày đáo hạn</Timeline.Item>
                                 </Col>
                                 <Col>
                                     {common.convertDDMMYYYY(data.NGAYDH)}
                                 </Col>
                             </Row>
                             <Row className="p-top10">
-                                <Col>
-                                    Ngày mua
+                                <Col md="5">
+                                    <Timeline.Item dot={<Icon type="clock-circle-o" />}>Ngày mua</Timeline.Item>
                                 </Col>
                                 <Col>
                                     <DatePicker format={dateFormat} value={this.state.buyDate} onChange={this.updateInputDate('buyDate')}/>
                                 </Col>
                             </Row>
                             <Row className="p-top10">
-                                <Col>
-                                    Số lượng
+                                <Col md="5">
+                                    <Timeline.Item>Số lượng</Timeline.Item>
                                 </Col>
                                 <Col>
                                     <Input type="number" name="quantityBond" value={this.state.quantityBond} onChange={event => this.updateInputValue(event)} style={{maxHeight: 34}}/>
-                                    {this.state.isShowWarning ? <i style={{color: 'orange', fontSize: 14}}>Cần phải nhập số lượng trái phiếu</i> : null}
+                                    {this.state.isShowWarning === 1 ? <i style={{color: 'orange', fontSize: 14}}>Cần phải nhập số lượng trái phiếu</i> :
+                                    this.state.isShowWarning === 2 ? <i style={{color: 'orange', fontSize: 14}}>Số lượng trái phiếu mua không lớn hơn số lượng phát hành</i> : 
+                                    this.state.isShowWarning === 3 ? <i style={{color: 'red', fontSize: 14}}>Tổng tiền đầu tư lớn hơn tài khoản hiện có</i> :null}
                                 </Col>
                             </Row>
+                            </Timeline>
+                            
                             <div className="right p-top10">
                                 Tổng số tiền đầu tư <br/>
                                 <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI)} VND</span>

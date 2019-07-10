@@ -33,7 +33,7 @@ class BondsAsset extends Component{
                 width: 100,
                 render: (text, record) =>{
                     return(
-                        this.state.dataSource.length >= 1 ?
+                        record.TRANGTHAI_LENH === 1 ?
                             <div>
                                 <Tooltip title="Mua thêm trái phiếu" className="pointer">
                                     <Icon type="shopping-cart" style={{color: '#4b81ba', fontSize: 16}} onClick={this.buyMoreBonds}/>
@@ -42,7 +42,7 @@ class BondsAsset extends Component{
                                     <Icon type="sliders" style={{color: '#f5222d', fontSize: 16}} onClick={()=>this.handleDelete(record)}/>
                                 </Tooltip>
                             </div>
-                         : null
+                         : <span style={{color: 'orange'}}>Đang chờ duyệt</span>
                     )
                 }
             },
