@@ -6,12 +6,15 @@ import Directive from '../components/Directive/Directive';
 import BondsAsset from '../components/MyAsset/MyBond';
 import BondInvestor from '../components/BondInvestor/BondInvestor';
 import TestMain from '../components/Test/TestMain';
+import { Affix } from 'antd';
 
 import { Layout} from 'antd';
 
 const withSidebar = (View) =>
     <div>
-        <HeaderDetail />
+        <Affix>
+            <HeaderDetail />
+        </Affix>
         <div>
             <Layout>
                 <SideBarMenu />

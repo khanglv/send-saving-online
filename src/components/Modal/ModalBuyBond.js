@@ -88,7 +88,7 @@ export class ModalBuyBond extends Component{
                         <div>
                             <Timeline>
                             <Row>
-                                <Col md="5">
+                                <Col md="5" xs="4">
                                 <Timeline.Item>Mệnh giá</Timeline.Item>
                                 </Col>
                                 <Col>
@@ -96,7 +96,7 @@ export class ModalBuyBond extends Component{
                                 </Col>
                             </Row>
                             <Row>
-                                <Col md="5">
+                                <Col md="5" xs="4">
                                 <Timeline.Item>Giá trị hiện tại</Timeline.Item>
                                 </Col>
                                 <Col>
@@ -104,7 +104,7 @@ export class ModalBuyBond extends Component{
                                 </Col>
                             </Row>
                             <Row>
-                                <Col md="5">
+                                <Col md="5" xs="4">
                                 <Timeline.Item>Số lượng phát hành</Timeline.Item>
                                 </Col>
                                 <Col>
@@ -112,7 +112,7 @@ export class ModalBuyBond extends Component{
                                 </Col>
                             </Row>
                             <Row className="p-top10">
-                                <Col md="5">
+                                <Col md="5" xs="4">
                                     <Timeline.Item dot={<Icon type="clock-circle-o" />}>Ngày phát hành</Timeline.Item>
                                 </Col>
                                 <Col>
@@ -120,7 +120,7 @@ export class ModalBuyBond extends Component{
                                 </Col>
                             </Row>
                             <Row className="p-top10">
-                                <Col md="5">
+                                <Col md="5" xs="4">
                                 <Timeline.Item dot={<Icon type="clock-circle-o" />}>Ngày đáo hạn</Timeline.Item>
                                 </Col>
                                 <Col>
@@ -128,7 +128,7 @@ export class ModalBuyBond extends Component{
                                 </Col>
                             </Row>
                             <Row className="p-top10">
-                                <Col md="5">
+                                <Col md="5" xs="4">
                                     <Timeline.Item dot={<Icon type="clock-circle-o" />}>Ngày mua</Timeline.Item>
                                 </Col>
                                 <Col>
@@ -136,7 +136,7 @@ export class ModalBuyBond extends Component{
                                 </Col>
                             </Row>
                             <Row className="p-top10">
-                                <Col md="5">
+                                <Col md="5" xs="4">
                                     <Timeline.Item>Số lượng</Timeline.Item>
                                 </Col>
                                 <Col>
@@ -148,11 +148,11 @@ export class ModalBuyBond extends Component{
                             </Row>
                             </Timeline>
                             
-                            <div className="right p-top10">
+                            <div className="right p-top10 col-xs-12">
                                 Tổng số tiền đầu tư <br/>
                                 <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI)} VND</span>
                             </div>
-                            <div className="left p-top10">
+                            <div className="left p-top10 col-xs-12">
                                 Tài sản tài khoản hiện có <br/>
                                 <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(data.cashBalance.depositAmount)} VND</span>
                             </div>

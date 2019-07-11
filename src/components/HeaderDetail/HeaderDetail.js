@@ -21,21 +21,21 @@ class HeaderDetail extends Component{
         return(
             <div>
                 <div style={{height: '8vh'}}>
-                    <div className="col-md-8 left">
+                    <div className="col-md-8 col-sm-10 col-xs-12 left">
                         <img className="pointer" onClick={this.onMainClick} style={{with: '10vw', paddingTop: '1vh'}} src='/images/header/logo.png' alt='logo'/>
                     </div>
-                    <div className="col-md-4 right">
+                    {/* <div className="col-md-4 right">
                         <div className="right" style={{padding: 10}}>
                             <img className='pointer' style={{width: '1vw', marginRight: '5px'}} src="/images/header/vi.png" alt='vn'/>
                             <img className='pointer' style={{width: '1vw', marginRight: '5px'}} src="/images/header/en.png" alt='en'/>
                             <img className='pointer' style={{width: '1vw', marginRight: '5px'}} src="/images/header/fr.png" alt='fr'/>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
                 <div>
                     <div style={styles.titleBody}>
-                        <div style={{ width: '20%', paddingLeft: '2vw'}} className="left pointer" onClick={this.onMainClick}><span style={styles.fontTimeNew}>V-BONDS</span></div>
-                        <div style={{ width: '80%' }} className="right">
+                        <div style={{paddingLeft: '2vw'}} className="left pointer col-md-4 col-xs-6" onClick={this.onMainClick}><span style={styles.fontTimeNew}>V-BONDS</span></div>
+                        <div className="right col-md-8 col-xs-6">
                             <div style={styles.positionEndItem}>
                                 <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHSX)} onClick={this.onGotoHSX}>HSX</div>
                                 <div className="pointer hasHover" style={Object.assign({}, styles.boxStock, styles.boxStockHNX)} onClick={this.onGotoHNX}>HNX</div>
