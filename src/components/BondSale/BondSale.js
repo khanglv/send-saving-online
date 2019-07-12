@@ -111,13 +111,13 @@ class BondSale extends Component{
                                     <CardBody>
                                         <p>Số lượng: <b>{common.convertTextDecimal(item.SL_DPH)}</b></p>
                                         <Row>
-                                            <Col>
+                                            <Col sm="7">
                                                 <span>
                                                     Hạn mức
                                                 </span><br/>
                                                 <span><b>{common.convertTextDecimal(item.HANMUC)}</b> VND</span>
                                             </Col>
-                                            <Col>
+                                            <Col sm="5">
                                                 <span>
                                                     Đang chờ
                                                 </span><br/>
@@ -131,7 +131,7 @@ class BondSale extends Component{
                                                 <Button style={{width: '100%'}} onClick={()=>this.getDetailBond(item.BOND_ID)}>Chi tiết</Button>
                                             </Col>
                                             <Col>
-                                                <Button type="primary" style={{width: '100%'}} onClick={()=>this.onActionBuyBond(item.BOND_ID)}>Mua</Button>
+                                                <Button className="btnSaleBond" style={{width: '100%'}} onClick={()=>this.onActionBuyBond(item.BOND_ID)}>Mua</Button>
                                             </Col>
                                         </Row>
                                     </CardFooter>
@@ -178,7 +178,7 @@ const styles = {
         border: 'none'
     },
     headerCard:{
-        backgroundColor: '#5073a2',
+        background: 'linear-gradient(to right, #5073a2, #8ca7cc)',
         color: '#fff'
     }
 }

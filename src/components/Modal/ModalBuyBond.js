@@ -366,7 +366,7 @@ export class KeepExpireBond extends Component{
 
     render(){
         const data = this.props.data;
-        const lstTmpDateInterest = data ? formula.GenDateInterestRate(data.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_HH, []) : null;
+        const lstTmpDateInterest = data ? formula.GenDateInterestRate(data.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_MUA, []) : null;
         let totalMoneyReceive = lstTmpDateInterest ? lstTmpDateInterest.reduce((total, currentValue)=> {
             return total + JSON.parse(currentValue.interestRate);
         }, 0) : null;

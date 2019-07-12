@@ -144,7 +144,7 @@ class Directive extends Component{
     render(){
         const data = this.state.detailBond;
         // const  { detailBond = {} }= this.state;
-        const lstTmpDateInterest = Object.keys(data).length > 0 ? formula.GenDateInterestRate(this.state.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_HH, []) : null;
+        const lstTmpDateInterest = Object.keys(data).length > 0 ? formula.GenDateInterestRate(this.state.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_MUA, []) : null;
         let totalMoneyReceive = lstTmpDateInterest ? lstTmpDateInterest.reduce((total, currentValue)=> {
             return total + JSON.parse(currentValue.interestRate);
         }, 0) : null;
