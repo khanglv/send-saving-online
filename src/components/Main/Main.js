@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import BondSale from '../BondSale/BondSale';
 import BondInvestor from '../BondInvestor/BondInvestor';
-import { Tabs } from 'antd';
+import { Tabs, Affix } from 'antd';
 import {removeStorageToken} from '../../api/storage';
 
 const { TabPane } = Tabs;

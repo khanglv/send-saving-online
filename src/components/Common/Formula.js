@@ -50,3 +50,20 @@ export const GenDateInterestRate = (buyDate, dateF, dateT, totalDayInterestYear,
     }
     return lstTmp;
 }
+
+export const formulaTest = (dateBuy, dateF, dateT, expired = 1)=>{
+    let k = 0, n = 0;
+    let dateFToTime = dateToTime(dateF);
+    let dateBuyToTime = dateToTime(dateBuy);
+    let dateExpired = dateToTime(dateAfterTime(dateF, expired));
+    if(dateBuyToTime <= dateFToTime){
+        n = diffDate(dateF, dateT);
+    }else{
+        if(dateExpired < dateBuyToTime){
+            return formulaTest(dateBuy, dateExpired, dateT, expired);
+        }
+        k = diffDate(dateF, dateBuy);
+        n = diffDate(dateBuy, dateT);
+    }
+    return {k, n};
+}

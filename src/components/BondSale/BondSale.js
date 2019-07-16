@@ -6,9 +6,8 @@ import {
     CardHeader,
     CardBody,
     CardFooter,
-    Alert,
 } from 'reactstrap';
-import { Button, Tag, Input } from 'antd';
+import { Button, Input } from 'antd';
 import {ModalBuyBond, DetailBond} from '../Modal/ModalBuyBond';
 
 import {connect} from 'react-redux';
@@ -88,55 +87,63 @@ class BondSale extends Component{
             <div >
                 <ModalBuyBond open={this.state.isOpen} onClose={this.onCloseAlert} data={{...this.state.detailData, "cashBalance": this.props.cashBalance}} />
                 <DetailBond openDetail={this.state.isOpenDetail} onCloseDetail={this.onCloseAlertDetail} data={this.state.detailData} />
-                <Alert color="primary" style={{marginBottom: 0}}>
-                    <Tag color="green" style={{cursor: 'pointer'}}>Tất cả</Tag>&nbsp;
-                    <Tag color="blue" style={{cursor: 'pointer'}}>Mới</Tag>&nbsp;
-                    <Tag color="red" style={{ cursor: 'pointer' }}>Phổ biến nhất</Tag>
-                    <Search
-                        placeholder="Mã trái phiếu"
-                        onSearch={this.filterList}
-                        style={{ width: '10vw', float: 'right', top: '-0.2rem' }}
-                    />
-                </Alert>
-                <Row >
+                {/* <Affix offsetTop={window.innerHeight*0.15}>
+                    <Alert color="primary" style={{marginBottom: 0}}>
+                        <Tag color="green" style={{cursor: 'pointer'}} onClick={this.test}>Tất cả</Tag>&nbsp;
+                        <Tag color="blue" style={{cursor: 'pointer'}}>Mới</Tag>&nbsp;
+                        <Tag color="red" style={{ cursor: 'pointer' }}>Phổ biến nhất</Tag>
+                        <Search
+                            placeholder="Mã trái phiếu"
+                            onSearch={this.filterList}
+                            style={{ width: '10vw', float: 'right', top: '-0.2rem' }}
+                        />
+                    </Alert>
+                </Affix> */}
+                <Search
+                    placeholder="Mã trái phiếu"
+                    onSearch={this.filterList}
+                    style={{ width: '10vw', position: 'absolute', top: '0.4rem', right: '2rem', borderColor: '#5073a2' }}
+                />
+                <Row style={{paddingLeft: '2rem', paddingRight: '2rem'}}>
                     {this.state.lstData.map((item)=>{
                         return (
                             item.FLAG === 1 ? 
-                            <Col xs="12" sm="3" key={item.BOND_ID}>
-                                <Card style={styles.itemCard}>
-                                    <CardHeader style={styles.headerCard}>
-                                        <b>{item.MSTP}</b> - <b>{item.LAISUATNAM}(%)</b><span>/năm</span><br/>
-                                        <span style={{fontSize: 14}}>Kỳ hạn còn lại: {item.THANGCONLAI} tháng</span>
-                                    </CardHeader>
-                                    <CardBody>
-                                        <p>Số lượng: <b>{common.convertTextDecimal(item.SL_DPH)}</b></p>
-                                        <Row>
-                                            <Col sm="7">
-                                                <span>
-                                                    Hạn mức
-                                                </span><br/>
-                                                <span><b>{common.convertTextDecimal(item.HANMUC)}</b> VND</span>
-                                            </Col>
-                                            <Col sm="5">
-                                                <span>
-                                                    Đang chờ
-                                                </span><br/>
-                                                <span><b>{common.convertTextDecimal(item.DANGCHO)}</b> VND</span>
-                                            </Col>
-                                        </Row>
-                                    </CardBody>
-                                    <CardFooter style={{backgroundColor: '#fff'}}>
-                                        <Row>
-                                            <Col>
-                                                <Button style={{width: '100%'}} onClick={()=>this.getDetailBond(item.BOND_ID)}>Chi tiết</Button>
-                                            </Col>
-                                            <Col>
-                                                <Button className="btnSaleBond" style={{width: '100%'}} onClick={()=>this.onActionBuyBond(item.BOND_ID)}>Mua</Button>
-                                            </Col>
-                                        </Row>
-                                    </CardFooter>
-                                </Card>
-                            </Col> : null
+                                <Col xs="12" sm="3" key={item.BOND_ID}>
+                                    <Card style={styles.itemCard}>
+                                        <CardHeader style={styles.headerCard}>
+                                            <b>{item.MSTP}</b> - <b>{item.LAISUATNAM}(%)</b><span>/năm</span><br />
+                                            <span style={{ fontSize: 14 }}>Kỳ hạn còn lại: {item.THANGCONLAI} tháng</span>
+                                        </CardHeader>
+                                        <CardBody>
+                                            <p>Số lượng: <b>{common.convertTextDecimal(item.SL_DPH)}</b></p>
+                                            <Row>
+                                                <Col sm="7">
+                                                    <span>
+                                                        Hạn mức
+                                                    </span><br />
+                                                    <span><b>{common.convertTextDecimal(item.HANMUC)}</b> VND</span>
+                                                </Col>
+                                                <Col sm="5">
+                                                    <span>
+                                                        Đang chờ
+                                                    </span><br />
+                                                    <span><b>{common.convertTextDecimal(item.DANGCHO)}</b> VND</span>
+                                                </Col>
+                                            </Row>
+                                        </CardBody>
+                                        <CardFooter style={{ backgroundColor: '#fff' }}>
+                                            <Row>
+                                                <Col>
+                                                    <Button style={{ width: '100%' }} onClick={() => this.getDetailBond(item.BOND_ID)}>Chi tiết</Button>
+                                                </Col>
+                                                <Col>
+                                                    <Button className="btnSaleBond" style={{ width: '100%' }} onClick={() => this.onActionBuyBond(item.BOND_ID)}>Mua</Button>
+                                                </Col>
+                                            </Row>
+                                        </CardFooter>
+                                    </Card>
+                                </Col>
+                                : null
                         )
                     })}
                 </Row>
@@ -173,7 +180,7 @@ const styles = {
         paddingRight: 5
     },
     itemCard:{
-        marginTop: 30,
+        marginTop: 20,
         boxShadow: '0 4px 6px rgba(0,0,0,0.23)',
         border: 'none'
     },
