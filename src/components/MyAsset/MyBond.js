@@ -30,7 +30,7 @@ class BondsAsset extends Component{
             {
                 title: 'Action',
                 dataIndex: 'operation',
-                width: 100,
+                width: 150,
                 render: (text, record) =>{
                     return(
                         record.TRANGTHAI_LENH === 1 ?
@@ -49,7 +49,7 @@ class BondsAsset extends Component{
             {
                 title: 'Trái Phiếu', //1
                 dataIndex: 'MSTP',
-                width: 250,
+                width: 230,
                 render: (MSTP, record)=>{
                     return(
                         <div>
@@ -71,12 +71,12 @@ class BondsAsset extends Component{
             {
                 title: 'Đơn giá',
                 dataIndex: 'DONGIA',
-                width: 200
+                width: 150
             },
             {
                 title: 'Tổng giá trị',
                 dataIndex: 'TONGGIATRI',
-                width: 220
+                width: 200
             },
             {
                 title: 'Lãi suất (%)',
@@ -115,7 +115,8 @@ class BondsAsset extends Component{
             dataSource: [],
             dataSource_2: [],
             lstSetCommand: [],
-            accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
+            accountInfo: JSON.parse(localStorage.getItem('accountInfoKey')),
+            isLoading: true
         };
     }
 
@@ -140,7 +141,7 @@ class BondsAsset extends Component{
                         "key": i + 1
                     }
                 })
-                this.setState({dataSource: lstTmp});
+                this.setState({dataSource: lstTmp, isLoading: false});
             }
             const res_2 = await this.props.getListBondsOfInvestor(this.state.accountInfo[0].accountNumber, 0);
             if(res_2.type === "GET_LIST_BONDS_OF_INVESTOR_FAILED"){
@@ -157,7 +158,7 @@ class BondsAsset extends Component{
                         "key": i + 1
                     }
                 })
-                this.setState({dataSource_2: lstTmp_2});
+                this.setState({dataSource_2: lstTmp_2, isLoading: false});
             }
         } catch (error) {
             console.log("err load data " + error);
@@ -230,6 +231,7 @@ class BondsAsset extends Component{
                                 size="small"
                                 columns={this.columns}
                                 pagination={{ pageSize: 15 }}
+                                loading={this.state.isLoading}
                             />
                         </div>
                     </TabPane>
@@ -241,6 +243,7 @@ class BondsAsset extends Component{
                                 size="small"
                                 columns={this.columns}
                                 pagination={{ pageSize: 15 }}
+                                loading={this.state.isLoading}
                             />
                         </div>
                     </TabPane>

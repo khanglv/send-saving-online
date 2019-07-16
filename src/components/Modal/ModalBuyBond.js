@@ -259,12 +259,12 @@ export class ModalBuyBond extends Component{
                             <Row>
                                 <Col md="5" xs="4">
                                     <Timeline>
-                                        <Timeline.Item color="green" style={{padding: 0}}>Phí dịch vụ (0,15%)</Timeline.Item>
+                                        <Timeline.Item color="green" style={{padding: 0}}>Phí dịch vụ ({data.feeTrade})</Timeline.Item>
                                     </Timeline>
                                 </Col>
                                 <Col>
                                     <div className="centerVertical">
-                                        <span>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * 0.15)} </span><span style={{fontSize: 12}}>&nbsp;VND</span>
+                                        <span>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (data.feeTrade/100))} </span><span style={{fontSize: 12}}>&nbsp;VND</span>
                                     </div>
                                     <Col className="p-top10" style={styles.borderBottomRadiusDasher}></Col>
                                 </Col>
@@ -280,7 +280,7 @@ export class ModalBuyBond extends Component{
                                 <Col md="7" xs="4">
                                     Tổng số tiền đầu tư<br/>
                                     <div className="centerVertical">
-                                        <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * 1.15)} </span>&nbsp;VND
+                                        <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))} </span>&nbsp;VND
                                     </div>
                                 </Col>
                             </Row>
@@ -300,7 +300,7 @@ export class ModalBuyBond extends Component{
                             <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} onCloseBuyBond={this.toggle}
                                 data={{
                                         ...data, 
-                                        "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * 1.15,
+                                        "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100),
                                         "buyDate": this.state.buyDate,
                                         "quantityBond": this.state.quantityBond,
                                     }}
@@ -373,7 +373,7 @@ export class KeepExpireBond extends Component{
                 "SOLUONG": data.quantityBond,
                 "DONGIA": data.GIATRI_HIENTAI,
                 "TONGGIATRI": data.investMoney,
-                "LAISUAT_DH": data.LAISUAT_HH,
+                "LAISUAT_DH": data.LAISUAT_BAN,
                 "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": data.buyDate,
             }
@@ -401,9 +401,9 @@ export class KeepExpireBond extends Component{
         
         let Bondprev = data ? (
             <div>
-                <Alert color="primary" className="text-center">
+                {/* <Alert color="primary" className="text-center">
                     Thông tin trái phiếu
-                </Alert>
+                </Alert> */}
                 <div style={{display: 'flow-root'}}>
                     <div className="left">
                         Ngày mua<br/>
@@ -411,7 +411,9 @@ export class KeepExpireBond extends Component{
                     </div>
                     <div className="right">
                         {common.convertDDMMYYYY(data.buyDate)}<br/>
-                        <span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> VND
+                        <div className="centerVertical">
+                            <span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
+                        </div>
                     </div>
                 </div>
                 <Row className="p-top10">
@@ -436,7 +438,7 @@ export class KeepExpireBond extends Component{
                             <tr key={index}>
                                 <td>Coupon</td>
                                 <td>{common.convertDDMMYYYY(item.date)}</td>
-                                <td>{common.convertTextDecimal(item.interestRate*(data.MENHGIA)/100)} ({item.interestRate}%)</td>
+                                <td>{common.convertTextDecimal(item.interestRate*(data.MENHGIA*data.quantityBond)/100)} ({item.interestRate}%)</td>
                             </tr>
                         )}
                     </tbody>
@@ -444,11 +446,11 @@ export class KeepExpireBond extends Component{
                 <div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Tổng tiền nhận</div>
-                        <div className="right"><span style={{color: 'red'}}>{common.convertTextDecimal(data.MENHGIA + data.MENHGIA*totalMoneyReceive/100)}</span> VND</div>
+                        <div className="right centerVertical"><span style={{color: 'red'}}>{common.convertTextDecimal(data.MENHGIA * data.quantityBond * (1 + totalMoneyReceive/100))}</span>  <span style={{fontSize: 10}}>&nbsp;VND</span></div>
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Gốc đầu tư</div>
-                        <div className="right">{common.convertTextDecimal(data.investMoney)}</div>
+                        <div className="right centerVertical"><span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span></div>
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Lãi đầu tư</div>

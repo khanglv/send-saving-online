@@ -318,3 +318,12 @@ export const updateSetCommand = (data) => {
     }
     return callApiBonds(options);
 }
+
+//fee trade
+export const getListFeeTrade = ()=>{
+    const options = {
+        url: `${BASE_URL_BONDS}/feeTrade`,
+        method: "GET",
+    }
+    return callApiBonds(options);
+}

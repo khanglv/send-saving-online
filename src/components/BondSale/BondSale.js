@@ -7,13 +7,14 @@ import {
     CardBody,
     CardFooter,
 } from 'reactstrap';
-import { Button, Input } from 'antd';
+import { Button, Input, Empty } from 'antd';
 import {ModalBuyBond, DetailBond} from '../Modal/ModalBuyBond';
 
 import {connect} from 'react-redux';
 import {getListRoomVCSC} from '../../stores/actions/roomVCSCAction';
 import {getDetailBond} from '../../stores/actions/getDetailBondAction';
 import {getCashBalance} from '../../stores/actions/cashBalanceAction';
+import {getListFeeTrade} from '../../stores/actions/feeTradeAction';
 import * as common from '../Common/Common';
 
 const { Search } = Input;
@@ -24,6 +25,7 @@ class BondSale extends Component{
         isOpenDetail: false,
         lstData: [],
         items: [],
+        isFetching: false,
         accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
     };
 
@@ -35,9 +37,10 @@ class BondSale extends Component{
         try {
             const res = await this.props.getListRoomVCSC();
             if(res.type === "ROOM_VCSC_FAILED"){
+                this.setState({isFetching: true});
                 common.notify('error', 'Thao tác thất bại :( ');
             }else{
-                this.setState({lstData: res.data});
+                this.setState({lstData: res.data, isFetching: true});
             }
             const res2 =  await this.props.onGetCashBalance(this.state.accountInfo[0].accountNumber);
             if(res2.type === "CASH_BALANCE_FAILED"){
@@ -59,11 +62,19 @@ class BondSale extends Component{
     }
 
     onActionBuyBond = async(idBond)=>{
-        await this.props.getDetailBond(idBond);
-        await this.setState({isOpen: true, detailData: {
-            ...this.props.itemBond,
-            "GIATRI_HIENTAI": this.props.itemBond.GIATRI_HIENTAI === null ?this.props.itemBond.MENHGIA : this.props.itemBond.GIATRI_HIENTAI
-        }});
+        try {
+            await this.props.getDetailBond(idBond);
+            await this.props.getListFeeTrade();
+            await this.setState({isOpen: true, detailData: {
+                ...this.props.itemBond,
+                "GIATRI_HIENTAI": this.props.itemBond.GIATRI_HIENTAI === null ? this.props.itemBond.MENHGIA : this.props.itemBond.GIATRI_HIENTAI,
+                "feeTrade": this.props.lstFeeTrade.filter(item => item.LOAIGIAODICH === 1 && item.TRANGTHAI === 1).map(item =>{
+                    return item.TYLETINH
+                })
+            }});
+        } catch (error) {
+            common.notify("error", "Thao tác thất bại :(");
+        }
     }
 
     getDetailBond = async(idBond)=>{
@@ -104,10 +115,10 @@ class BondSale extends Component{
                     onSearch={this.filterList}
                     style={{ width: '10vw', position: 'absolute', top: '0.4rem', right: '2rem', borderColor: '#5073a2' }}
                 />
-                <Row style={{paddingLeft: '2rem', paddingRight: '2rem'}}>
-                    {this.state.lstData.map((item)=>{
+                    {this.state.isFetching ? 
+                    this.state.lstData.length > 0 ? this.state.lstData.filter(item => item.FLAG === 1).map((item)=>{
                         return (
-                            item.FLAG === 1 ? 
+                            <Row style={{paddingLeft: '2rem', paddingRight: '2rem'}}>
                                 <Col xs="12" sm="3" key={item.BOND_ID}>
                                     <Card style={styles.itemCard}>
                                         <CardHeader style={styles.headerCard}>
@@ -117,17 +128,19 @@ class BondSale extends Component{
                                         <CardBody>
                                             <p>Số lượng: <b>{common.convertTextDecimal(item.SL_DPH)}</b></p>
                                             <Row>
-                                                <Col sm="7">
+                                                <Col sm="8">
                                                     <span>
                                                         Hạn mức
                                                     </span><br />
-                                                    <span><b>{common.convertTextDecimal(item.HANMUC)}</b> VND</span>
+                                                    <div className="centerVertical">
+                                                        <b>{common.convertTextDecimal(item.HANMUC)}</b><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                                    </div>
                                                 </Col>
-                                                <Col sm="5">
+                                                <Col sm="4">
                                                     <span>
                                                         Đang chờ
-                                                    </span><br />
-                                                    <span><b>{common.convertTextDecimal(item.DANGCHO)}</b> VND</span>
+                                                        </span><br />
+                                                    <span><b>{common.convertTextDecimal(item.DANGCHO)}</b></span>
                                                 </Col>
                                             </Row>
                                         </CardBody>
@@ -143,10 +156,9 @@ class BondSale extends Component{
                                         </CardFooter>
                                     </Card>
                                 </Col>
-                                : null
+                            </Row>
                         )
-                    })}
-                </Row>
+                    }) : <div className="text-center"><Empty /></div> : null}
             </div>
         );
     }
@@ -156,13 +168,15 @@ const mapStateToProps = state =>{
     return{
         lstRoomVCSC: state.roomVCSC.data,
         itemBond: state.getDetailBond.data,
-        cashBalance: state.cashBalance.data
+        cashBalance: state.cashBalance.data,
+        lstFeeTrade: state.feeTrade.data
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
         getListRoomVCSC: ()=> dispatch(getListRoomVCSC()),
+        getListFeeTrade: ()=>dispatch(getListFeeTrade()),
         getDetailBond: (idBond)=> dispatch(getDetailBond(idBond)),
         onGetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber))
     }
