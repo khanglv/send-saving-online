@@ -167,7 +167,7 @@ div.hasHover:hover{
   width: 5px;
   height: 14px;
   border-radius: 20%;
-  background: rgb(14, 67, 184);
+  background: #4b81ba;
 }
 .lds-spinner div:nth-child(1) {
   transform: rotate(0deg);

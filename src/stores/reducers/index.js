@@ -10,6 +10,7 @@ import deductBankAccount from './deductBankAccount';
 import buyBondsRoomVCSC from './buyBondsRoomVCSC';
 import getListBondsOfInvestor from './getListBondsOfInvestor';
 import feeTrade from './feeTrade';
+import updateMoneyAsset from './updateMoneyAsset';
 
 export default combineReducers({
     login: login,
@@ -21,5 +22,6 @@ export default combineReducers({
     deductBankAccount: deductBankAccount,
     buyBondsRoomVCSC: buyBondsRoomVCSC,
     getListBondsOfInvestor: getListBondsOfInvestor,
-    feeTrade: feeTrade
+    feeTrade: feeTrade,
+    updateMoneyAsset: updateMoneyAsset
 });

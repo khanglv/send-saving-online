@@ -240,7 +240,7 @@ export const getMarketIndexList = ()=>{
     return callApi(options, false, true);
 }
 
-//Xử lý api cho phần bonds
+//Xử lý api cho phần bonds --------------------------------------------------------------------------------
 const callApiBonds = (options, needAuth = true)=>{
     if(needAuth){
         const accessTokenAuthBonds = storage.accessTokenBonds();
@@ -324,6 +324,16 @@ export const getListFeeTrade = ()=>{
     const options = {
         url: `${BASE_URL_BONDS}/feeTrade`,
         method: "GET",
+    }
+    return callApiBonds(options);
+}
+
+//update money
+export const updateMoneyAsset = (data)=>{
+    const options = {
+        url: `${BASE_URL_BONDS}/core`,
+        method: "PUT",
+        data: data
     }
     return callApiBonds(options);
 }

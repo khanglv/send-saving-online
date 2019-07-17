@@ -21,7 +21,7 @@ class ModalShowDateInterest extends Component{
                 width: 200
             },
             {
-                title: 'Tiền nhận', //1
+                title: 'Tiền nhận (VND)', //1
                 dataIndex: 'moneyReceived',
                 width: 200
             },
@@ -64,6 +64,7 @@ class ModalShowDateInterest extends Component{
                 visible={this.props.isOpen}
                 onOk={() => this.onHandleOk()}
                 onCancel={this.setModal2Visible}
+                width='50%'
             >
                 <div className="p-top10">
                     <Table
