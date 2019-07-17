@@ -92,7 +92,7 @@ class BondSale extends Component{
     filterList = (event)=>{
         var updatedList = this.props.lstRoomVCSC;
         updatedList = updatedList.filter(function(item){
-            return item.MSTP.toLowerCase().search( event.toLowerCase()) !== -1;
+            return item.MSTP.toLowerCase().search( `${event.target.value}`.toLowerCase()) !== -1;
         });
         this.setState({lstData: updatedList});
     }
@@ -117,7 +117,7 @@ class BondSale extends Component{
                 <Skeleton active loading={!this.state.isFetching}>
                     <Search
                         placeholder="Mã trái phiếu"
-                        onSearch={this.filterList}
+                        onChange={this.filterList}
                         style={{ width: '10vw', position: 'absolute', top: '0.4rem', right: '2rem', borderColor: '#5073a2' }}
                     />
                         {this.state.isFetching ? 

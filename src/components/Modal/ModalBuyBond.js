@@ -510,7 +510,7 @@ export class KeepExpireBond extends Component{
                                 <Timeline.Item color="green">Nơi cấp</Timeline.Item>
                             </Col>
                             <Col sm="7">
-                                {this.state.userInfo.address}
+                                {this.state.userInfo.identifierIssuePlace}
                             </Col>
                         </Row>
                         <Row style={{padding: '0.3rem'}}>
