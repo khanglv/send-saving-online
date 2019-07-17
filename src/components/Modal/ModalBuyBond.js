@@ -179,12 +179,16 @@ export class ModalBuyBond extends Component{
         this.setState({isOpenSaleBeforeExpire: false});
     }
 
+    onLoadData = ()=>{
+        this.props.loadData();
+    }
+
     render() {
         const data = this.props.data;
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
         return (
             <div>
-                {data ? <Modal isOpen={this.props.open} toggle={this.toggle} size="lg" centered>
+                {data ? <Modal isOpen={this.props.open} toggle={this.toggle} size="lg" centered >
                     <ModalHeader close={closeBtn} style={{backgroundColor: 'rgba(155, 183, 205, 0.48)'}}>Mua trái phiếu</ModalHeader>
                     <ModalBody>
                         <div>
@@ -297,7 +301,7 @@ export class ModalBuyBond extends Component{
                         <div className="clearfix"></div>
                         <Col style={styles.borderBottom} className="p-top10"></Col>
                         <div className="p-top10">
-                            <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} onCloseBuyBond={this.toggle}
+                            <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} onCloseBuyBond={this.toggle} onLoadData={this.onLoadData}
                                 data={{
                                         ...data, 
                                         "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100),
@@ -384,6 +388,7 @@ export class KeepExpireBond extends Component{
                 common.notify('success', 'Thao tác thành công ^^ ');
                 this.toggle();
                 this.props.onCloseBuyBond();
+                this.props.onLoadData();
             }
         } catch (error) {
             

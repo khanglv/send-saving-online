@@ -96,7 +96,7 @@ class BondSale extends Component{
     render(){
         return(
             <div >
-                <ModalBuyBond open={this.state.isOpen} onClose={this.onCloseAlert} data={{...this.state.detailData, "cashBalance": this.props.cashBalance}} />
+                <ModalBuyBond open={this.state.isOpen} onClose={this.onCloseAlert} loadData={this.loadData} data={{...this.state.detailData, "cashBalance": this.props.cashBalance}} />
                 <DetailBond openDetail={this.state.isOpenDetail} onCloseDetail={this.onCloseAlertDetail} data={this.state.detailData} />
                 {/* <Affix offsetTop={window.innerHeight*0.15}>
                     <Alert color="primary" style={{marginBottom: 0}}>
@@ -118,11 +118,11 @@ class BondSale extends Component{
                     {this.state.isFetching ? 
                     this.state.lstData.length > 0 ? this.state.lstData.filter(item => item.FLAG === 1).map((item)=>{
                         return (
-                            <Row style={{paddingLeft: '2rem', paddingRight: '2rem'}}>
-                                <Col xs="12" sm="3" key={item.BOND_ID}>
+                            <Row key={item.BOND_ID} style={{paddingLeft: '2rem', paddingRight: '2rem'}}>
+                                <Col xs="12" sm="3">
                                     <Card style={styles.itemCard}>
                                         <CardHeader style={styles.headerCard}>
-                                            <b>{item.MSTP}</b> - <b>{item.LAISUATNAM}(%)</b><span>/năm</span><br />
+                                            <b>{item.MSTP}</b> - <b>{item.LAISUAT_BAN} (%)</b><span>/năm</span><br />
                                             <span style={{ fontSize: 14 }}>Kỳ hạn còn lại: {item.THANGCONLAI} tháng</span>
                                         </CardHeader>
                                         <CardBody>

@@ -6,7 +6,7 @@ import {
 } from 'reactstrap';
 import ModalSaleBond from '../../components/Modal/ModalSaleBond';
 import ModalShowDateInterest from './ModalShowDateInterest';
-import { Tabs, DatePicker, Icon, Tooltip, Table, Modal } from 'antd';
+import { Tabs, DatePicker, Icon, Tooltip, Table, Modal, Badge } from 'antd';
 import moment from 'moment';
 import {updateSetCommand} from '../../api/api';
 import {connect} from 'react-redux';
@@ -53,7 +53,7 @@ class BondsAsset extends Component{
                 render: (MSTP, record)=>{
                     return(
                         <div>
-                            {record.TRANGTHAI_LENH === 1 ? <Icon type="check-circle" theme="filled" style={{ color: '#1cd356'}}/> : null}&nbsp;{MSTP}
+                            {record.TRANGTHAI_LENH === 1 ? <Badge color="#1cd356" /> : record.TRANGTHAI_LENH === 0 ? <Badge color="orange" /> : null}&nbsp;{MSTP}
                         </div>
                     )
                 }

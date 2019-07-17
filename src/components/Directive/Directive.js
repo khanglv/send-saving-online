@@ -9,7 +9,7 @@ import {
     FormGroup,
     Button
 } from 'reactstrap';
-import { Tabs, DatePicker, Select, Modal } from 'antd';
+import { Tabs, DatePicker, Select, Modal, Badge, Icon } from 'antd';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
@@ -17,6 +17,7 @@ import {connect} from 'react-redux';
 import {getListRoomVCSC} from '../../stores/actions/roomVCSCAction';
 import {getDetailBond} from '../../stores/actions/getDetailBondAction';
 import {getCashBalance} from '../../stores/actions/cashBalanceAction';
+import {getListFeeTrade} from '../../stores/actions/feeTradeAction';
 import {buyBondsRoomVCSC} from '../../api/api';
 
 const TabPane = Tabs.TabPane;
@@ -42,6 +43,7 @@ class Directive extends Component{
 
     loadData = async()=>{
         try {
+            await this.props.getListFeeTrade();
             const res = await this.props.getListRoomVCSC();
             if(res.type === "ROOM_VCSC_FAILED"){
                 common.notify('error', 'Thao tác thất bại :( ');
@@ -51,7 +53,10 @@ class Directive extends Component{
                 if(defaultData){
                     this.setState({detailBond: {
                         ...defaultData.data,
-                        "GIATRI_HIENTAI": defaultData.data.GIATRI_HIENTAI === null ? defaultData.data.MENHGIA : defaultData.data.GIATRI_HIENTAI
+                        "GIATRI_HIENTAI": defaultData.data.GIATRI_HIENTAI === null ? defaultData.data.MENHGIA : defaultData.data.GIATRI_HIENTAI,
+                        "feeTrade": this.props.lstFeeTrade.filter(item => item.LOAIGIAODICH === 1 && item.TRANGTHAI === 1).map(item =>{
+                            return item.TYLETINH
+                        })
                     }});
                 }
             }
@@ -93,7 +98,10 @@ class Directive extends Component{
         const res = await this.props.getDetailBond(event);
         await this.setState({detailBond: {
             ...res.data,
-            "GIATRI_HIENTAI": res.data.GIATRI_HIENTAI === null ? res.data.MENHGIA : res.data.GIATRI_HIENTAI
+            "GIATRI_HIENTAI": res.data.GIATRI_HIENTAI === null ? res.data.MENHGIA : res.data.GIATRI_HIENTAI,
+            "feeTrade": this.props.lstFeeTrade.filter(item => item.LOAIGIAODICH === 1 && item.TRANGTHAI === 1).map(item =>{
+                return item.TYLETINH
+            })
         }});
     }
 
@@ -117,8 +125,8 @@ class Directive extends Component{
                 "MS_NGUOI_GT": "MS_01",
                 "SOLUONG": this.state.quantityBond,
                 "DONGIA": data.GIATRI_HIENTAI,
-                "TONGGIATRI": this.state.quantityBond * data.GIATRI_HIENTAI,
-                "LAISUAT_DH": data.LAISUAT_HH,
+                "TONGGIATRI": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100),
+                "LAISUAT_DH": data.LAISUAT_BAN,
                 "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": this.state.buyDate,
             }
@@ -144,7 +152,7 @@ class Directive extends Component{
     render(){
         const data = this.state.detailBond;
         // const  { detailBond = {} }= this.state;
-        const lstTmpDateInterest = Object.keys(data).length > 0 ? formula.GenDateInterestRate(this.state.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_MUA, []) : null;
+        const lstTmpDateInterest = Object.keys(data).length > 0 ? formula.GenDateInterestRate(this.state.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_BAN, []) : null;
         let totalMoneyReceive = lstTmpDateInterest ? lstTmpDateInterest.reduce((total, currentValue)=> {
             return total + JSON.parse(currentValue.interestRate);
         }, 0) : null;
@@ -199,10 +207,34 @@ class Directive extends Component{
                                 </FormGroup>
                             </Col>
                         </Row>
-                        <div>
-                            <i>Hạn mức:</i> <span style={{color: 'red'}}>{common.convertTextDecimal(data.HANMUC_CHO)}</span>&nbsp;
-                             - <i>Đơn giá</i> <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)} VND</span>
-                        </div>
+                        {/* <Timeline>
+                            <Timeline.Item color="red" style={{padding: 0}}>
+                                <span>Số lượng: <span style={{color: 'red'}}>{common.convertTextDecimal(data.SL_DPH)}</span></span><br/>
+                                <span>Đơn giá: <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</span><span style={{fontSize: 10}}>&nbsp;VND</span></span><br/>
+                                <span>Giá tiền: <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond)}</span></span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                            </Timeline.Item>
+                            <Timeline.Item color="green" style={{padding: 0}}>
+                                Phí dịch vụ ({data.feeTrade}%): <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*data.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                            </Timeline.Item>
+                        </Timeline> */}
+                        <Row>
+                            <Col>
+                                <Badge color="#4b81ba" />Số lượng: <span style={{color: 'red'}}>{common.convertTextDecimal(data.SL_DPH)}</span>
+                            </Col>
+                            <Col className="centerVertical">
+                                <Badge color="#4b81ba" />Đơn giá:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col className="centerVertical">
+                                <Badge color="#4b81ba" />Giá tiền:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col className="centerVertical">
+                                <Badge color="#4b81ba" />Phí dịch vụ ({data.feeTrade}%):&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*data.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                            </Col>
+                        </Row>
                     </div>
                     <div className="p-top10" style={styles.borderBottomRadius}></div>
                     {/* <div className="p-top10">
@@ -236,11 +268,15 @@ class Directive extends Component{
                     </div> */}
                     <div className="p-top10">
                         <Row>
-                            <Col sm="7">
-                                Tổng tiền đầu tư<br/>
-                                <span style={{color: 'red', fontSize: 18}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI)} VND</span>
+                            <Col sm="8">
+                                <div className="centerVertical">
+                                    <Icon type="swap-right" style={{color: 'green', fontSize: 18}} />&nbsp;Tổng tiền đầu tư
+                                </div>
+                                <div className="centerVertical">
+                                    <span style={{color: 'red', fontSize: 24, marginLeft: '1.5rem'}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))}</span><span style={{fontSize: 14}}>&nbsp;VND</span>
+                                </div>
                             </Col>
-                            <Col sm="5">
+                            <Col sm="4">
                                 <Button color="primary" onClick={()=>this.showConfirm(data, lstTmpDateInterest)}>Đặt mua</Button>
                             </Col>
                         </Row>
@@ -271,7 +307,7 @@ class Directive extends Component{
                                             <tr key={index}>
                                                 <td>Coupon</td>
                                                 <td>{common.convertDDMMYYYY(item.date)}</td>
-                                                <td>{common.convertTextDecimal(item.interestRate * (this.state.quantityBond * data.GIATRI_HIENTAI) / 100)} ({item.interestRate}%)</td>
+                                                <td>{common.convertTextDecimal(item.interestRate * (this.state.quantityBond * data.MENHGIA) / 100)} ({item.interestRate}%)</td>
                                             </tr>
                                         ) : null}
                                     </tbody>
@@ -283,11 +319,11 @@ class Directive extends Component{
                                     </div>
                                     <div style={{ display: 'flow-root' }}>
                                         <b className="left index-color">Gốc đầu tư</b>
-                                        <div className="right">{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI)}</div>
+                                        <div className="right">{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))}</div>
                                     </div>
                                     <div style={{ display: 'flow-root' }}>
                                         <b className="left index-color">Lãi đầu tư</b>
-                                        <div className="right">{data.LAISUAT_HH}(%)</div>
+                                        <div className="right">{data.LAISUAT_BAN}(%)</div>
                                     </div>
                                     <div style={{ display: 'flow-root' }}>
                                         <b className="left index-color">Cho thời gian</b>
@@ -348,13 +384,15 @@ const mapStateToProps = state =>{
     return{
         lstRoomVCSC: state.roomVCSC.data,
         itemBond: state.getDetailBond.data,
-        cashBalance: state.cashBalance.data
+        cashBalance: state.cashBalance.data,
+        lstFeeTrade: state.feeTrade.data
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
         getListRoomVCSC: ()=> dispatch(getListRoomVCSC()),
+        getListFeeTrade: ()=>dispatch(getListFeeTrade()),
         getDetailBond: (idBond)=> dispatch(getDetailBond(idBond)),
         ongetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber))
     }
