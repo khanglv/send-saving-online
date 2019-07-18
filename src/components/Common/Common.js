@@ -35,3 +35,7 @@ export const splitStringDate = (a)=>{
     let tmp2 = [tmp1.slice(0, 7), b, tmp1.slice(7)].join('');
     return new Date(tmp2).toISOString();;
 }
+
+export const warningConsole = ()=>{
+    console.log("%cStop!!! You are unauthorized acces", "color: red; font-size: 40px; font-weight: bold;");
+}

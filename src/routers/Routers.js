@@ -12,7 +12,8 @@ import {
     FDirective, 
     FBondsAsset,
     FTestMain, 
-    FBondInvestor
+    FBondInvestor,
+    FUserInfo
 } from './MainGeneral';
 
 const accessToken = localStorage.getItem('accessTokenKey');
@@ -52,6 +53,7 @@ class RouteURL extends Component{
                         <Route path="/directive" component={FDirective} />
                         <Route path="/bonds-asset" component={FBondsAsset} />
                         <Route path="/bond-investor" component={FBondInvestor} />
+                        <Route path="/user-info" component={FUserInfo} />
                         <Route path="/test" component={FTestMain} />
                         {/* nhập sai đường dẫn */}
                         <Route exact path="*" component={Error404} />

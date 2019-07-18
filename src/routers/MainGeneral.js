@@ -6,6 +6,7 @@ import Directive from '../components/Directive/Directive';
 import BondsAsset from '../components/MyAsset/MyBond';
 import BondInvestor from '../components/BondInvestor/BondInvestor';
 import TestMain from '../components/Test/TestMain';
+import UserInfo from '../components/UserInfo/UserInfo';
 import { Affix } from 'antd';
 
 import { Layout} from 'antd';
@@ -32,5 +33,7 @@ export const FDirective = ()=> withSidebar(Directive)
 export const FBondsAsset = ()=> withSidebar(BondsAsset)
 
 export const FBondInvestor = ()=> withSidebar(BondInvestor)
+
+export const FUserInfo = ()=> withSidebar(UserInfo)
 
 export const FTestMain = ()=> withSidebar(TestMain)

@@ -27,7 +27,7 @@ export default class IdleTimerCom extends Component {
     }
 
     render() {
-        let TimeOut = 30;
+        let TimeOut = 60;
         switch(TIMEOUT_DISCONNECT){
             case 30:
                 TimeOut = 30;

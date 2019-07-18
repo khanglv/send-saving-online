@@ -4,6 +4,8 @@ import { Layout, Menu, Icon } from 'antd';
 import {ModalPopup} from '../Modal/Modal';
 import {removeStorageToken} from '../../api/storage';
 import { withRouter } from "react-router";
+import FontAwesome from 'react-fontawesome';
+import * as common from '../Common/Common';
 
 const { Sider } = Layout;
 const SubMenu = Menu.SubMenu;
@@ -19,6 +21,10 @@ class SideBarMenu extends Component {
             current: window.location.pathname,
             accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
         };
+    }
+
+    componentDidMount(){
+        common.warningConsole();
     }
 
     onConFirmLogout = ()=>{
@@ -59,7 +65,10 @@ class SideBarMenu extends Component {
                 break;
             case "/bond-investor":
                 this.props.history.push('/bond-investor');
-                break;    
+                break;
+            case "/user-info":
+                this.props.history.push('/user-info');
+                break;
             default:
                 break;
         }
@@ -82,43 +91,42 @@ class SideBarMenu extends Component {
                     </div>
                     <Menu theme="dark" mode="inline" defaultOpenKeys={['sub2']} selectedKeys={[this.state.current]} onClick={this.handleClick}>
                         <Menu.Item key="/main" className="middle-div">
-                            <Icon type="home" />
-                            <span>Trang chủ</span>
+                            <FontAwesome name="home"/>
+                                &nbsp;<span>Trang chủ</span>
                         </Menu.Item>
                         <Menu.Item key="/directive" className="middle-div">
-                            <Icon type="form" />
-                            <span>Đặt lệnh</span>
+                            <FontAwesome name="edit"/>
+                                &nbsp;<span>Đặt lệnh</span>
                         </Menu.Item>
                         <SubMenu
                             key="sub2"
                             title={
                                 <span className="middle-div">
-                                    <Icon type="shopping-cart" />
-                                    <span>Tài sản của tôi</span>
+                                    <FontAwesome name="shopping-bag"/>
+                                    &nbsp;<span>Tài sản của tôi</span>
                                 </span>
                             }
                         >
-                            <Menu.Item key="stock" className="middle-div">
+                            {/* <Menu.Item key="stock" className="middle-div">
                                 <Icon type="strikethrough" />
                                 <span>Cổ phiếu</span>
-                            </Menu.Item>
+                            </Menu.Item> */}
                             <Menu.Item key="/bonds-asset" className="middle-div">
-                                <Icon type="rocket" />
                                 <span>Trái phiếu</span>
                             </Menu.Item>
-                            <Menu.Item key="/list-sold-bond" className="middle-div">
+                            {/* <Menu.Item key="/list-sold-bond" className="middle-div">
                                 <Icon type="history" />
                                 <span>Trái phiếu đã bán</span>
-                            </Menu.Item>
+                            </Menu.Item> */}
                         </SubMenu>
                         <Menu.Item key="/bond-investor" className="middle-div">
-                            <Icon type="gitlab" />
-                            <span>Trái phiếu nhà đầu tư</span>
+                            <FontAwesome name="users"/>
+                            &nbsp;<span>Trái phiếu nhà đầu tư</span>
                         </Menu.Item>
-                        {/* <Menu.Item key="key_solution" className="middle-div">
+                        <Menu.Item key="/user-info" className="middle-div">
                             <Icon type="solution" />
                             <span>Quản lý tài khoản</span>
-                        </Menu.Item> */}
+                        </Menu.Item>
                         
                         <Menu.Item key="key_logout" className="middle-div" onClick={this.onConFirmLogout} style={{position: 'absolute', bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
                             <Icon type="logout" />

@@ -223,7 +223,7 @@ class Directive extends Component{
                             </Timeline> */}
                             <Row>
                                 <Col>
-                                    <Badge color="#4b81ba" />Số lượng: <span style={{color: 'red'}}>{common.convertTextDecimal(data.SL_DPH)}</span>
+                                    <Badge color="#4b81ba" />Số lượng PH: <b >{common.convertTextDecimal(data.SL_DPH)}</b>
                                 </Col>
                                 <Col className="centerVertical">
                                     <Badge color="#4b81ba" />Đơn giá:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>

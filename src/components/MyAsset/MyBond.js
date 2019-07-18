@@ -30,7 +30,7 @@ class BondsAsset extends Component{
             {
                 title: 'Action',
                 dataIndex: 'operation',
-                width: 150,
+                width: 130,
                 render: (text, record) =>{
                     return(
                         record.TRANGTHAI_LENH === 1 ?
