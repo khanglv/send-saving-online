@@ -7,15 +7,14 @@ import {
     ModalFooter,
     Row, 
     Col,
-    Table,
     Badge,
     Alert
 } from 'reactstrap';
-import { DatePicker, Icon, Tabs, message, Tag , Timeline, Input} from 'antd';
+import { DatePicker, Icon, Tabs, message, Tag , Timeline, Input, Table} from 'antd';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
-import {buyBondsRoomVCSC} from '../../api/api';
+import {buyBondsRoomVCSC, getListFeeTrade} from '../../api/api';
 const TabPane = Tabs.TabPane;
 const dateFormat = 'DD/MM/YYYY';
 const messSuccess = () => {
@@ -35,78 +34,78 @@ export class DetailBond extends Component{
                     <ModalHeader style={{backgroundColor: 'rgba(155, 183, 205, 0.48)'}}>Thông tin trái phiếu</ModalHeader>
                     <ModalBody>
                         <Timeline>
-                            <Row style={{padding: '0.7rem'}}>
+                            <Row>
                                 <Col sm="4">
                                     <Timeline.Item>Tổ chức phát hành</Timeline.Item>
                                 </Col>
-                                <Col sm="8" style={{color: 'red'}}>
+                                <Col sm="8" style={{top: '-0.3rem'}}>
                                     <Tag color="volcano" style={{fontSize: 16}}>{data.TEN_DN}</Tag>
                                 </Col>
                             </Row>
-                            <Row className="p-top10" style={{padding: '0.7rem'}}>
+                            <Row>
                                 <Col sm="4">
                                     <Timeline.Item>Đăng kí kinh doanh</Timeline.Item>
                                 </Col>
-                                <Col sm="8">
+                                <Col sm="8" style={{top: '-0.3rem'}}>
                                     {data.MSDN}
                                 </Col>
                             </Row>
-                            <Row className="p-top10" style={{padding: '0.7rem'}}>
+                            <Row>
                                 <Col sm="4">
                                     <Timeline.Item>Loại trái phiếu</Timeline.Item>
                                 </Col>
-                                <Col sm="8">
+                                <Col sm="8" style={{top: '-0.3rem'}}>
                                     <Tag color="green" style={{fontSize: 16}}>{data.TENLOAI_TP}</Tag>
                                 </Col>
                             </Row>
-                            <Row className="p-top10" style={{padding: '0.7rem'}}>
+                            <Row>
                                 <Col sm="4">
                                     <Timeline.Item>Mệnh giá</Timeline.Item>
                                 </Col>
-                                <Col sm="8">
+                                <Col sm="8" style={{top: '-0.3rem'}}>
                                     <span style={{color: 'red'}}>{common.convertTextDecimal(data.MENHGIA)}</span> VND
                                 </Col>
                             </Row>
-                            <Row className="p-top10" style={{padding: '0.7rem'}}>
+                            <Row>
                                 <Col sm="4">
                                     <Timeline.Item>Lãi suất PH</Timeline.Item>
                                 </Col>
-                                <Col sm="8">
+                                <Col sm="8" style={{top: '-0.3rem'}}>
                                     <span style={{color: 'red'}}>{data.LAISUAT_BAN}</span> (%)
                                 </Col>
                             </Row>
-                            <Row className="p-top10" style={{padding: '0.7rem'}}>
+                            <Row>
                                 <Col sm="4">
                                     <Timeline.Item className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày phát hành</Timeline.Item>
                                 </Col>
-                                <Col sm="8">
+                                <Col sm="8" style={{top: '-0.3rem'}}>
                                     {common.convertDDMMYYYY(data.NGAYPH)}
                                 </Col>
                             </Row>
-                            <Row className="p-top10" style={{padding: '0.7rem'}}>
+                            <Row>
                                 <Col sm="4">
                                     <Timeline.Item className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày đáo hạn</Timeline.Item>
                                 </Col>
-                                <Col sm="8">
+                                <Col sm="8" style={{top: '-0.3rem'}}>
                                     {common.convertDDMMYYYY(data.NGAYDH)}
                                 </Col>
                             </Row>
-                            <Row className="p-top10" style={{padding: '0.7rem'}}>
+                            <Row>
                                 <Col sm="4">
                                     <Timeline.Item>Thanh toán gốc và lãi</Timeline.Item>
                                 </Col>
-                                <Col sm="8">
+                                <Col sm="8" style={{top: '-0.3rem'}}>
                                     Lãi trả <span style={{color: 'red'}}>{data.LOAI_TT}</span> tháng/lần, gốc trả cuối kì
                                 </Col>
                             </Row>
                         </Timeline>
-                        <Row style={{ padding: '0.7rem', height: '8vh' }}>
+                        <Row>
                             <Col sm="4">
                                 <Timeline>
-                                    <Timeline.Item>Trạng thái</Timeline.Item>
+                                    <Timeline.Item style={{paddingBottom: 0}}>Trạng thái</Timeline.Item>
                                 </Timeline>
                             </Col>
-                            <Col sm="8">
+                            <Col sm="8" style={{top: '-0.3rem'}}>
                                 {data.TRANGTHAI === 1 ? <span style={{ color: 'green' }}>Đang niêm yết</span> : <span style={{ color: '#f46f02' }}>Không còn niêm yết</span>}
                             </Col>
                         </Row>
@@ -133,6 +132,7 @@ export class ModalBuyBond extends Component{
             isOpenExpire: false,
             isOpenSaleBeforeExpire: false,
             quantityBond: 0,
+            feeTrade: 0,
             buyDate: moment(new Date(), dateFormat),
             isShowWarning: 0
         }
@@ -165,6 +165,23 @@ export class ModalBuyBond extends Component{
 
     updateInputValue = (event)=>{
         this.setState({[event.target.name]: event.target.value});
+        if(event.target.name === "quantityBond"){
+            setTimeout(async() => {
+                try {
+                    const res = await getListFeeTrade({
+                        status: 1,
+                        totalMoney: this.state.quantityBond*this.props.data.GIATRI_HIENTAI
+                    });
+                    if(!res.error){
+                        this.setState({feeTrade: res.TYLETINH});
+                    }else{
+                        // common.notify("error", res.error);
+                    }
+                } catch (error) {
+                    common.notify("error", "Thao tác thất bại");
+                }
+            }, 1000);
+        }
     }
 
     updateInputDate = name => (value)=>{
@@ -197,7 +214,7 @@ export class ModalBuyBond extends Component{
                                     <Col md="5" xs="4">
                                         <Timeline.Item>Mệnh giá</Timeline.Item>
                                     </Col>
-                                    <Col>
+                                    <Col style={{top: '-0.3rem'}}>
                                         {common.convertTextDecimal(data.MENHGIA)} VND
                                     </Col>
                                 </Row>
@@ -205,7 +222,7 @@ export class ModalBuyBond extends Component{
                                     <Col md="5" xs="4">
                                         <Timeline.Item>Giá trị hiện tại</Timeline.Item>
                                     </Col>
-                                    <Col>
+                                    <Col style={{top: '-0.3rem'}}>
                                         <Tag color="volcano" style={{ fontSize: 16 }}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</Tag> VND
                                     </Col>
                                 </Row>
@@ -213,7 +230,7 @@ export class ModalBuyBond extends Component{
                                     <Col md="5" xs="4">
                                         <Timeline.Item>Số lượng phát hành</Timeline.Item>
                                     </Col>
-                                    <Col>
+                                    <Col style={{top: '-0.3rem'}}>
                                         {common.convertTextDecimal(data.SL_DPH)}
                                     </Col>
                                 </Row>
@@ -221,7 +238,7 @@ export class ModalBuyBond extends Component{
                                     <Col md="5" xs="4">
                                         <Timeline.Item dot={<Icon type="clock-circle-o" />}>Ngày phát hành</Timeline.Item>
                                     </Col>
-                                    <Col>
+                                    <Col style={{top: '-0.3rem'}}>
                                         {common.convertDDMMYYYY(data.NGAYPH)}
                                     </Col>
                                 </Row>
@@ -229,7 +246,7 @@ export class ModalBuyBond extends Component{
                                     <Col md="5" xs="4">
                                         <Timeline.Item dot={<Icon type="clock-circle-o" />}>Ngày đáo hạn</Timeline.Item>
                                     </Col>
-                                    <Col>
+                                    <Col style={{top: '-0.3rem'}}>
                                         {common.convertDDMMYYYY(data.NGAYDH)}
                                     </Col>
                                 </Row>
@@ -237,7 +254,7 @@ export class ModalBuyBond extends Component{
                                     <Col md="5" xs="4">
                                         <Timeline.Item dot={<Icon type="clock-circle-o" />}>Ngày mua</Timeline.Item>
                                     </Col>
-                                    <Col>
+                                    <Col style={{top: '-0.3rem'}}>
                                         <DatePicker format={dateFormat} value={this.state.buyDate} onChange={this.updateInputDate('buyDate')} />
                                     </Col>
                                 </Row>
@@ -246,7 +263,7 @@ export class ModalBuyBond extends Component{
                                         <Timeline.Item>Số lượng</Timeline.Item>
                                     </Col>
                                     <Col>
-                                    <Row>
+                                    <Row style={{top: '-0.3rem'}}>
                                         <Col md="4">
                                             <Input type="number" name="quantityBond" value={this.state.quantityBond} onChange={event => this.updateInputValue(event)} style={{ maxHeight: 32 }} />
                                         </Col>
@@ -262,19 +279,19 @@ export class ModalBuyBond extends Component{
                             </Timeline>
                             <Row>
                                 <Col md="5" xs="4">
-                                    <Timeline>
-                                        <Timeline.Item color="green" style={{padding: 0}}>Phí dịch vụ ({data.feeTrade})</Timeline.Item>
+                                    <Timeline pending="Recording..." reverse={true}>
+                                        <Timeline.Item color="green" style={{padding: 0}}>Phí dịch vụ ({this.state.feeTrade})</Timeline.Item>
                                     </Timeline>
                                 </Col>
-                                <Col>
+                                <Col style={{top: '-0.3rem'}}>
                                     <div className="centerVertical">
-                                        <span>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (data.feeTrade/100))} </span><span style={{fontSize: 12}}>&nbsp;VND</span>
+                                        <span>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (this.state.feeTrade/100))} </span><span style={{fontSize: 12}}>&nbsp;VND</span>
                                     </div>
                                     <Col className="p-top10" style={styles.borderBottomRadiusDasher}></Col>
                                 </Col>
                             </Row>
 
-                            <Row>
+                            <Row style={{top: '-0.3rem'}}>
                                 <Col md="5" xs="4">
                                     Tài sản tài khoản hiện có <br/>
                                     <div className="centerVertical">
@@ -284,7 +301,7 @@ export class ModalBuyBond extends Component{
                                 <Col md="7" xs="4">
                                     Tổng số tiền đầu tư<br/>
                                     <div className="centerVertical">
-                                        <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))} </span>&nbsp;VND
+                                        <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100))} </span>&nbsp;VND
                                     </div>
                                 </Col>
                             </Row>
@@ -401,6 +418,33 @@ export class KeepExpireBond extends Component{
         let totalMoneyReceive = lstTmpDateInterest ? lstTmpDateInterest.reduce((total, currentValue)=> {
             return total + JSON.parse(currentValue.interestRate);
         }, 0) : null;
+
+        const lstDataInterest = lstTmpDateInterest.map(item =>{
+            return {
+                ...item,
+                "date": common.convertDDMMYYYY(item.date),
+                "totalMoney": `${common.convertTextDecimal(item.interestRate*(data.investMoney)/100)} (${item.interestRate}%)`
+            }
+        });
+
+        const columns = [
+            {
+                title: 'Nội dung',
+                dataIndex: 'name',
+                render: ()=> {
+                    return(
+                    <div>Coupon</div>
+                )}
+            },
+            {
+                title: 'Ngày nhận',
+                dataIndex: 'date',
+            },
+            {
+                title: 'Tiền nhận (VND)',
+                dataIndex: 'totalMoney',
+            },
+        ];
           
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
         
@@ -429,25 +473,17 @@ export class KeepExpireBond extends Component{
                         <Button style={{width: '100%'}} outline color="danger">Đã tái đầu tư</Button>
                     </Col> */}
                 </Row>
-                <div style={styles.headerDetailBond}>Chi tiết dòng tiền</div>
-                <Table bordered>
-                    <thead>
-                    <tr>
-                        <th>Nội dung</th>
-                        <th>Ngày nhận</th>
-                        <th>Tiền nhận (VND)</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        {lstTmpDateInterest.map((item, index)=>
-                            <tr key={index}>
-                                <td>Coupon</td>
-                                <td>{common.convertDDMMYYYY(item.date)}</td>
-                                <td>{common.convertTextDecimal(item.interestRate*(data.MENHGIA*data.quantityBond)/100)} ({item.interestRate}%)</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </Table>
+                <div style={{paddingTop: 10, paddingBottom: 10}}>
+                    <Tag color="orange">Chi tiết dòng tiền</Tag>
+                </div>
+                <Table 
+                    columns={columns} 
+                    dataSource={lstDataInterest}
+                    bordered={true}
+                    pagination={false}
+                    size="small" 
+                />
+                
                 <div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Tổng tiền nhận</div>
@@ -479,9 +515,9 @@ export class KeepExpireBond extends Component{
                     Mua trái phiếu
                 </Alert>
                 <div>
-                    <Badge color="primary" style={{ fontSize: 14 }}>Thông tin khách hàng</Badge>
+                    <Tag color="#5073a2" style={{ fontSize: 14 }}>Thông tin khách hàng</Tag>
                     <Timeline style={{padding: 5, paddingLeft: 10}}>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green">Tên KH</Timeline.Item>
                             </Col>
@@ -489,7 +525,7 @@ export class KeepExpireBond extends Component{
                                 {this.state.userInfo.customerName}
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green">CMND/Hộ chiếu</Timeline.Item>
                             </Col>
@@ -497,7 +533,7 @@ export class KeepExpireBond extends Component{
                                 {this.state.userInfo.identifierNumber}
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green" className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày cấp</Timeline.Item>
                             </Col>
@@ -505,7 +541,7 @@ export class KeepExpireBond extends Component{
                                 {common.convertDDMMYYYY(common.splitStringDate(this.state.userInfo.identifierIssueDate))}
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green">Nơi cấp</Timeline.Item>
                             </Col>
@@ -513,7 +549,7 @@ export class KeepExpireBond extends Component{
                                 {this.state.userInfo.identifierIssuePlace}
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green">Địa chỉ</Timeline.Item>
                             </Col>
@@ -530,7 +566,7 @@ export class KeepExpireBond extends Component{
                             </Col>
                         </Row> */}
                     </Timeline>
-                        <Row style={{paddingLeft: '0.9rem', height: '2vh'}}>
+                        <Row style={{paddingLeft: '0.6rem', height: '2vh'}}>
                             <Col sm="5">
                                 <Timeline>
                                     <Timeline.Item color="green">Số tài khoản</Timeline.Item>
@@ -543,9 +579,9 @@ export class KeepExpireBond extends Component{
                 </div>
 
                 <div className="p-top10">
-                    <Badge color="primary" style={{ fontSize: 14 }}>Thông tin đặt mua</Badge>
+                    <Tag color="#5073a2">Thông tin đặt mua</Tag>
                     <Timeline style={{padding: 5, paddingLeft: 10}}>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green">Trái phiếu</Timeline.Item>
                             </Col>
@@ -553,7 +589,7 @@ export class KeepExpireBond extends Component{
                                 <b style={{color: '#4b81ba'}}>{data.MSTP}</b>
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green">Mệnh giá</Timeline.Item>
                             </Col>
@@ -561,7 +597,7 @@ export class KeepExpireBond extends Component{
                                 {common.convertTextDecimal(data.MENHGIA)}
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green">Giá trị hiện tại</Timeline.Item>
                             </Col>
@@ -569,7 +605,7 @@ export class KeepExpireBond extends Component{
                                 {common.convertTextDecimal(data.GIATRI_HIENTAI)} VND
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green" className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày phát hành</Timeline.Item>
                             </Col>
@@ -577,7 +613,7 @@ export class KeepExpireBond extends Component{
                                 {common.convertDDMMYYYY(data.NGAYPH)}
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green" className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày đáo hạn</Timeline.Item>
                             </Col>
@@ -585,7 +621,7 @@ export class KeepExpireBond extends Component{
                                 {common.convertDDMMYYYY(data.NGAYDH)}
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green" className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày mua</Timeline.Item>
                             </Col>
@@ -593,7 +629,7 @@ export class KeepExpireBond extends Component{
                                 {common.convertDDMMYYYY(data.buyDate)}
                             </Col>
                         </Row>
-                        <Row style={{padding: '0.3rem'}}>
+                        <Row>
                             <Col sm="5">
                                 <Timeline.Item color="green">Số lượng đặt mua</Timeline.Item>
                             </Col>
@@ -602,7 +638,7 @@ export class KeepExpireBond extends Component{
                             </Col>
                         </Row>
                     </Timeline>
-                    <Row style={{paddingLeft: '0.9rem', height: '2vh'}}>
+                    <Row style={{paddingLeft: '0.6rem', height: '2vh'}}>
                         <Col sm="5">
                             <Timeline>
                                 <Timeline.Item color="green">Giá mua</Timeline.Item>
@@ -795,7 +831,7 @@ const styles = {
         padding: 10,
         color: '#fff',
         maxHeight: '100%',
-        backgroundColor: '#40a9ff',
+        backgroundColor: '#5073a2',
         marginTop: 15
     },
 }

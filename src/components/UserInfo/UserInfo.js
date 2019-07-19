@@ -30,10 +30,9 @@ class userinfo extends Component{
                                 <Timeline.Item color="green">Nơi cấp: <b>{userInfo.identifierIssuePlace}</b></Timeline.Item>
                                 <Timeline.Item color="green">Địa chỉ: <b>{userInfo.address}</b></Timeline.Item>
                                 <Timeline.Item color="green">Email: <b>{userInfo.email}</b></Timeline.Item>
-                                <Timeline.Item color="red">Thông tin tài khoản
-                                <p>Số tài khoản: <b>{accountInfo[0].accountNumber}</b></p>
-                                <p>Số tiền hiện có: <b>{accountInfo[0].accountNumber}</b></p>
-                                </Timeline.Item>
+                                <Timeline.Item color="red"><b style={{fontSize: 16, color: 'red'}}>Thông tin tài khoản</b></Timeline.Item>
+                                <Timeline.Item color="green">Số tài khoản: <b>{accountInfo[0].accountNumber}</b></Timeline.Item>
+                                <Timeline.Item color="green">Số tiền hiện có: <b>{accountInfo[0].accountNumber}</b></Timeline.Item>
                             </Timeline>
                         </div>
                     </Col>

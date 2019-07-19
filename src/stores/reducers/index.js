@@ -11,6 +11,7 @@ import buyBondsRoomVCSC from './buyBondsRoomVCSC';
 import getListBondsOfInvestor from './getListBondsOfInvestor';
 import feeTrade from './feeTrade';
 import updateMoneyAsset from './updateMoneyAsset';
+import transactionHistory from './transactionHistory';
 
 export default combineReducers({
     login: login,
@@ -23,5 +24,6 @@ export default combineReducers({
     buyBondsRoomVCSC: buyBondsRoomVCSC,
     getListBondsOfInvestor: getListBondsOfInvestor,
     feeTrade: feeTrade,
-    updateMoneyAsset: updateMoneyAsset
+    updateMoneyAsset: updateMoneyAsset,
+    transactionHistory: transactionHistory
 });

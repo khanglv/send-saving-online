@@ -5,6 +5,10 @@ export const convertDDMMYYYY = (date)=>{
     return moment(new Date(date)).format('DD/MM/YYYY');
 }
 
+export const convertTime = (date)=>{
+    return moment(new Date(date)).format('HH:mm');
+}
+
 export const convertToFormat = (date)=>{
     let dateTmp = date.split("/").reverse().join("/");
     return new Date(dateTmp).toISOString();
@@ -18,6 +22,7 @@ export const notify = (type, data) => {
     notification[type]({
         message: 'Thông báo',
         description: data,
+        style: {zIndex: '1000'}
     });
 };
 

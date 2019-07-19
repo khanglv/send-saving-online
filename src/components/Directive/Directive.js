@@ -5,11 +5,10 @@ import {
     Label,
     Input,
     Alert,
-    Table,
     FormGroup,
     Button
 } from 'reactstrap';
-import { Tabs, DatePicker, Select, Modal, Badge, Icon, Skeleton } from 'antd';
+import { Tabs, DatePicker, Select, Modal, Badge, Icon, Skeleton, Empty, Table } from 'antd';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
@@ -28,6 +27,7 @@ const { confirm } = Modal;
 class Directive extends Component{
     constructor(props){
         super(props);
+        
         this.state = {
             detailBond: {},
             quantityBond: 0,
@@ -52,6 +52,7 @@ class Directive extends Component{
             }else{
                 let idBondDefault = res.data[0].BOND_ID;
                 const defaultData = await this.props.getDetailBond(idBondDefault);
+                this.setState({isFetching: false});
                 if(defaultData){
                     this.setState({detailBond: {
                         ...defaultData.data,
@@ -61,7 +62,6 @@ class Directive extends Component{
                         })
                     }});
                 }
-                this.setState({isFetching: false});
             }
             // const res2 =  await this.props.ongetCashBalance(this.state.accountInfo[0].accountNumber);
             // if(res2.type === "CASH_BALANCE_FAILED"){
@@ -70,6 +70,7 @@ class Directive extends Component{
             //     this.setState({lstData: res.data});
             // }
         } catch (error) {
+            this.setState({isFetching: false});
             console.log("err load data " + error);
         }
     }
@@ -160,226 +161,234 @@ class Directive extends Component{
             return total + JSON.parse(currentValue.interestRate);
         }, 0) : null;
 
+        const lstDataInterest = lstTmpDateInterest !== null ? lstTmpDateInterest.map(item =>{
+            return {
+                ...item,
+                "date": common.convertDDMMYYYY(item.date),
+                "totalMoney": `${common.convertTextDecimal(item.interestRate*(this.state.quantityBond * data.MENHGIA)/100)} (${item.interestRate}%)`
+            }
+        }) : null;
+
+        const columns = [
+            {
+                title: 'Nội dung',
+                dataIndex: 'name',
+                render: ()=> {
+                    return(
+                    <div>Coupon</div>
+                )}
+            },
+            {
+                title: 'Ngày nhận',
+                dataIndex: 'date',
+            },
+            {
+                title: 'Tiền nhận (VND)',
+                dataIndex: 'totalMoney',
+            },
+        ];
+
         return(
             <Skeleton active loading={this.state.isFetching} >
-                <div style={{padding: 10, height: '85vh', display: 'flex'}}>
-                    <div style={styles.viewOptionLeft}>
-                        <div className="p-top10" style={{position: 'relative'}}>
-                            <Label for="exampleSelect" style={styles.labelInput}>Mã trái phiếu</Label>
-                            <Select showSearch name="codeBond" style={{ background: 'none', width: '100%' }}
-                                value={data.BONDID}
-                                onChange={event => this.updateSelectedValue(event)}
-                                filterOption={(input, option) =>
-                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                            }>
-                                {
-                                    this.props.lstRoomVCSC.filter(item => item.FLAG === 1).map((item) => {
-                                        return (
-                                            <Option key={item.BOND_ID} value={item.BOND_ID}>{item.MSTP}</Option>
-                                        )
-                                    })
-                                }
-                            </Select>
+                {!this.state.isFetching ? 
+                    Object.keys(this.state.detailBond).length > 0 ? 
+                    <div style={{padding: 10, height: '85vh', display: 'flex'}}>
+                        <div style={styles.viewOptionLeft}>
+                            <div className="p-top10" style={{position: 'relative'}}>
+                                <Label for="exampleSelect" style={styles.labelInput}>Mã trái phiếu</Label>
+                                <Select showSearch name="codeBond" style={{ background: 'none', width: '100%' }}
+                                    value={data.BONDID}
+                                    onChange={event => this.updateSelectedValue(event)}
+                                    filterOption={(input, option) =>
+                                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }>
+                                    {
+                                        this.props.lstRoomVCSC.filter(item => item.FLAG === 1).map((item) => {
+                                            return (
+                                                <Option key={item.BOND_ID} value={item.BOND_ID}>{item.MSTP}</Option>
+                                            )
+                                        })
+                                    }
+                                </Select>
+                            </div>
+                            <div className="p-top20">
+                                <Row>
+                                    <Col>
+                                        <FormGroup>
+                                            <Label for="exampleSelect" style={styles.labelOption}>Ngày phát hành</Label>
+                                            <Input disabled value={common.convertDDMMYYYY(data.NGAYPH)} style={{ background: 'none' }}></Input>
+                                        </FormGroup>
+                                    </Col>
+                                    <Col>
+                                        <FormGroup>
+                                            <Label for="exampleSelect" style={styles.labelOption}>Ngày đáo hạn</Label>
+                                            <Input disabled value={common.convertDDMMYYYY(data.NGAYDH)} style={{ background: 'none' }}></Input>
+                                        </FormGroup>
+                                    </Col>
+                                </Row>
+                                <Row className="p-top10">
+                                    <Col>
+                                        <FormGroup>
+                                            <Label for="exampleSelect" style={Object.assign({}, styles.labelOption, {zIndex: '1000'})}>Ngày giao dịch</Label>
+                                            <DatePicker format={dateFormat} value={this.state.buyDate} onChange={this.updateInputDate('buyDate')}/>
+                                        </FormGroup>
+                                    </Col>
+                                    <Col>
+                                        <FormGroup>
+                                            <Label for="exampleSelect" style={styles.labelOption}>Số lượng</Label>
+                                            <Input type="number" name="quantityBond" value={this.state.quantityBond} onChange={event => this.updateInputValue(event)} style={{maxHeight: 34}}/>
+                                            {this.state.isShowWarning ? <i style={{color: 'orange', fontSize: 14}}>Cần phải nhập số lượng trái phiếu</i> : null}
+                                        </FormGroup>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col>
+                                        <Badge color="#4b81ba" />Số lượng PH: <b >{common.convertTextDecimal(data.SL_DPH)}</b>
+                                    </Col>
+                                    <Col className="centerVertical">
+                                        <Badge color="#4b81ba" />Đơn giá:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col className="centerVertical">
+                                        <Badge color="#4b81ba" />Giá tiền:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col className="centerVertical">
+                                        <Badge color="#4b81ba" />Phí dịch vụ ({data.feeTrade}%):&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*data.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                    </Col>
+                                </Row>
+                            </div>
+                            <div className="p-top10" style={styles.borderBottomRadius}></div>
+                            {/* <div className="p-top10">
+                                <Row>
+                                    <Col sm="9">
+                                        <span>Lãi suất giữ đến đáo hạn (đã tái đầu tư)</span>
+                                    </Col>
+                                    <Col sm="3">
+                                        <span style={{color: 'red'}}> 8.29</span>%
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col sm="9">
+                                        <Checkbox onChange={this.onChange}><span style={{fontSize: 16, color: '#000'}}>Đăng kí trái tức sinh lời để hưởng lãi suất</span></Checkbox>
+                                    </Col>
+                                    <Col sm="3">
+                                        <span style={{color: 'red'}}> 8.36</span>%
+                                    </Col>
+                                </Row>
+                            </div>
+                            <div className="p-top10" style={styles.borderBottomRadius}></div> */}
+                            {/* <div className="p-top20">
+                                <Row>
+                                    <Col>
+                                        <Input placeholder="Mã giới thiệu"></Input>
+                                    </Col>
+                                    <Col>
+                                        <span style={{color: 'red'}} ><i className="fa fa-question-circle"></i> <span style={{fontSize: 14}}>Tìm hiểu chương trình</span></span>
+                                    </Col>
+                                </Row>
+                            </div> */}
+                            <div className="p-top10">
+                                <Row>
+                                    <Col sm="8">
+                                        <div className="centerVertical">
+                                            <Icon type="swap-right" style={{color: 'green', fontSize: 18}} />&nbsp;Tổng tiền đầu tư
+                                        </div>
+                                        <div className="centerVertical">
+                                            <span style={{color: 'red', fontSize: 24, marginLeft: '1.5rem'}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))}</span><span style={{fontSize: 14}}>&nbsp;VND</span>
+                                        </div>
+                                    </Col>
+                                    <Col sm="4">
+                                        <Button color="primary" onClick={()=>this.showConfirm(data, lstTmpDateInterest)}>Đặt mua</Button>
+                                    </Col>
+                                </Row>
+                            </div>
                         </div>
-                        <div className="p-top20">
-                            <Row>
-                                <Col>
-                                    <FormGroup>
-                                        <Label for="exampleSelect" style={styles.labelOption}>Ngày phát hành</Label>
-                                        <Input disabled value={common.convertDDMMYYYY(data.NGAYPH)} style={{ background: 'none' }}></Input>
-                                    </FormGroup>
-                                </Col>
-                                <Col>
-                                    <FormGroup>
-                                        <Label for="exampleSelect" style={styles.labelOption}>Ngày đáo hạn</Label>
-                                        <Input disabled value={common.convertDDMMYYYY(data.NGAYDH)} style={{ background: 'none' }}></Input>
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row className="p-top10">
-                                <Col>
-                                    <FormGroup>
-                                        <Label for="exampleSelect" style={Object.assign({}, styles.labelOption, {zIndex: '1000'})}>Ngày giao dịch</Label>
-                                        <DatePicker format={dateFormat} value={this.state.buyDate} onChange={this.updateInputDate('buyDate')}/>
-                                    </FormGroup>
-                                </Col>
-                                <Col>
-                                    <FormGroup>
-                                        <Label for="exampleSelect" style={styles.labelOption}>Số lượng</Label>
-                                        <Input type="number" name="quantityBond" value={this.state.quantityBond} onChange={event => this.updateInputValue(event)} style={{maxHeight: 34}}/>
-                                        {this.state.isShowWarning ? <i style={{color: 'orange', fontSize: 14}}>Cần phải nhập số lượng trái phiếu</i> : null}
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            {/* <Timeline>
-                                <Timeline.Item color="red" style={{padding: 0}}>
-                                    <span>Số lượng: <span style={{color: 'red'}}>{common.convertTextDecimal(data.SL_DPH)}</span></span><br/>
-                                    <span>Đơn giá: <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</span><span style={{fontSize: 10}}>&nbsp;VND</span></span><br/>
-                                    <span>Giá tiền: <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond)}</span></span><span style={{fontSize: 10}}>&nbsp;VND</span>
-                                </Timeline.Item>
-                                <Timeline.Item color="green" style={{padding: 0}}>
-                                    Phí dịch vụ ({data.feeTrade}%): <span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*data.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
-                                </Timeline.Item>
-                            </Timeline> */}
-                            <Row>
-                                <Col>
-                                    <Badge color="#4b81ba" />Số lượng PH: <b >{common.convertTextDecimal(data.SL_DPH)}</b>
-                                </Col>
-                                <Col className="centerVertical">
-                                    <Badge color="#4b81ba" />Đơn giá:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col className="centerVertical">
-                                    <Badge color="#4b81ba" />Giá tiền:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col className="centerVertical">
-                                    <Badge color="#4b81ba" />Phí dịch vụ ({data.feeTrade}%):&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*data.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
-                                </Col>
-                            </Row>
-                        </div>
-                        <div className="p-top10" style={styles.borderBottomRadius}></div>
-                        {/* <div className="p-top10">
-                            <Row>
-                                <Col sm="9">
-                                    <span>Lãi suất giữ đến đáo hạn (đã tái đầu tư)</span>
-                                </Col>
-                                <Col sm="3">
-                                    <span style={{color: 'red'}}> 8.29</span>%
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col sm="9">
-                                    <Checkbox onChange={this.onChange}><span style={{fontSize: 16, color: '#000'}}>Đăng kí trái tức sinh lời để hưởng lãi suất</span></Checkbox>
-                                </Col>
-                                <Col sm="3">
-                                    <span style={{color: 'red'}}> 8.36</span>%
-                                </Col>
-                            </Row>
-                        </div>
-                        <div className="p-top10" style={styles.borderBottomRadius}></div> */}
-                        {/* <div className="p-top20">
-                            <Row>
-                                <Col>
-                                    <Input placeholder="Mã giới thiệu"></Input>
-                                </Col>
-                                <Col>
-                                    <span style={{color: 'red'}} ><i className="fa fa-question-circle"></i> <span style={{fontSize: 14}}>Tìm hiểu chương trình</span></span>
-                                </Col>
-                            </Row>
-                        </div> */}
-                        <div className="p-top10">
-                            <Row>
-                                <Col sm="8">
-                                    <div className="centerVertical">
-                                        <Icon type="swap-right" style={{color: 'green', fontSize: 18}} />&nbsp;Tổng tiền đầu tư
-                                    </div>
-                                    <div className="centerVertical">
-                                        <span style={{color: 'red', fontSize: 24, marginLeft: '1.5rem'}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))}</span><span style={{fontSize: 14}}>&nbsp;VND</span>
-                                    </div>
-                                </Col>
-                                <Col sm="4">
-                                    <Button color="primary" onClick={()=>this.showConfirm(data, lstTmpDateInterest)}>Đặt mua</Button>
-                                </Col>
-                            </Row>
-                        </div>
-                    </div>
-                    <div style={styles.viewOptionRight}>
-                        <div style={{position: 'relative'}}>
-                            <Alert color="primary" style={{marginBottom: '0.3rem'}}>
-                                <b>{data.MSTP}</b>
-                            </Alert>
-                            <span>
-                                <i>Đáo hạn:</i> <span className="index-color">{common.convertDDMMYYYY(data.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <b className="index-color">{data.TEN_DN}</b>
-                            </span>
-                        </div>
-                        <div className="p-top10">
-                            <Tabs>
-                                <TabPane tab="Giữ đến đáo hạn" key="1">
-                                    <Table bordered>
-                                        <thead style={{background: '#4b81ba', color: '#fff'}}>
-                                            <tr>
-                                                <th>Nội dung</th>
-                                                <th>Ngày nhận</th>
-                                                <th>Tiền nhận (VND)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {lstTmpDateInterest ? lstTmpDateInterest.map((item, index) =>
-                                                <tr key={index}>
-                                                    <td>Coupon</td>
-                                                    <td>{common.convertDDMMYYYY(item.date)}</td>
-                                                    <td>{common.convertTextDecimal(item.interestRate * (this.state.quantityBond * data.MENHGIA) / 100)} ({item.interestRate}%)</td>
+                        <div style={styles.viewOptionRight}>
+                            <div style={{position: 'relative'}}>
+                                <Alert color="primary" style={{marginBottom: '0.3rem'}}>
+                                    <b>{data.MSTP}</b>
+                                </Alert>
+                                <span>
+                                    <i>Đáo hạn:</i> <span className="index-color">{common.convertDDMMYYYY(data.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <b className="index-color">{data.TEN_DN}</b>
+                                </span>
+                            </div>
+                            <div className="p-top10">
+                                <Tabs>
+                                    <TabPane tab="Giữ đến đáo hạn" key="1">
+                                        <Table 
+                                            columns={columns} 
+                                            dataSource={lstDataInterest}
+                                            bordered={true}
+                                            pagination={false}
+                                            size="small" 
+                                        />
+                                        <div style={{paddingBottom: 10}}>
+                                            <div style={{ display: 'flow-root' }}>
+                                                <b className="left index-color">Tổng tiền nhận</b>
+                                                <div className="right"><span style={{ color: 'red' }}>{common.convertTextDecimal((this.state.quantityBond * data.GIATRI_HIENTAI) * (1 + totalMoneyReceive / 100))}</span> VND</div>
+                                            </div>
+                                            <div style={{ display: 'flow-root' }}>
+                                                <b className="left index-color">Gốc đầu tư</b>
+                                                <div className="right">{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))}</div>
+                                            </div>
+                                            <div style={{ display: 'flow-root' }}>
+                                                <b className="left index-color">Lãi đầu tư</b>
+                                                <div className="right">{data.LAISUAT_BAN}(%)</div>
+                                            </div>
+                                            <div style={{ display: 'flow-root' }}>
+                                                <b className="left index-color">Cho thời gian</b>
+                                                <div className="right">{formula.diffMonth(data.NGAYPH, data.NGAYDH)} tháng</div>
+                                            </div>
+                                        </div>
+                                    </TabPane>
+                                    {/* <TabPane tab="Bán trước đáo hạn" key="2">
+                                        <Table bordered>
+                                            <thead>
+                                                <tr>
+                                                    <th>Thời gian đầu tư(tháng)</th>
+                                                    <th>LS chưa tái đầu tư</th>
+                                                    <th>LS đã tái đầu tư</th>
+                                                    <th>Kỳ hạn còn lại</th>
+                                                    <th>Giá bán còn lại</th>
                                                 </tr>
-                                            ) : null}
-                                        </tbody>
-                                    </Table>
-                                    <div style={{paddingBottom: 10}}>
-                                        <div style={{ display: 'flow-root' }}>
-                                            <b className="left index-color">Tổng tiền nhận</b>
-                                            <div className="right"><span style={{ color: 'red' }}>{common.convertTextDecimal((this.state.quantityBond * data.GIATRI_HIENTAI) * (1 + totalMoneyReceive / 100))}</span> VND</div>
-                                        </div>
-                                        <div style={{ display: 'flow-root' }}>
-                                            <b className="left index-color">Gốc đầu tư</b>
-                                            <div className="right">{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))}</div>
-                                        </div>
-                                        <div style={{ display: 'flow-root' }}>
-                                            <b className="left index-color">Lãi đầu tư</b>
-                                            <div className="right">{data.LAISUAT_BAN}(%)</div>
-                                        </div>
-                                        <div style={{ display: 'flow-root' }}>
-                                            <b className="left index-color">Cho thời gian</b>
-                                            <div className="right">{formula.diffMonth(data.NGAYPH, data.NGAYDH)} tháng</div>
-                                        </div>
-                                    </div>
-                                </TabPane>
-                                {/* <TabPane tab="Bán trước đáo hạn" key="2">
-                                    <Table bordered>
-                                        <thead>
-                                            <tr>
-                                                <th>Thời gian đầu tư(tháng)</th>
-                                                <th>LS chưa tái đầu tư</th>
-                                                <th>LS đã tái đầu tư</th>
-                                                <th>Kỳ hạn còn lại</th>
-                                                <th>Giá bán còn lại</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td>4.05 (%)</td>
-                                                <td>4.05 (%)</td>
-                                                <td>4.05 (%)</td>
-                                                <td>4.05 (%)</td>
-                                            </tr>
-                                            <tr>
-                                                <td>2</td>
-                                                <td>4.05 (%)</td>
-                                                <td>4.05 (%)</td>
-                                                <td>4.05 (%)</td>
-                                                <td>4.05 (%)</td>
-                                            </tr>
-                                            <tr>
-                                                <td>5</td>
-                                                <td>4.05 (%)</td>
-                                                <td>4.05 (%)</td>
-                                                <td>4.05 (%)</td>
-                                                <td>4.05 (%)</td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
-                                </TabPane> */}
-                            </Tabs>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>4.05 (%)</td>
+                                                    <td>4.05 (%)</td>
+                                                    <td>4.05 (%)</td>
+                                                    <td>4.05 (%)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2</td>
+                                                    <td>4.05 (%)</td>
+                                                    <td>4.05 (%)</td>
+                                                    <td>4.05 (%)</td>
+                                                    <td>4.05 (%)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>5</td>
+                                                    <td>4.05 (%)</td>
+                                                    <td>4.05 (%)</td>
+                                                    <td>4.05 (%)</td>
+                                                    <td>4.05 (%)</td>
+                                                </tr>
+                                            </tbody>
+                                        </Table>
+                                    </TabPane> */}
+                                </Tabs>
+                            </div>
+                            <div className="p-top10" style={styles.borderBottomRadius}></div>
+                            <div className="p-top10">
+                                <div style={{color: 'red'}}>*Lưu ý</div>
+                                <span>{data.DIEUKHOAN_LS}</span>
+                            </div>
                         </div>
-                        <div className="p-top10" style={styles.borderBottomRadius}></div>
-                        <div className="p-top10">
-                            <div style={{color: 'red'}}>*Lưu ý</div>
-                            <span>{data.DIEUKHOAN_LS}</span>
-                        </div>
-                    </div>
-                </div>
+                    </div> : <div className="text-center"><Empty /></div> : null }
             </Skeleton>
         )
     }

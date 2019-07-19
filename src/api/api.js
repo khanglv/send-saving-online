@@ -309,6 +309,16 @@ export const getListBondsOfInvestor = (idInvestor, status)=>{
     return callApiBonds(options);
 }
 
+//Transaction history
+export const transactionHistory = ()=>{
+    const url = `${BASE_URL_BONDS}/history`;
+    const options = {
+        url: url,
+        method: "GET"
+    }
+    return callApiBonds(options);
+}
+
 //Set command
 export const updateSetCommand = (data) => {
     const options = {
@@ -320,9 +330,9 @@ export const updateSetCommand = (data) => {
 }
 
 //fee trade
-export const getListFeeTrade = ()=>{
+export const getListFeeTrade = (data)=>{
     const options = {
-        url: `${BASE_URL_BONDS}/feeTrade`,
+        url: `${BASE_URL_BONDS}/feeTrade/${data.status}/${data.totalMoney}`,
         method: "GET",
     }
     return callApiBonds(options);

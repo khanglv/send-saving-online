@@ -11,6 +11,7 @@ import moment from 'moment';
 import {updateSetCommand} from '../../api/api';
 import {connect} from 'react-redux';
 import {getListBondsOfInvestor} from '../../stores/actions/getListBondsOfInvestorAction';
+import {transactionHistory} from '../../stores/actions/transactionHistoryAction';
 import * as common from '../Common/Common';
 import { withRouter } from "react-router";
 
@@ -109,11 +110,70 @@ class BondsAsset extends Component{
             },
         ];
 
+        this.columns_2 = [
+            {
+                title: 'STT',
+                dataIndex: 'key',
+                width: 30
+            },
+            {
+                title: 'Trái Phiếu', //1
+                dataIndex: 'MSTP',
+                width: 200,
+                render: (MSTP, record)=>{
+                    return(
+                        <div>
+                            {record.TRANGTHAI_LENH === 1 ? <Badge color="#1cd356" /> : record.TRANGTHAI_LENH === 0 ? <Badge color="orange" /> : record.TRANGTHAI_LENH === 2 ? <Badge color="orange" /> : null}&nbsp;{MSTP}
+                        </div>
+                    )
+                }
+            },
+            {
+                title: 'Trạng thái yêu cầu',
+                dataIndex: 'operation',
+                width: 100,
+                render: (text, record) =>{
+                    return(
+                        record.TRANGTHAI === 1 ?
+                        <span style={{color: '#1cd356'}}>Đã duyệt</span> : record.TRANGTHAI === 0 ?
+                        <span style={{color: 'orange'}}>Đang chờ duyệt</span> : 
+                        <span style={{color: 'red'}}>Đã bị hủy</span>
+                    )
+                }
+            },
+            {
+                title: 'Trạng thái hiện tại',
+                dataIndex: 'operation',
+                width: 100,
+                render: (text, record) =>{
+                    return(
+                        record.TRANGTHAI_LENH === 1 ?
+                        <span style={{color: '#1cd356'}}>Đã duyệt</span> : record.TRANGTHAI_LENH === 0 ?
+                        <span style={{color: 'orange'}}>Đang chờ duyệt</span> : 
+                        <span style={{color: 'red'}}>Đã bị hủy</span>
+                    )
+                }
+            },
+            {
+                title: 'Thời gian',
+                dataIndex: 'NGAYTAO',
+                width: 200,
+                render: (item, record)=>{
+                    return(
+                        <div className="midle-icon-ant">
+                            <Icon style={{color: '#5073a2'}} type="history" />&nbsp;&nbsp;{record.NGAYTAO} <i>&nbsp;lúc&nbsp;</i> {record.GIOTAO}
+                        </div>
+                    )
+                }
+            },
+        ];
+
         this.state = {
             isOpen: false,
             openModal: false,
             dataSource: [],
             dataSource_2: [],
+            dataSource_3: [],
             lstSetCommand: [],
             accountInfo: JSON.parse(localStorage.getItem('accountInfoKey')),
             isLoading: true
@@ -159,6 +219,18 @@ class BondsAsset extends Component{
                     }
                 })
                 this.setState({dataSource_2: lstTmp_2, isLoading: false});
+            }
+            const res_3 = await this.props.transactionHistory();
+            if(res_3.type === 'TRANSACTION_HISTORY_SUCCESS'){
+                const lstTmp_3 = await res_3.data.map((item, i) => {
+                    return {
+                        ...item,
+                        "NGAYTAO": common.convertDDMMYYYY(item.NGAYTAO),
+                        "GIOTAO": common.convertTime(item.NGAYTAO),
+                        "key": i + 1
+                    }
+                })
+                this.setState({dataSource_3: lstTmp_3, isLoading: false});
             }
         } catch (error) {
             console.log("err load data " + error);
@@ -263,6 +335,16 @@ class BondsAsset extends Component{
                                 </div>
                             </Col>
                         </Row>
+                        <div className="p-top10" style={{padding: 10}}>
+                            <Table
+                                bordered
+                                dataSource={this.state.dataSource_3}
+                                size="small"
+                                columns={this.columns_2}
+                                pagination={{ pageSize: 15 }}
+                                loading={this.state.isLoading}
+                            />
+                        </div>
                     </TabPane>
                 </Tabs>
             </div>
@@ -273,12 +355,14 @@ class BondsAsset extends Component{
 const mapStateToProps = state =>{
     return{
         lstBondsOfInvestor: state.getListBondsOfInvestor.data,
+        lstTransactionHistory: state.transactionHistory.data
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
         getListBondsOfInvestor: (codeInvestor, status)=> dispatch(getListBondsOfInvestor(codeInvestor, status)),
+        transactionHistory: ()=> dispatch(transactionHistory())
     }
 }
 

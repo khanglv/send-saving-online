@@ -14,7 +14,6 @@ import {connect} from 'react-redux';
 import {getListRoomVCSC} from '../../stores/actions/roomVCSCAction';
 import {getDetailBond} from '../../stores/actions/getDetailBondAction';
 import {getCashBalance} from '../../stores/actions/cashBalanceAction';
-import {getListFeeTrade} from '../../stores/actions/feeTradeAction';
 import {updateMoneyAsset} from '../../stores/actions/updateMoneyAssetAction';
 import * as common from '../Common/Common';
 
@@ -68,13 +67,9 @@ class BondSale extends Component{
     onActionBuyBond = async(idBond)=>{
         try {
             await this.props.getDetailBond(idBond);
-            await this.props.getListFeeTrade();
             await this.setState({isOpen: true, detailData: {
                 ...this.props.itemBond,
-                "GIATRI_HIENTAI": this.props.itemBond.GIATRI_HIENTAI === null ? this.props.itemBond.MENHGIA : this.props.itemBond.GIATRI_HIENTAI,
-                "feeTrade": this.props.lstFeeTrade.filter(item => item.LOAIGIAODICH === 1 && item.TRANGTHAI === 1).map(item =>{
-                    return item.TYLETINH
-                })
+                "GIATRI_HIENTAI": this.props.itemBond.GIATRI_HIENTAI === null ? this.props.itemBond.MENHGIA : this.props.itemBond.GIATRI_HIENTAI
             }});
         } catch (error) {
             common.notify("error", "Thao tác thất bại :(");
@@ -174,15 +169,13 @@ const mapStateToProps = state =>{
     return{
         lstRoomVCSC: state.roomVCSC.data,
         itemBond: state.getDetailBond.data,
-        cashBalance: state.cashBalance.data,
-        lstFeeTrade: state.feeTrade.data
+        cashBalance: state.cashBalance.data
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
         getListRoomVCSC: ()=> dispatch(getListRoomVCSC()),
-        getListFeeTrade: ()=>dispatch(getListFeeTrade()),
         getDetailBond: (idBond)=> dispatch(getDetailBond(idBond)),
         onGetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber)),
         updateMoneyAsset: (data)=> dispatch(updateMoneyAsset(data))
