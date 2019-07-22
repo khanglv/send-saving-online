@@ -91,19 +91,19 @@ class SideBarMenu extends Component {
                     </div>
                     <Menu theme="dark" mode="inline" defaultOpenKeys={['sub2']} selectedKeys={[this.state.current]} onClick={this.handleClick}>
                         <Menu.Item key="/main" className="middle-div">
-                            <FontAwesome name="home"/>
-                                &nbsp;<span>Trang chủ</span>
+                            <Icon type="home" />
+                            <span>Trang chủ</span>
                         </Menu.Item>
                         <Menu.Item key="/directive" className="middle-div">
-                            <FontAwesome name="edit"/>
-                                &nbsp;<span>Đặt lệnh</span>
+                            <Icon type="form" />
+                            <span>Đặt lệnh</span>
                         </Menu.Item>
                         <SubMenu
                             key="sub2"
                             title={
                                 <span className="middle-div">
-                                    <FontAwesome name="shopping-bag"/>
-                                    &nbsp;<span>Tài sản của tôi</span>
+                                    <Icon type="shopping" />
+                                    <span>Tài sản của tôi</span>
                                 </span>
                             }
                         >
@@ -120,11 +120,11 @@ class SideBarMenu extends Component {
                             </Menu.Item> */}
                         </SubMenu>
                         <Menu.Item key="/bond-investor" className="middle-div">
-                            <FontAwesome name="users"/>
-                            &nbsp;<span>Trái phiếu nhà đầu tư</span>
+                            <Icon type="usergroup-add" />
+                            <span>Trái phiếu nhà đầu tư</span>
                         </Menu.Item>
                         <Menu.Item key="/user-info" className="middle-div">
-                            <Icon type="solution" />
+                            <Icon type="profile" />
                             <span>Quản lý tài khoản</span>
                         </Menu.Item>
                         

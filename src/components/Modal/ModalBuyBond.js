@@ -370,6 +370,7 @@ export class KeepExpireBond extends Component{
         super(props);
         this.state = {
             isExpireBondNext: false,
+            isActiveOption: 1,
             accountInfo: JSON.parse(localStorage.getItem('accountInfoKey')),
             userInfo: JSON.parse(localStorage.getItem('userInfoKey'))
         }
@@ -378,6 +379,10 @@ export class KeepExpireBond extends Component{
     toggle = ()=> {
         this.setState({isExpireBondNext: false});
         this.props.onCloseExpired();
+    }
+
+    changeOption = (idOption)=>{
+        this.setState({isActiveOption: idOption});
     }
 
     onNextView = ()=>{
@@ -457,6 +462,12 @@ export class KeepExpireBond extends Component{
                 dataIndex: 'totalMoney',
             },
         ];
+
+        const {
+            isActiveOption,
+            accountInfo,
+            userInfo
+        } = this.state;
           
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
         
@@ -479,11 +490,11 @@ export class KeepExpireBond extends Component{
                 </div>
                 <Row className="p-top10">
                     <Col>
-                        <Button style={{width: '100%'}} outline color="info">Chưa tái đầu tư</Button>
+                        <Button style={{width: '100%'}} active={isActiveOption === 1} onClick={()=>this.changeOption(1)} outline color="info">Chưa tái đầu tư</Button>
                     </Col>
-                    {/* <Col>
-                        <Button style={{width: '100%'}} outline color="danger">Đã tái đầu tư</Button>
-                    </Col> */}
+                    <Col>
+                        <Button style={{width: '100%'}} active={isActiveOption === 2} onClick={()=>this.changeOption(2)} outline color="danger">Đã tái đầu tư</Button>
+                    </Col>
                 </Row>
                 <div style={{paddingTop: 10, paddingBottom: 10}}>
                     <Tag color="orange">Chi tiết dòng tiền</Tag>
@@ -495,8 +506,10 @@ export class KeepExpireBond extends Component{
                     pagination={false}
                     size="small" 
                 />
+
+                <div className="p-top10" style={styles.borderBottomRadiusDasher} ></div>
                 
-                <div>
+                <div className="p-top10">
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Tổng tiền nhận</div>
                         <div className="right centerVertical"><span style={{color: 'red'}}>{common.convertTextDecimal(data.MENHGIA * data.quantityBond * (1 + totalMoneyReceive/100))}</span>  <span style={{fontSize: 10}}>&nbsp;VND</span></div>
@@ -534,7 +547,7 @@ export class KeepExpireBond extends Component{
                                 <Timeline.Item color="green">Tên KH</Timeline.Item>
                             </Col>
                             <Col sm="7">
-                                {this.state.userInfo.customerName}
+                                {userInfo.customerName}
                             </Col>
                         </Row>
                         <Row>
@@ -542,7 +555,7 @@ export class KeepExpireBond extends Component{
                                 <Timeline.Item color="green">CMND/Hộ chiếu</Timeline.Item>
                             </Col>
                             <Col sm="7">
-                                {this.state.userInfo.identifierNumber}
+                                {userInfo.identifierNumber}
                             </Col>
                         </Row>
                         <Row>
@@ -550,7 +563,7 @@ export class KeepExpireBond extends Component{
                                 <Timeline.Item color="green" className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày cấp</Timeline.Item>
                             </Col>
                             <Col sm="7">
-                                {common.convertDDMMYYYY(common.splitStringDate(this.state.userInfo.identifierIssueDate))}
+                                {common.convertDDMMYYYY(common.splitStringDate(userInfo.identifierIssueDate))}
                             </Col>
                         </Row>
                         <Row>
@@ -558,7 +571,7 @@ export class KeepExpireBond extends Component{
                                 <Timeline.Item color="green">Nơi cấp</Timeline.Item>
                             </Col>
                             <Col sm="7">
-                                {this.state.userInfo.identifierIssuePlace}
+                                {userInfo.identifierIssuePlace}
                             </Col>
                         </Row>
                         <Row>
@@ -566,7 +579,7 @@ export class KeepExpireBond extends Component{
                                 <Timeline.Item color="green">Địa chỉ</Timeline.Item>
                             </Col>
                             <Col sm="7">
-                                {this.state.userInfo.address}
+                                {userInfo.address}
                             </Col>
                         </Row>
                         {/* <Row style={{padding: '0.3rem'}}>
@@ -585,7 +598,7 @@ export class KeepExpireBond extends Component{
                                 </Timeline>
                             </Col>
                             <Col sm="7">
-                                {this.state.accountInfo[0].accountNumber}
+                                {accountInfo[0].accountNumber}
                             </Col>
                         </Row>
                 </div>

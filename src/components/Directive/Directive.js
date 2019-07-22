@@ -352,11 +352,11 @@ class Directive extends Component{
                                         <div style={{paddingBottom: 10}}>
                                             <div style={{ display: 'flow-root' }}>
                                                 <b className="left index-color">Tổng tiền nhận</b>
-                                                <div className="right"><span style={{ color: 'red' }}>{common.convertTextDecimal((this.state.quantityBond * data.GIATRI_HIENTAI) * (1 + totalMoneyReceive / 100))}</span> VND</div>
+                                                <div className="right centerVertical"><span style={{ color: 'red' }}>{common.convertTextDecimal((this.state.quantityBond * data.GIATRI_HIENTAI) * (1 + totalMoneyReceive / 100))}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
                                             </div>
                                             <div style={{ display: 'flow-root' }}>
                                                 <b className="left index-color">Gốc đầu tư</b>
-                                                <div className="right">{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))}</div>
+                                                <div className="right centerVertical"><span>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100))}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
                                             </div>
                                             <div style={{ display: 'flow-root' }}>
                                                 <b className="left index-color">Lãi đầu tư</b>
