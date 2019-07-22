@@ -8,7 +8,8 @@ import {
     FormGroup,
     Button
 } from 'reactstrap';
-import { Tabs, DatePicker, Select, Modal, Badge, Icon, Skeleton, Empty, Table } from 'antd';
+import { Tabs, DatePicker, Select, Modal, Badge, Icon, Skeleton, Empty, Table, Spin } from 'antd';
+import {debounce} from 'lodash';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
@@ -16,8 +17,7 @@ import {connect} from 'react-redux';
 import {getListRoomVCSC} from '../../stores/actions/roomVCSCAction';
 import {getDetailBond} from '../../stores/actions/getDetailBondAction';
 import {getCashBalance} from '../../stores/actions/cashBalanceAction';
-import {getListFeeTrade} from '../../stores/actions/feeTradeAction';
-import {buyBondsRoomVCSC} from '../../api/api';
+import {buyBondsRoomVCSC, getListFeeTrade} from '../../api/api';
 
 const TabPane = Tabs.TabPane;
 const { Option } = Select;
@@ -32,7 +32,9 @@ class Directive extends Component{
             detailBond: {},
             quantityBond: 0,
             buyDate: moment(new Date(), dateFormat),
-            isShowWarning: false,
+            feeTrade: 0,
+            isPending: false,
+            isShowWarning: 0,
             isFetching: true,
             accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
         }
@@ -44,7 +46,6 @@ class Directive extends Component{
 
     loadData = async()=>{
         try {
-            await this.props.getListFeeTrade();
             const res = await this.props.getListRoomVCSC();
             if(res.type === "ROOM_VCSC_FAILED"){
                 this.setState({isFetching: false});
@@ -57,9 +58,6 @@ class Directive extends Component{
                     this.setState({detailBond: {
                         ...defaultData.data,
                         "GIATRI_HIENTAI": defaultData.data.GIATRI_HIENTAI === null ? defaultData.data.MENHGIA : defaultData.data.GIATRI_HIENTAI,
-                        "feeTrade": this.props.lstFeeTrade.filter(item => item.LOAIGIAODICH === 1 && item.TRANGTHAI === 1).map(item =>{
-                            return item.TYLETINH
-                        })
                     }});
                 }
             }
@@ -77,7 +75,9 @@ class Directive extends Component{
 
     showConfirm = (data, lstTmpDateInterest)=> {
         if(this.state.quantityBond === 0 || this.state.quantityBond === null){
-            this.setState({isShowWarning: true});
+            this.setState({isShowWarning: 1});
+        }else if(this.state.feeTrade === 0){
+            this.setState({isShowWarning: 2});
         }else{
             this.setState({isShowWarning: false});
             let that = this;
@@ -103,15 +103,35 @@ class Directive extends Component{
         await this.setState({detailBond: {
             ...res.data,
             "GIATRI_HIENTAI": res.data.GIATRI_HIENTAI === null ? res.data.MENHGIA : res.data.GIATRI_HIENTAI,
-            "feeTrade": this.props.lstFeeTrade.filter(item => item.LOAIGIAODICH === 1 && item.TRANGTHAI === 1).map(item =>{
-                return item.TYLETINH
-            })
         }});
     }
 
     updateInputValue = (event)=>{
         this.setState({[event.target.name]: event.target.value});
+        if( event.target.name === 'quantityBond'){
+            this.callApiCheckFee();
+        }
     }
+
+    callApiCheckFee = debounce(async()=>{
+        try {
+            this.setState({ isPending: true });
+            const res = await getListFeeTrade({
+                status: 1,
+                totalMoney: this.state.quantityBond * this.state.detailBond.GIATRI_HIENTAI
+            });
+            this.setState({ isPending: false });
+            if (!res.error) {
+                this.setState({ feeTrade: res.TYLETINH });
+            } else {
+                this.setState({ feeTrade: 0 });
+                // common.notify("error", res.error);
+            }
+        } catch (error) {
+            this.setState({ isPending: false });
+            common.notify("error", "Thao tác thất bại");
+        }
+    }, 300);
 
     onConfirmBuy = async(data, lstTmpDateInterest)=>{
         try {
@@ -161,9 +181,10 @@ class Directive extends Component{
             return total + JSON.parse(currentValue.interestRate);
         }, 0) : null;
 
-        const lstDataInterest = lstTmpDateInterest !== null ? lstTmpDateInterest.map(item =>{
+        const lstDataInterest = lstTmpDateInterest !== null ? lstTmpDateInterest.map((item, i) =>{
             return {
                 ...item,
+                "key": i,
                 "date": common.convertDDMMYYYY(item.date),
                 "totalMoney": `${common.convertTextDecimal(item.interestRate*(this.state.quantityBond * data.MENHGIA)/100)} (${item.interestRate}%)`
             }
@@ -237,7 +258,8 @@ class Directive extends Component{
                                         <FormGroup>
                                             <Label for="exampleSelect" style={styles.labelOption}>Số lượng</Label>
                                             <Input type="number" name="quantityBond" value={this.state.quantityBond} onChange={event => this.updateInputValue(event)} style={{maxHeight: 34}}/>
-                                            {this.state.isShowWarning ? <i style={{color: 'orange', fontSize: 14}}>Cần phải nhập số lượng trái phiếu</i> : null}
+                                            {this.state.isShowWarning === 1 ? <i style={{color: 'orange', fontSize: 14}}>Cần phải nhập số lượng trái phiếu</i> : 
+                                            this.state.isShowWarning === 2 ? <i style={{color: 'orange', fontSize: 14}}>Không tìm thấy tỉ lệ tính lãi suất, liên hệ quản trị viên</i> : null}
                                         </FormGroup>
                                     </Col>
                                 </Row>
@@ -256,7 +278,9 @@ class Directive extends Component{
                                 </Row>
                                 <Row>
                                     <Col className="centerVertical">
-                                        <Badge color="#4b81ba" />Phí dịch vụ ({data.feeTrade}%):&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*data.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                        <Badge color="#4b81ba" />Phí dịch vụ ({this.state.feeTrade}%):
+                                        &nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*this.state.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                        &nbsp;<Spin spinning={this.state.isPending}/>
                                     </Col>
                                 </Row>
                             </div>
@@ -297,7 +321,7 @@ class Directive extends Component{
                                             <Icon type="swap-right" style={{color: 'green', fontSize: 18}} />&nbsp;Tổng tiền đầu tư
                                         </div>
                                         <div className="centerVertical">
-                                            <span style={{color: 'red', fontSize: 24, marginLeft: '1.5rem'}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100))}</span><span style={{fontSize: 14}}>&nbsp;VND</span>
+                                            <span style={{color: 'red', fontSize: 24, marginLeft: '1.5rem'}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100))}</span><span style={{fontSize: 14}}>&nbsp;VND</span>
                                         </div>
                                     </Col>
                                     <Col sm="4">
@@ -398,15 +422,13 @@ const mapStateToProps = state =>{
     return{
         lstRoomVCSC: state.roomVCSC.data,
         itemBond: state.getDetailBond.data,
-        cashBalance: state.cashBalance.data,
-        lstFeeTrade: state.feeTrade.data
+        cashBalance: state.cashBalance.data
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
         getListRoomVCSC: ()=> dispatch(getListRoomVCSC()),
-        getListFeeTrade: ()=>dispatch(getListFeeTrade()),
         getDetailBond: (idBond)=> dispatch(getDetailBond(idBond)),
         ongetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber))
     }

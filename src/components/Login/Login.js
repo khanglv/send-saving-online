@@ -19,7 +19,6 @@ import {verifyBonds} from '../../stores/actions/verifyBondAction';
 import {ModalAlert, ModalConfirm} from '../Modal/Modal';
 import GuideLogin from './Guide';
 import MarketInfo from './MarketInfo';
-import {LineChartDemo} from './Chart';
 import * as common from '../Common/Common';
 
 class Login extends Component {
@@ -291,16 +290,13 @@ class Login extends Component {
                         <div className="col-md-6 col-xs-6 left" style={{ height: "14rem"}}>
                             <MarketInfo /> 
                         </div>
-                        <div className="col-md-6 col-xs-6 right" style={{fontSize: 12}}>
-                            <LineChartDemo />
-                        </div>
                     </div>
                     <div style={styles.body_detail_head}>
                         <b>THÔNG BÁO</b>
                     </div>
-                    <div className="col-lg-3 col-md-5 col-12 col-sm-5" style={styles.modalMenuOptions}>
+                    <Affix offsetBottom={0} className="col-lg-3 col-md-5 col-12 col-sm-5" style={styles.modalMenuOptions}>
                         <GuideLogin/>
-                    </div>
+                    </Affix>
                 </div>
                 <Footer/>
             </div>

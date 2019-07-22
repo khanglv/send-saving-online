@@ -47,7 +47,6 @@ class BondSale extends Component{
                 common.notify('error', 'Thao tác thất bại :( ');
             }else{
                 await this.props.updateMoneyAsset({
-                    "MSNDT": this.state.accountInfo[0].accountNumber,
                     "SOTIEN": res2.data.depositAmount
                 });
             }

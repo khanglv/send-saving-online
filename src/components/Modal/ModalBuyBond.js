@@ -11,6 +11,7 @@ import {
     Alert
 } from 'reactstrap';
 import { DatePicker, Icon, Tabs, message, Tag , Timeline, Input, Table} from 'antd';
+import {debounce} from 'lodash';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
@@ -134,7 +135,8 @@ export class ModalBuyBond extends Component{
             quantityBond: 0,
             feeTrade: 0,
             buyDate: moment(new Date(), dateFormat),
-            isShowWarning: 0
+            isShowWarning: 0,
+            isPending: false
         }
     }
 
@@ -147,7 +149,9 @@ export class ModalBuyBond extends Component{
         if(this.state.quantityBond === 0 || this.state.quantityBond === null || this.state.quantityBond === ''){
             this.setState({isShowWarning: 1});
         }else{
-            if(this.state.quantityBond > this.props.data.SL_DPH){
+            if(this.state.feeTrade === 0){
+                this.setState({isShowWarning: 4});
+            }else if(this.state.quantityBond > this.props.data.SL_DPH){
                 this.setState({isShowWarning: 2});
             }else{
                 if(this.state.quantityBond * this.props.data.GIATRI_HIENTAI > this.props.data.cashBalance.depositAmount){
@@ -164,25 +168,31 @@ export class ModalBuyBond extends Component{
     }
 
     updateInputValue = (event)=>{
-        this.setState({[event.target.name]: event.target.value});
-        if(event.target.name === "quantityBond"){
-            setTimeout(async() => {
-                try {
-                    const res = await getListFeeTrade({
-                        status: 1,
-                        totalMoney: this.state.quantityBond*this.props.data.GIATRI_HIENTAI
-                    });
-                    if(!res.error){
-                        this.setState({feeTrade: res.TYLETINH});
-                    }else{
-                        // common.notify("error", res.error);
-                    }
-                } catch (error) {
-                    common.notify("error", "Thao tác thất bại");
-                }
-            }, 1000);
+        this.setState({ [event.target.name]: event.target.value });
+        if( event.target.name === 'quantityBond'){
+            this.callApiCheckFee();
         }
     }
+
+    callApiCheckFee = debounce(async()=>{
+        try {
+            this.setState({ isPending: true });
+            const res = await getListFeeTrade({
+                status: 1,
+                totalMoney: this.state.quantityBond * this.props.data.GIATRI_HIENTAI
+            });
+            this.setState({ isPending: false });
+            if (!res.error) {
+                this.setState({ feeTrade: res.TYLETINH });
+            } else {
+                this.setState({ feeTrade: 0 });
+                // common.notify("error", res.error);
+            }
+        } catch (error) {
+            this.setState({ isPending: false });
+            common.notify("error", "Thao tác thất bại");
+        }
+    }, 300);
 
     updateInputDate = name => (value)=>{
         this.setState({[name]: value});
@@ -272,6 +282,7 @@ export class ModalBuyBond extends Component{
                                         </Col>
                                     </Row>
                                             {this.state.isShowWarning === 1 ? <i style={{ color: 'orange', fontSize: 14 }}>Cần phải nhập số lượng trái phiếu</i> :
+                                            this.state.isShowWarning === 4 ? <i style={{ color: 'orange', fontSize: 14 }}>Không tìm thấy tỉ lệ tính lãi suất, liên hệ quản trị viên</i> :
                                             this.state.isShowWarning === 2 ? <i style={{ color: 'orange', fontSize: 14 }}>Số lượng trái phiếu mua không lớn hơn số lượng phát hành</i> :
                                             this.state.isShowWarning === 3 ? <i style={{ color: 'red', fontSize: 14 }}>Tổng tiền đầu tư lớn hơn tài khoản hiện có</i> : null}
                                     </Col>
@@ -279,8 +290,8 @@ export class ModalBuyBond extends Component{
                             </Timeline>
                             <Row>
                                 <Col md="5" xs="4">
-                                    <Timeline pending="Recording..." reverse={true}>
-                                        <Timeline.Item color="green" style={{padding: 0}}>Phí dịch vụ ({this.state.feeTrade})</Timeline.Item>
+                                    <Timeline pending={this.state.isPending ? "Phí dịch vụ..." : false} reverse={false}>
+                                        {!this.state.isPending ? <Timeline.Item color="green" style={{padding: 0}}>Phí dịch vụ ({this.state.feeTrade})</Timeline.Item> : null}
                                     </Timeline>
                                 </Col>
                                 <Col style={{top: '-0.3rem'}}>
@@ -321,7 +332,7 @@ export class ModalBuyBond extends Component{
                             <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} onCloseBuyBond={this.toggle} onLoadData={this.onLoadData}
                                 data={{
                                         ...data, 
-                                        "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100),
+                                        "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100),
                                         "buyDate": this.state.buyDate,
                                         "quantityBond": this.state.quantityBond,
                                     }}
@@ -382,7 +393,7 @@ export class KeepExpireBond extends Component{
             const dataTranfer = await lstTmpDateInterest.map((item)=>{
                 return{
                     ...item,
-                    "moneyReceived": (item.interestRate)*(data.investMoney)/100
+                    "moneyReceived": (item.interestRate)*(data.quantityBond * data.MENHGIA)/100
                 }
             });
 
@@ -419,11 +430,12 @@ export class KeepExpireBond extends Component{
             return total + JSON.parse(currentValue.interestRate);
         }, 0) : null;
 
-        const lstDataInterest = lstTmpDateInterest.map(item =>{
+        const lstDataInterest = lstTmpDateInterest.map((item, i) =>{
             return {
                 ...item,
+                "key": i,
                 "date": common.convertDDMMYYYY(item.date),
-                "totalMoney": `${common.convertTextDecimal(item.interestRate*(data.investMoney)/100)} (${item.interestRate}%)`
+                "totalMoney": `${common.convertTextDecimal(item.interestRate*(data.quantityBond * data.MENHGIA)/100)} (${item.interestRate}%)`
             }
         });
 

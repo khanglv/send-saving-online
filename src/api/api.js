@@ -341,7 +341,7 @@ export const getListFeeTrade = (data)=>{
 //update money
 export const updateMoneyAsset = (data)=>{
     const options = {
-        url: `${BASE_URL_BONDS}/login/core`,
+        url: `${BASE_URL_BONDS}/investors/updateWallet`,
         method: "PUT",
         data: data
     }
