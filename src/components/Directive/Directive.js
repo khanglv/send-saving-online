@@ -273,14 +273,17 @@ class Directive extends Component{
                                 </Row>
                                 <Row>
                                     <Col className="centerVertical">
+                                        <Badge color="#4b81ba" />Phí dịch vụ ({this.state.feeTrade}%):
+                                        &nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*this.state.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                        &nbsp;<Spin spinning={this.state.isPending}/>
+                                    </Col>
+                                    <Col className="centerVertical">
                                         <Badge color="#4b81ba" />Giá tiền:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col className="centerVertical">
-                                        <Badge color="#4b81ba" />Phí dịch vụ ({this.state.feeTrade}%):
-                                        &nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*this.state.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
-                                        &nbsp;<Spin spinning={this.state.isPending}/>
+                                        <Badge color="#4b81ba" />Tài sản hiện có:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
                                     </Col>
                                 </Row>
                             </div>
@@ -443,7 +446,7 @@ const styles = {
         height: '100%',
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.23)',
         borderRadius: 5,
-        flex: 1,
+        flex: 2,
     },
     viewOptionRight:{
         padding: 10,
@@ -452,7 +455,7 @@ const styles = {
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.23)',
         marginLeft: 10,
         borderRadius: 5,
-        flex: 3,
+        flex: 5,
         overflow: 'auto'
     },
     labelInput: {

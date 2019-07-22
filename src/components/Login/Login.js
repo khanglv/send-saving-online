@@ -132,7 +132,7 @@ class Login extends Component {
 
     handleSettingTimeout = (value)=>{
         this.setState({isOptionSetting: value});
-        localStorage.setItem("TimeoutDisconnect", this.state.isOptionSetting);
+        localStorage.setItem("TimeoutDisconnect", value);
     }
 
     updateInputValue = (evt)=>{
@@ -190,7 +190,13 @@ class Login extends Component {
         let dataSend = (
             <div>
                 <label>Số thẻ OTP: {this.props.codeOTP}</label><br></br>
-                <input style={{width: '100%', padding: 5, borderRadius: 5, border: '1px solid #8e94b9'}} type="password" onChange={this.updateInputValue}></input>
+                <input style={{width: '100%', padding: 5, borderRadius: 5, border: '1px solid #8e94b9'}} type="password" 
+                    onKeyPress={event => {
+                        if (event.key === 'Enter') {
+                            this.onVerifyOTP();
+                        }
+                    }} onChange={this.updateInputValue}>
+                </input>
             </div>
         );
         return (

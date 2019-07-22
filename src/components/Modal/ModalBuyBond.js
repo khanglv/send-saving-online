@@ -291,7 +291,7 @@ export class ModalBuyBond extends Component{
                             <Row>
                                 <Col md="5" xs="4">
                                     <Timeline pending={this.state.isPending ? "Phí dịch vụ..." : false} reverse={false}>
-                                        {!this.state.isPending ? <Timeline.Item color="green" style={{padding: 0}}>Phí dịch vụ ({this.state.feeTrade})</Timeline.Item> : null}
+                                        {!this.state.isPending ? <Timeline.Item color="green" style={{padding: 0}}>Phí dịch vụ ({this.state.feeTrade}%)</Timeline.Item> : null}
                                     </Timeline>
                                 </Col>
                                 <Col style={{top: '-0.3rem'}}>
@@ -381,8 +381,18 @@ export class KeepExpireBond extends Component{
         this.props.onCloseExpired();
     }
 
-    changeOption = (idOption)=>{
+    changeOption = (idOption, data)=>{
         this.setState({isActiveOption: idOption});
+        if(idOption === 2){
+            let tmp = data.map((item, i) => {
+                return {
+                    ...item,
+                    "key": i,
+                    "date": common.convertDDMMYYYY(item.date)
+                }
+            })
+            console.log(tmp);
+        }
     }
 
     onNextView = ()=>{
@@ -435,14 +445,14 @@ export class KeepExpireBond extends Component{
             return total + JSON.parse(currentValue.interestRate);
         }, 0) : null;
 
-        const lstDataInterest = lstTmpDateInterest.map((item, i) =>{
+        const dataSource = lstTmpDateInterest.map((item, i) =>{
             return {
                 ...item,
                 "key": i,
                 "date": common.convertDDMMYYYY(item.date),
                 "totalMoney": `${common.convertTextDecimal(item.interestRate*(data.quantityBond * data.MENHGIA)/100)} (${item.interestRate}%)`
             }
-        });
+        })
 
         const columns = [
             {
@@ -460,6 +470,29 @@ export class KeepExpireBond extends Component{
             {
                 title: 'Tiền nhận (VND)',
                 dataIndex: 'totalMoney',
+            }
+        ];
+
+        const columns_2 = [
+            {
+                title: 'Nội dung',
+                dataIndex: 'name',
+                render: ()=> {
+                    return(
+                    <div>Coupon</div>
+                )}
+            },
+            {
+                title: 'Ngày nhận',
+                dataIndex: 'date',
+            },
+            {
+                title: 'Tiền nhận (VND)',
+                dataIndex: 'totalMoney',
+            },
+            {
+                title: 'Lãi tái đầu tư',
+                dataIndex: 'totalMoney_2',
             },
         ];
 
@@ -490,22 +523,32 @@ export class KeepExpireBond extends Component{
                 </div>
                 <Row className="p-top10">
                     <Col>
-                        <Button style={{width: '100%'}} active={isActiveOption === 1} onClick={()=>this.changeOption(1)} outline color="info">Chưa tái đầu tư</Button>
+                        <Button style={{width: '100%'}} active={isActiveOption === 1} onClick={()=>this.changeOption(1, [])} outline color="info">Chưa tái đầu tư</Button>
                     </Col>
                     <Col>
-                        <Button style={{width: '100%'}} active={isActiveOption === 2} onClick={()=>this.changeOption(2)} outline color="danger">Đã tái đầu tư</Button>
+                        <Button style={{width: '100%'}} active={isActiveOption === 2} onClick={()=>this.changeOption(2, lstTmpDateInterest)} outline color="danger">Đã tái đầu tư</Button>
                     </Col>
                 </Row>
                 <div style={{paddingTop: 10, paddingBottom: 10}}>
                     <Tag color="orange">Chi tiết dòng tiền</Tag>
                 </div>
-                <Table 
-                    columns={columns} 
-                    dataSource={lstDataInterest}
-                    bordered={true}
-                    pagination={false}
-                    size="small" 
-                />
+                {isActiveOption === 1 ? 
+                    <Table 
+                        columns={columns} 
+                        dataSource={dataSource}
+                        bordered={true}
+                        pagination={false}
+                        size="small" 
+                    /> : 
+                    <Table 
+                        columns={columns_2} 
+                        dataSource={this.state.lstData}
+                        loading={true}
+                        bordered={true}
+                        pagination={false}
+                        size="small"
+                    />
+                }
 
                 <div className="p-top10" style={styles.borderBottomRadiusDasher} ></div>
                 

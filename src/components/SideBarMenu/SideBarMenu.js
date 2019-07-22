@@ -4,7 +4,6 @@ import { Layout, Menu, Icon } from 'antd';
 import {ModalPopup} from '../Modal/Modal';
 import {removeStorageToken} from '../../api/storage';
 import { withRouter } from "react-router";
-import FontAwesome from 'react-fontawesome';
 import * as common from '../Common/Common';
 
 const { Sider } = Layout;

@@ -4,7 +4,7 @@ import {ModalConfirm} from './components/Modal/Modal';
 import {removeStorageToken, timeoutDisconnect} from './api/storage';
 import App from './App';
 
-const TIMEOUT_DISCONNECT = timeoutDisconnect();
+const TIMEOUT_DISCONNECT = JSON.parse(timeoutDisconnect());
 export default class IdleTimerCom extends Component {
     constructor(props) {
         super(props)
@@ -29,16 +29,16 @@ export default class IdleTimerCom extends Component {
     render() {
         let TimeOut = 60;
         switch(TIMEOUT_DISCONNECT){
-            case 30:
+            case 1:
                 TimeOut = 30;
                 break;
-            case 1:
+            case 2:
                 TimeOut = 60;
                 break;
-            case 4:
+            case 3:
                 TimeOut = 60*4;
                 break;
-            case 8:
+            case 4:
                 TimeOut = 60*8;
                 break;        
             default:
