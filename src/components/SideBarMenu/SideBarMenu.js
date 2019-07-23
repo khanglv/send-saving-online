@@ -9,15 +9,25 @@ import * as common from '../Common/Common';
 const { Sider } = Layout;
 const SubMenu = Menu.SubMenu;
 
+const LIST_ROUTE_CONFIG = ['/bonds-asset'];
+const checkRouteOpenDefaultKey = ()=> {
+    for(let i = 0; i < LIST_ROUTE_CONFIG.length; i++){
+        if(LIST_ROUTE_CONFIG[i] === window.location.pathname){
+            return 'asset';
+        }
+    }
+}
+
 class SideBarMenu extends Component {
 
     constructor(props){
         super(props);
         this.state = {
-            collapsed: false,
+            collapsed: window.innerWidth <= 1600 ? true : false,
             isOpen: false,
             dataSendLogout: "",
             current: window.location.pathname,
+            openDefaultKey: checkRouteOpenDefaultKey(),
             accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
         };
     }
@@ -88,7 +98,7 @@ class SideBarMenu extends Component {
                             onClick={this.toggle}
                         />
                     </div>
-                    <Menu theme="dark" mode="inline" defaultOpenKeys={['sub2']} selectedKeys={[this.state.current]} onClick={this.handleClick}>
+                    <Menu theme="dark" mode="inline" defaultOpenKeys={[this.state.openDefaultKey]} selectedKeys={[this.state.current]} onClick={this.handleClick}>
                         <Menu.Item key="/main" className="middle-div">
                             <Icon type="home" />
                             <span>Trang chủ</span>
@@ -98,7 +108,7 @@ class SideBarMenu extends Component {
                             <span>Đặt lệnh</span>
                         </Menu.Item>
                         <SubMenu
-                            key="sub2"
+                            key="asset"
                             title={
                                 <span className="middle-div">
                                     <Icon type="shopping" />

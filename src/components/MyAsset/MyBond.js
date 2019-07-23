@@ -50,7 +50,7 @@ class BondsAsset extends Component{
             {
                 title: 'Trái Phiếu', //1
                 dataIndex: 'MSTP',
-                width: 230,
+                width: 200,
                 render: (MSTP, record)=>{
                     return(
                         <div>
@@ -60,7 +60,20 @@ class BondsAsset extends Component{
                 }
             },
             {
-                title: 'MS Người giới thiệu', //3
+                title: 'Loại đầu tư', //1
+                dataIndex: 'TRANGTHAI_MUA',
+                width: 180,
+                render: (TRANGTHAI_MUA, record)=>{
+                    return(
+                        record.TRANGTHAI_MUA === 3 ?
+                        <span style={{color: '#643dc3'}}>Không giữ đến đáo hạn</span> : record.TRANGTHAI_MUA === 2 ?
+                        <span style={{color: '#a80f0f'}}>Tái đầu tư</span> : 
+                        <span style={{color: '#17a2b8'}}>Chưa tái đầu tư</span>
+                    )
+                }
+            },
+            {
+                title: 'MS NGT', //3
                 dataIndex: 'MS_NGUOI_GT',
                 width: 150
             },
@@ -143,7 +156,7 @@ class BondsAsset extends Component{
             },
             {
                 title: 'Trạng thái hiện tại',
-                dataIndex: 'operation',
+                dataIndex: 'status',
                 width: 100,
                 render: (text, record) =>{
                     return(

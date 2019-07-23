@@ -3,12 +3,11 @@ import {
     Row, 
     Col,
     Label,
-    Input,
     Alert,
     FormGroup,
     Button
 } from 'reactstrap';
-import { Tabs, DatePicker, Select, Modal, Badge, Icon, Skeleton, Empty, Table, Spin } from 'antd';
+import { Tabs, DatePicker, Select, Modal, Badge, Input, Icon, Skeleton, Empty, Table, Spin } from 'antd';
 import {debounce} from 'lodash';
 import moment from 'moment';
 import * as common from '../Common/Common';
@@ -33,6 +32,7 @@ class Directive extends Component{
             quantityBond: 0,
             buyDate: moment(new Date(), dateFormat),
             feeTrade: 0,
+            dataInterestReturn: [],
             isPending: false,
             isShowWarning: 0,
             isFetching: true,
@@ -61,12 +61,10 @@ class Directive extends Component{
                     }});
                 }
             }
-            // const res2 =  await this.props.ongetCashBalance(this.state.accountInfo[0].accountNumber);
-            // if(res2.type === "CASH_BALANCE_FAILED"){
-            //     common.notify('error', 'Thao tác thất bại :( ');
-            // }else{
-            //     this.setState({lstData: res.data});
-            // }
+            const res2 = await this.props.ongetCashBalance(this.state.accountInfo[0].accountNumber);
+            if(res2.type === "CASH_BALANCE_FAILED"){
+                common.notify('error', 'Thao tác thất bại :( ');
+            }
         } catch (error) {
             this.setState({isFetching: false});
             console.log("err load data " + error);
@@ -174,21 +172,31 @@ class Directive extends Component{
     }
 
     render(){
-        const data = this.state.detailBond;
+        const {
+            buyDate,
+            quantityBond,
+            detailBond = {}
+        } = this.state;
         // const  { detailBond = {} }= this.state;
-        const lstTmpDateInterest = Object.keys(data).length > 0 ? formula.GenDateInterestRate(this.state.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_BAN, []) : null;
-        let totalMoneyReceive = lstTmpDateInterest ? lstTmpDateInterest.reduce((total, currentValue)=> {
-            return total + JSON.parse(currentValue.interestRate);
-        }, 0) : null;
+        const lstTmpDateInterest = Object.keys(detailBond).length > 0 ? formula.GenDateInterestRate(buyDate, detailBond.NGAYPH, detailBond.NGAYDH, detailBond.KYHAN, []) : null;
 
-        const lstDataInterest = lstTmpDateInterest !== null ? lstTmpDateInterest.map((item, i) =>{
+        const dataSource = lstTmpDateInterest ? lstTmpDateInterest.map((item, i) =>{
             return {
                 ...item,
                 "key": i,
                 "date": common.convertDDMMYYYY(item.date),
-                "totalMoney": `${common.convertTextDecimal(item.interestRate*(this.state.quantityBond * data.MENHGIA)/100)} (${item.interestRate}%)`
+                "totalMoneyReal": item.totalDay*detailBond.LAISUAT_BAN*quantityBond*detailBond.GIATRI_HIENTAI/(100* detailBond.SONGAYTINHLAI),
+                "totalMoney": common.convertTextDecimal(item.totalDay*detailBond.LAISUAT_BAN*quantityBond*detailBond.GIATRI_HIENTAI/(100* detailBond.SONGAYTINHLAI))
             }
         }) : null;
+
+        // const {
+        //     dataInterestReturn
+        // } = this.state;
+
+        let totalMoneyReceive = dataSource ? dataSource.reduce((total, currentValue) => {
+            return total + parseFloat(currentValue.totalMoneyReal);
+        }, 0) : null;
 
         const columns = [
             {
@@ -218,7 +226,7 @@ class Directive extends Component{
                             <div className="p-top10" style={{position: 'relative'}}>
                                 <Label for="exampleSelect" style={styles.labelInput}>Mã trái phiếu</Label>
                                 <Select showSearch name="codeBond" style={{ background: 'none', width: '100%' }}
-                                    value={data.BONDID}
+                                    value={detailBond.BONDID}
                                     onChange={event => this.updateSelectedValue(event)}
                                     filterOption={(input, option) =>
                                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -237,13 +245,13 @@ class Directive extends Component{
                                     <Col>
                                         <FormGroup>
                                             <Label for="exampleSelect" style={styles.labelOption}>Ngày phát hành</Label>
-                                            <Input disabled value={common.convertDDMMYYYY(data.NGAYPH)} style={{ background: 'none' }}></Input>
+                                            <Input disabled value={common.convertDDMMYYYY(detailBond.NGAYPH)} style={{ background: 'none', color: '#000000a6' }}></Input>
                                         </FormGroup>
                                     </Col>
                                     <Col>
                                         <FormGroup>
                                             <Label for="exampleSelect" style={styles.labelOption}>Ngày đáo hạn</Label>
-                                            <Input disabled value={common.convertDDMMYYYY(data.NGAYDH)} style={{ background: 'none' }}></Input>
+                                            <Input disabled value={common.convertDDMMYYYY(detailBond.NGAYDH)} style={{ background: 'none', color: '#000000a6' }}></Input>
                                         </FormGroup>
                                     </Col>
                                 </Row>
@@ -251,7 +259,7 @@ class Directive extends Component{
                                     <Col>
                                         <FormGroup>
                                             <Label for="exampleSelect" style={Object.assign({}, styles.labelOption, {zIndex: '1000'})}>Ngày giao dịch</Label>
-                                            <DatePicker format={dateFormat} value={this.state.buyDate} onChange={this.updateInputDate('buyDate')}/>
+                                            <DatePicker style={{width: '100%'}} format={dateFormat} value={buyDate} onChange={this.updateInputDate('buyDate')}/>
                                         </FormGroup>
                                     </Col>
                                     <Col>
@@ -263,27 +271,34 @@ class Directive extends Component{
                                         </FormGroup>
                                     </Col>
                                 </Row>
+                                
                                 <Row>
                                     <Col>
-                                        <Badge color="#4b81ba" />Số lượng PH: <b >{common.convertTextDecimal(data.SL_DPH)}</b>
+                                        <Badge color="#4b81ba" />Số lượng PH: <b >{common.convertTextDecimal(detailBond.SL_DPH)}</b>
                                     </Col>
+                                </Row>
+                                <Row>
                                     <Col className="centerVertical">
-                                        <Badge color="#4b81ba" />Đơn giá:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                        <Badge color="#4b81ba" />Đơn giá:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(detailBond.GIATRI_HIENTAI)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                    </Col>
+                                </Row>
+                                <div className="p-top10" style={styles.borderBottomRadiusDasher} ></div>
+                                <Row className="p-top10">
+                                    <Col className="centerVertical">
+                                        <Badge color="#4b81ba" />Giá tiền mua:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(detailBond.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col className="centerVertical">
                                         <Badge color="#4b81ba" />Phí dịch vụ ({this.state.feeTrade}%):
-                                        &nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond*this.state.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                        &nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(detailBond.GIATRI_HIENTAI*this.state.quantityBond*this.state.feeTrade/100)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
                                         &nbsp;<Spin spinning={this.state.isPending}/>
                                     </Col>
-                                    <Col className="centerVertical">
-                                        <Badge color="#4b81ba" />Giá tiền:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
-                                    </Col>
                                 </Row>
-                                <Row>
+                                <div className="p-top10" style={styles.borderBottomRadiusDasher} ></div>
+                                <Row className="p-top10">
                                     <Col className="centerVertical">
-                                        <Badge color="#4b81ba" />Tài sản hiện có:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                        <Badge color="#4b81ba" />Tài sản hiện có:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(this.props.cashBalance.depositAmount)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
                                     </Col>
                                 </Row>
                             </div>
@@ -324,11 +339,11 @@ class Directive extends Component{
                                             <Icon type="swap-right" style={{color: 'green', fontSize: 18}} />&nbsp;Tổng tiền đầu tư
                                         </div>
                                         <div className="centerVertical">
-                                            <span style={{color: 'red', fontSize: 24, marginLeft: '1.5rem'}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100))}</span><span style={{fontSize: 14}}>&nbsp;VND</span>
+                                            <span style={{color: 'red', fontSize: 24, marginLeft: '1.5rem'}}>{common.convertTextDecimal(this.state.quantityBond * detailBond.GIATRI_HIENTAI * (1 + this.state.feeTrade/100))}</span><span style={{fontSize: 14}}>&nbsp;VND</span>
                                         </div>
                                     </Col>
-                                    <Col sm="4">
-                                        <Button color="primary" onClick={()=>this.showConfirm(data, lstTmpDateInterest)}>Đặt mua</Button>
+                                    <Col sm="4" style={{padding: 0}}>
+                                        <Button color="primary" onClick={()=>this.showConfirm(detailBond, lstTmpDateInterest)}>Đặt mua</Button>
                                     </Col>
                                 </Row>
                             </div>
@@ -336,10 +351,10 @@ class Directive extends Component{
                         <div style={styles.viewOptionRight}>
                             <div style={{position: 'relative'}}>
                                 <Alert color="primary" style={{marginBottom: '0.3rem'}}>
-                                    <b>{data.MSTP}</b>
+                                    <b>{detailBond.MSTP}</b>
                                 </Alert>
                                 <span>
-                                    <i>Đáo hạn:</i> <span className="index-color">{common.convertDDMMYYYY(data.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <b className="index-color">{data.TEN_DN}</b>
+                                    <i>Đáo hạn:</i> <span className="index-color">{common.convertDDMMYYYY(detailBond.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <b className="index-color">{detailBond.TEN_DN}</b>
                                 </span>
                             </div>
                             <div className="p-top10">
@@ -347,72 +362,48 @@ class Directive extends Component{
                                     <TabPane tab="Giữ đến đáo hạn" key="1">
                                         <Table 
                                             columns={columns} 
-                                            dataSource={lstDataInterest}
+                                            dataSource={dataSource}
                                             bordered={true}
                                             pagination={false}
                                             size="small" 
                                         />
-                                        <div style={{paddingBottom: 10}}>
+
+                                        <div className="p-top10" style={styles.borderBottomRadiusDasher} ></div>
+
+                                        <div className="p-top10">
                                             <div style={{ display: 'flow-root' }}>
                                                 <b className="left index-color">Tổng tiền nhận</b>
-                                                <div className="right centerVertical"><span style={{ color: 'red' }}>{common.convertTextDecimal((this.state.quantityBond * data.GIATRI_HIENTAI) * (1 + totalMoneyReceive / 100))}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
+                                                <div className="right centerVertical"><span style={{ color: 'red' }}>{common.convertTextDecimal(quantityBond * detailBond.GIATRI_HIENTAI + totalMoneyReceive)}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
                                             </div>
                                             <div style={{ display: 'flow-root' }}>
                                                 <b className="left index-color">Gốc đầu tư</b>
-                                                <div className="right centerVertical"><span>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100))}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
+                                                <div className="right centerVertical"><span>{common.convertTextDecimal(this.state.quantityBond * detailBond.GIATRI_HIENTAI * (1 + this.state.feeTrade/100))}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
                                             </div>
                                             <div style={{ display: 'flow-root' }}>
                                                 <b className="left index-color">Lãi đầu tư</b>
-                                                <div className="right">{data.LAISUAT_BAN}(%)</div>
+                                                <div className="right">{detailBond.LAISUAT_BAN}(%)</div>
                                             </div>
                                             <div style={{ display: 'flow-root' }}>
                                                 <b className="left index-color">Cho thời gian</b>
-                                                <div className="right">{formula.diffMonth(data.NGAYPH, data.NGAYDH)} tháng</div>
+                                                <div className="right">{formula.diffMonth(detailBond.NGAYPH, detailBond.NGAYDH)} tháng</div>
                                             </div>
                                         </div>
                                     </TabPane>
                                     {/* <TabPane tab="Bán trước đáo hạn" key="2">
-                                        <Table bordered>
-                                            <thead>
-                                                <tr>
-                                                    <th>Thời gian đầu tư(tháng)</th>
-                                                    <th>LS chưa tái đầu tư</th>
-                                                    <th>LS đã tái đầu tư</th>
-                                                    <th>Kỳ hạn còn lại</th>
-                                                    <th>Giá bán còn lại</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>4.05 (%)</td>
-                                                    <td>4.05 (%)</td>
-                                                    <td>4.05 (%)</td>
-                                                    <td>4.05 (%)</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2</td>
-                                                    <td>4.05 (%)</td>
-                                                    <td>4.05 (%)</td>
-                                                    <td>4.05 (%)</td>
-                                                    <td>4.05 (%)</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>5</td>
-                                                    <td>4.05 (%)</td>
-                                                    <td>4.05 (%)</td>
-                                                    <td>4.05 (%)</td>
-                                                    <td>4.05 (%)</td>
-                                                </tr>
-                                            </tbody>
-                                        </Table>
+                                        <Table
+                                            columns={columns}
+                                            dataSource={dataSource}
+                                            bordered={true}
+                                            pagination={false}
+                                            size="small"
+                                        />
                                     </TabPane> */}
                                 </Tabs>
                             </div>
                             <div className="p-top10" style={styles.borderBottomRadius}></div>
                             <div className="p-top10">
                                 <div style={{color: 'red'}}>*Lưu ý</div>
-                                <span>{data.DIEUKHOAN_LS}</span>
+                                <span>{detailBond.DIEUKHOAN_LS}</span>
                             </div>
                         </div>
                     </div> : <div className="text-center"><Empty /></div> : null }
@@ -446,7 +437,7 @@ const styles = {
         height: '100%',
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.23)',
         borderRadius: 5,
-        flex: 2,
+        flex: 1,
     },
     viewOptionRight:{
         padding: 10,
@@ -455,7 +446,7 @@ const styles = {
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.23)',
         marginLeft: 10,
         borderRadius: 5,
-        flex: 5,
+        flex: 3,
         overflow: 'auto'
     },
     labelInput: {
@@ -477,9 +468,13 @@ const styles = {
         paddingLeft: 5, 
         paddingRight: 5,
         fontSize: 13,
-        color: '#4b81ba'
+        color: '#4b81ba',
+        zIndex: 1000
     },
     borderBottomRadius:{
         borderBottom: '1px solid #e2e4ea'
+    },
+    borderBottomRadiusDasher:{
+        borderBottom: '1px dashed #f0f3f5'
     },
 }

@@ -12,6 +12,7 @@ import getListBondsOfInvestor from './getListBondsOfInvestor';
 import feeTrade from './feeTrade';
 import updateMoneyAsset from './updateMoneyAsset';
 import transactionHistory from './transactionHistory';
+import interestReturnTrade from './interestReturnTrade';
 
 export default combineReducers({
     login: login,
@@ -25,5 +26,6 @@ export default combineReducers({
     getListBondsOfInvestor: getListBondsOfInvestor,
     feeTrade: feeTrade,
     updateMoneyAsset: updateMoneyAsset,
-    transactionHistory: transactionHistory
+    transactionHistory: transactionHistory,
+    interestReturnTrade: interestReturnTrade
 });

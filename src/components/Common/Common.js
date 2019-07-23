@@ -34,6 +34,10 @@ export const convertTextDecimal = (number)=>{
     return parseInt(number).toLocaleString(undefined, {maximumFractionDigits:2})
 }
 
+export const convertDecimalToNumber = (text)=>{
+    return parseInt(text.split(',').join(''));
+}
+
 export const splitStringDate = (a)=>{
     let b = "/";
     let tmp1 = [a.slice(0, 4), b, a.slice(4)].join('');

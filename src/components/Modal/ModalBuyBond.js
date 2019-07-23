@@ -15,7 +15,7 @@ import {debounce} from 'lodash';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
-import {buyBondsRoomVCSC, getListFeeTrade} from '../../api/api';
+import {buyBondsRoomVCSC, getListFeeTrade, getListInterestRetunTrade} from '../../api/api';
 const TabPane = Tabs.TabPane;
 const dateFormat = 'DD/MM/YYYY';
 const messSuccess = () => {
@@ -331,7 +331,8 @@ export class ModalBuyBond extends Component{
                         <div className="p-top10">
                             <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} onCloseBuyBond={this.toggle} onLoadData={this.onLoadData}
                                 data={{
-                                        ...data, 
+                                        ...data,
+                                        "moneyBuy": this.state.quantityBond * data.GIATRI_HIENTAI,
                                         "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100),
                                         "buyDate": this.state.buyDate,
                                         "quantityBond": this.state.quantityBond,
@@ -371,6 +372,8 @@ export class KeepExpireBond extends Component{
         this.state = {
             isExpireBondNext: false,
             isActiveOption: 1,
+            isLoadingTable: false,
+            dataInterestReturn: [],
             accountInfo: JSON.parse(localStorage.getItem('accountInfoKey')),
             userInfo: JSON.parse(localStorage.getItem('userInfoKey'))
         }
@@ -381,17 +384,48 @@ export class KeepExpireBond extends Component{
         this.props.onCloseExpired();
     }
 
-    changeOption = (idOption, data)=>{
+    changeOption = async(idOption, dataTake)=>{
         this.setState({isActiveOption: idOption});
         if(idOption === 2){
-            let tmp = data.map((item, i) => {
-                return {
-                    ...item,
-                    "key": i,
-                    "date": common.convertDDMMYYYY(item.date)
+            this.setState({ isLoadingTable: true });
+            try {
+                const res = await getListInterestRetunTrade({"arrData": JSON.stringify(dataTake)});
+                this.setState({ isLoadingTable: false });
+                if (!res.error) {
+                    const dataLoad = this.props.data;
+                    let returnTmp = 0;
+                    let tmp_2 =  res.map((item, i)=>{
+                        if(i === 0){
+                            returnTmp = item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI);
+                            return {
+                                ...item,
+                                "key": i,
+                                "date": common.convertDDMMYYYY(item.date),
+                                "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI)),
+                                "returnReal": item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI),
+                                "return": `${common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI))} (${item.LS_TOIDA}%)`
+                            }
+                        }else{
+                            let result = returnTmp*(1 + item.LS_TOIDA*item.totalDay/(100*dataLoad.SONGAYTINHLAI)) + item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI);
+                            returnTmp = result;
+                            return{
+                                ...item,
+                                "key": i,
+                                "date": common.convertDDMMYYYY(item.date),
+                                "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI)),
+                                "returnReal": result,
+                                "return": `${common.convertTextDecimal(result)} (${item.LS_TOIDA}%)`
+                            }
+                        }
+                    });
+                    this.setState({dataInterestReturn: tmp_2});
+                } else {
+                    common.notify("error", "Thao tác thất bại" + res.error);
                 }
-            })
-            console.log(tmp);
+            } catch (error) {
+                this.setState({ isLoadingTable: false });
+                common.notify("error", "Thao tác thất bại");
+            }
         }
     }
 
@@ -408,7 +442,7 @@ export class KeepExpireBond extends Component{
             const dataTranfer = await lstTmpDateInterest.map((item)=>{
                 return{
                     ...item,
-                    "moneyReceived": (item.interestRate)*(data.quantityBond * data.MENHGIA)/100
+                    "moneyReceived": item.totalDay*data.LAISUAT_BAN*data.moneyBuy/(100* data.SONGAYTINHLAI)
                 }
             });
 
@@ -423,6 +457,7 @@ export class KeepExpireBond extends Component{
                 "LAISUAT_DH": data.LAISUAT_BAN,
                 "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": data.buyDate,
+                "TRANGTHAI_MUA": this.state.isActiveOption
             }
             const res = await buyBondsRoomVCSC(dataTmp);
             if(res.error){
@@ -440,19 +475,28 @@ export class KeepExpireBond extends Component{
 
     render(){
         const data = this.props.data;
-        const lstTmpDateInterest = data ? formula.GenDateInterestRate(data.buyDate, data.NGAYPH, data.NGAYDH, data.SONGAYTINHLAI, data.KYHAN, data.LAISUAT_BAN, []) : null;
-        let totalMoneyReceive = lstTmpDateInterest ? lstTmpDateInterest.reduce((total, currentValue)=> {
-            return total + JSON.parse(currentValue.interestRate);
-        }, 0) : null;
+        const lstTmpDateInterest = data ? formula.GenDateInterestRate(data.buyDate, data.NGAYPH, data.NGAYDH, data.KYHAN, []) : null;
 
         const dataSource = lstTmpDateInterest.map((item, i) =>{
             return {
                 ...item,
                 "key": i,
                 "date": common.convertDDMMYYYY(item.date),
-                "totalMoney": `${common.convertTextDecimal(item.interestRate*(data.quantityBond * data.MENHGIA)/100)} (${item.interestRate}%)`
+                "totalMoneyReal": item.totalDay*data.LAISUAT_BAN*data.moneyBuy/(100* data.SONGAYTINHLAI),
+                "totalMoney": common.convertTextDecimal(item.totalDay*data.LAISUAT_BAN*data.moneyBuy/(100* data.SONGAYTINHLAI))
             }
-        })
+        });
+
+        const {
+            isActiveOption,
+            accountInfo,
+            userInfo,
+            dataInterestReturn
+        } = this.state;
+
+        let totalMoneyReceive = isActiveOption === 1 ? (dataSource ? dataSource.reduce((total, currentValue) => {
+            return total + parseFloat(currentValue.totalMoneyReal);
+        }, 0) : null) : dataInterestReturn.length > 0 ? dataInterestReturn[dataInterestReturn.length-1].returnReal : 0;
 
         const columns = [
             {
@@ -492,15 +536,9 @@ export class KeepExpireBond extends Component{
             },
             {
                 title: 'Lãi tái đầu tư',
-                dataIndex: 'totalMoney_2',
+                dataIndex: 'return',
             },
         ];
-
-        const {
-            isActiveOption,
-            accountInfo,
-            userInfo
-        } = this.state;
           
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
         
@@ -542,8 +580,8 @@ export class KeepExpireBond extends Component{
                     /> : 
                     <Table 
                         columns={columns_2} 
-                        dataSource={this.state.lstData}
-                        loading={true}
+                        dataSource={this.state.dataInterestReturn}
+                        loading={this.state.isLoadingTable}
                         bordered={true}
                         pagination={false}
                         size="small"
@@ -555,7 +593,7 @@ export class KeepExpireBond extends Component{
                 <div className="p-top10">
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Tổng tiền nhận</div>
-                        <div className="right centerVertical"><span style={{color: 'red'}}>{common.convertTextDecimal(data.MENHGIA * data.quantityBond * (1 + totalMoneyReceive/100))}</span>  <span style={{fontSize: 10}}>&nbsp;VND</span></div>
+                        <div className="right centerVertical"><span style={{color: 'red'}}>{common.convertTextDecimal(totalMoneyReceive + data.GIATRI_HIENTAI*data.quantityBond)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span></div>
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Gốc đầu tư</div>

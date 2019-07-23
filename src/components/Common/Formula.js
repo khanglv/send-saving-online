@@ -28,25 +28,20 @@ const diffDate = (firstDate, secondDate)=>{
 }
 
 //Công thức tính trái phiếu mua giữ đến đáo hạn
-export const GenDateInterestRate = (buyDate, dateF, dateT, totalDayInterestYear, expire, interestRate, lstTmp = [])=>{
+export const GenDateInterestRate = (buyDate, dateF, dateT, expire, lstTmp = [])=>{
     let dateFToTime = dateToTime(dateF);
     let dateFAfterExpiredToTime = dateToTime(dateAfterTime(dateF, expire));
     let dateTToTime = dateToTime(dateT);
     let dateBuyToTime = dateToTime(buyDate);
 
-    let totalDayInterestMonth = totalDayInterestYear/12;
-    let interestRateMonth = interestRate/12;
-    let interestRateDay = interestRateMonth/totalDayInterestMonth;
-
     if(dateFAfterExpiredToTime <= dateTToTime){
         if(dateBuyToTime > dateFToTime){
-            let deductReceived = diffDate(dateFToTime, dateBuyToTime)*interestRateDay;
-            lstTmp.push({"date": timeToDate(dateFAfterExpiredToTime), "interestRate": (interestRateMonth*expire - deductReceived).toFixed(2)});
-            GenDateInterestRate(buyDate, timeToDate(dateFAfterExpiredToTime), dateT, totalDayInterestYear, expire, interestRate, lstTmp);
+            lstTmp.push({"date": timeToDate(dateFAfterExpiredToTime), "totalDay": diffDate(dateBuyToTime, dateFAfterExpiredToTime)});
+            GenDateInterestRate(buyDate, timeToDate(dateFAfterExpiredToTime), dateT, expire, lstTmp);
             return lstTmp;
         }
-        lstTmp.push({"date": timeToDate(dateFAfterExpiredToTime), "interestRate": (interestRateMonth*expire).toFixed(2)});
-        GenDateInterestRate(buyDate, timeToDate(dateFAfterExpiredToTime), dateT, totalDayInterestYear, expire, interestRate, lstTmp);
+        lstTmp.push({"date": timeToDate(dateFAfterExpiredToTime), "totalDay": diffDate(dateF, dateFAfterExpiredToTime)});
+        GenDateInterestRate(buyDate, timeToDate(dateFAfterExpiredToTime), dateT, expire, lstTmp);
     }
     return lstTmp;
 }

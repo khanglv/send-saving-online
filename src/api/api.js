@@ -338,6 +338,16 @@ export const getListFeeTrade = (data)=>{
     return callApiBonds(options);
 }
 
+//interest return trade
+export const getListInterestRetunTrade = (data)=>{
+    const options = {
+        url: `${BASE_URL_BONDS}/interestRateReturn/getDataRateByCouponDate`,
+        method: "PUT",
+        data: data
+    }
+    return callApiBonds(options);
+}
+
 //update money
 export const updateMoneyAsset = (data)=>{
     const options = {
