@@ -6,7 +6,7 @@ const dateAfterTime = (date, time)=>{
     return d.setMonth(d.getMonth() + time);
 }
 
-const dateToTime = (date)=>{
+export const dateToTime = (date)=>{
     return moment(new Date(date)).format().valueOf();
 }
 

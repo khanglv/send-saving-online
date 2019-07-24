@@ -3,13 +3,11 @@ import {
     Row, 
     Col,
     Container,
-    FormGroup,
     Label,
-    Input,
 } from 'reactstrap';
-import { Table, Tag } from 'antd';
+import { Table, Tag, Select } from 'antd';
 
-
+const { Option } = Select;
 
 const data = [];
 for (let i = 0; i < 100; i++) {
@@ -86,64 +84,85 @@ class BondInvestor extends Component{
             },
         ];
         return(
-            <div>
-                {!this.state.isPath ? <div style={{ padding: 10 }}>
-                    <Tag style={{ height: '10%' }} color="volcano"><b>Danh sách trái phiếu nhà đầu tư bán</b></Tag>
-                </div> : null}
+            <div style={{padding: '1rem'}}>
                 <Container style={{ paddingTop: '1rem', height: '10%' }}>
                     <Row>
                         <Col>
-                            <FormGroup>
-                                <Label for="exampleSelect" style={styles.labelOption}>Tổ chức phát hành</Label>
-                                <Input type="select" name="select" id="exampleSelect" style={{ background: 'none' }}>
-                                    <option>Tất cả</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </Input>
-                            </FormGroup>
+                            <Label for="exampleSelect" style={styles.labelOption}>Tổ chức phát hành</Label>
+                            <Select
+                                showSearch
+                                style={{ width: 200 }}
+                                placeholder="Select a person"
+                                optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                            >
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="tom">Tom</Option>
+                            </Select>
                         </Col>
                         <Col>
-                            <FormGroup>
-                                <Label for="exampleSelect" style={styles.labelOption}>Chương trình bán</Label>
-                                <Input type="select" name="select" id="exampleSelect" style={{ background: 'none' }}>
-                                    <option>Tất cả</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </Input>
-                            </FormGroup>
+                            <Label for="exampleSelect" style={styles.labelOption}>Chương trình bán</Label>
+                            <Select
+                                showSearch
+                                style={{ width: 200 }}
+                                placeholder="Select a person"
+                                optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                            >
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="tom">Tom</Option>
+                            </Select>
                         </Col>
                         <Col>
-                            <FormGroup>
-                                <Label for="exampleSelect" style={styles.labelOption}>Gói thanh toán</Label>
-                                <Input type="select" name="select" id="exampleSelect" style={{ background: 'none' }}>
-                                    <option>Tất cả</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </Input>
-                            </FormGroup>
+                            <Label for="exampleSelect" style={styles.labelOption}>Gói thanh toán</Label>
+                            <Select
+                                showSearch
+                                style={{ width: 200 }}
+                                placeholder="Select a person"
+                                optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                            >
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="tom">Tom</Option>
+                            </Select>
                         </Col>
                         <Col>
-                            <FormGroup>
-                                <Label for="exampleSelect" style={styles.labelOption}>Năm đáo hạn</Label>
-                                <Input type="select" name="select" id="exampleSelect" style={{ background: 'none' }}>
-                                    <option>Tất cả</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </Input>
-                            </FormGroup>
+                            <Label for="exampleSelect" style={styles.labelOption}>Năm đáo hạn</Label>
+                            <Select
+                                showSearch
+                                style={{ width: 200 }}
+                                placeholder="Select a person"
+                                optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                            >
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="tom">Tom</Option>
+                            </Select>
                         </Col>
                     </Row>
                 </Container>
                 <div style={{ height: '80%' }}>
-                    <Table columns={columns} dataSource={data} pagination={{ pageSize: 15 }} loading={this.state.isLoading} scroll={{ y: '55vh' }} />
+                    <Table 
+                        columns={columns} 
+                        dataSource={data}
+                        size="small"
+                        bordered
+                        pagination={{ pageSize: 15 }} 
+                        loading={this.state.isLoading} 
+                        scroll={{ y: '55vh' }} 
+                    />
                 </div>
             </div>
         );
@@ -155,10 +174,12 @@ export default BondInvestor;
 const styles={
     labelOption: {
         position: 'absolute', 
-        top: '-1rem', 
+        top: '-0.9rem', 
         backgroundColor: '#fff', 
-        left: '2rem', 
-        paddingLeft: 5, 
-        paddingRight: 5
+        left: '1.3rem',
+        paddingLeft: '0.3rem',
+        paddingRight: '0.3rem',
+        zIndex: 1000,
+        fontSize: 13
     },
 }

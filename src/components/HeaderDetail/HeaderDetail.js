@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 class HeaderDetail extends Component{
 
     onGotoHSX = ()=>{

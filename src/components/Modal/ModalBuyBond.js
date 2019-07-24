@@ -7,20 +7,15 @@ import {
     ModalFooter,
     Row, 
     Col,
-    Badge,
     Alert
 } from 'reactstrap';
-import { DatePicker, Icon, Tabs, message, Tag , Timeline, Input, Table} from 'antd';
+import { DatePicker, Icon, Tag , Timeline, Input, Table} from 'antd';
 import {debounce} from 'lodash';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
 import {buyBondsRoomVCSC, getListFeeTrade, getListInterestRetunTrade} from '../../api/api';
-const TabPane = Tabs.TabPane;
 const dateFormat = 'DD/MM/YYYY';
-const messSuccess = () => {
-    message.success('Thao tác thành công !!!');
-};
 
 export class DetailBond extends Component{
     toggle = ()=> {
@@ -168,7 +163,7 @@ export class ModalBuyBond extends Component{
     }
 
     updateInputValue = (event)=>{
-        this.setState({ [event.target.name]: event.target.value });
+        this.setState({ [event.target.name]: event.target.value, isShowWarning: 0 });
         if( event.target.name === 'quantityBond'){
             this.callApiCheckFee();
         }
@@ -183,7 +178,7 @@ export class ModalBuyBond extends Component{
             });
             this.setState({ isPending: false });
             if (!res.error) {
-                this.setState({ feeTrade: res.TYLETINH });
+                this.setState({ feeTrade: res.TYLETINH});
             } else {
                 this.setState({ feeTrade: 0 });
                 // common.notify("error", res.error);
@@ -291,7 +286,7 @@ export class ModalBuyBond extends Component{
                             <Row>
                                 <Col md="5" xs="4">
                                     <Timeline pending={this.state.isPending ? "Phí dịch vụ..." : false} reverse={false}>
-                                        {!this.state.isPending ? <Timeline.Item color="green" style={{padding: 0}}>Phí dịch vụ ({this.state.feeTrade}%)</Timeline.Item> : null}
+                                        {!this.state.isPending ? <Timeline.Item color={this.state.feeTrade > 0 ? "green" : 'orange' } style={{padding: 0}}>Phí dịch vụ ({this.state.feeTrade}%)</Timeline.Item> : null}
                                     </Timeline>
                                 </Col>
                                 <Col style={{top: '-0.3rem'}}>
@@ -316,15 +311,6 @@ export class ModalBuyBond extends Component{
                                     </div>
                                 </Col>
                             </Row>
-                            
-                            {/* <div className="right col-xs-12">
-                                Tổng số tiền đầu tư <br/>
-                                <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(this.state.quantityBond * data.GIATRI_HIENTAI)} VND</span>
-                            </div>
-                            <div className="left col-xs-12">
-                                Tài sản tài khoản hiện có <br/>
-                                <span style={{color: 'red', fontSize: 24}}>{common.convertTextDecimal(data.cashBalance.depositAmount)} VND</span>
-                            </div> */}
                         </div>
                         <div className="clearfix"></div>
                         <Col style={styles.borderBottom} className="p-top10"></Col>
@@ -338,25 +324,33 @@ export class ModalBuyBond extends Component{
                                         "quantityBond": this.state.quantityBond,
                                     }}
                             />
-                            <SaleBeforeExpire openSaleBeforeExpire={this.state.isOpenSaleBeforeExpire} onCloseSaleExpire={this.onCloseSaleBeforeExpire} onCloseModalBuyBond={this.toggle}/>
+                            <SaleBeforeExpire openSaleBeforeExpire={this.state.isOpenSaleBeforeExpire} onCloseSaleExpire={this.onCloseSaleBeforeExpire} onCloseModalBuyBond={this.toggle}
+                                data={{
+                                    ...data,
+                                    "moneyBuy": this.state.quantityBond * data.GIATRI_HIENTAI,
+                                    "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100),
+                                    "buyDate": this.state.buyDate,
+                                    "quantityBond": this.state.quantityBond,
+                                }}
+                            />
                             <i>Lãi suất đầu tư đã tái đầu tư</i>
                             <div className="p-top10">
                                 <div className="btnBuyBond" style={styles.noteBond} onClick={this.onOpenKeepExpire}>
                                     <div>
                                         <b style={{fontSize: 18}}>Giữ đến đáo hạn</b><br/>
-                                        Lãi suất đầu tư dự kiến {}/năm<br/>
-                                        Trong thời gian {} tháng
+                                        Lãi suất đầu tư dự kiến {data.LAISUAT_BAN}/năm<br/>
+                                        Trong thời gian {formula.diffMonth(data.NGAYPH, data.NGAYDH)} tháng
                                     </div>
                                     <Icon type="right" style={styles.iconNext}/>
                                 </div>
-                                {/* <div style={Object.assign({}, styles.noteBond, {marginTop: 10})} onClick={this.onOpenSaleBeforeExpire}>
+                                <div className="btnBuyBond" style={Object.assign({}, styles.noteBond, {marginTop: 10})} onClick={this.onOpenSaleBeforeExpire}>
                                     <div>
                                         <b style={{fontSize: 18}}>Bán trước đáo hạn</b><br/>
                                         Lãi suất đầu tư dự kiến từ {}/năm đến {}/năm<br/>
                                         Khi bán trái phiếu sau mỗi tháng
                                     </div>
                                     <Icon type="right" style={styles.iconNext}/>
-                                </div> */}
+                                </div>
                             </div>
                         </div>
                     </ModalBody>
@@ -459,7 +453,7 @@ export class KeepExpireBond extends Component{
                 "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": data.buyDate,
                 "TRANGTHAI_MUA": this.state.isActiveOption,
-                "TONGGIATRITRUOCPHI": data.moneyBuy
+                "TONGGIATRITRUOCPHI": data.moneyBuy100
             }
             const res = await buyBondsRoomVCSC(dataTmp);
             if(res.error){
@@ -788,98 +782,68 @@ export class KeepExpireBond extends Component{
 export class SaleBeforeExpire extends Component{
     toggle = ()=> {
         this.props.onCloseSaleExpire();
-        this.props.onCloseModalBuyBond();
-        messSuccess();
+        // this.props.onCloseModalBuyBond();
     }
 
     render(){
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
+        const data = this.props.data;
+        const columns = [
+            {
+                title: 'T.Gian đầu tư',
+                dataIndex: 'name',
+                render: ()=> {
+                    return(
+                    <div>Coupon</div>
+                )}
+            },
+            {
+                title: 'LS chưa TĐT',
+                dataIndex: 'date',
+            },
+            {
+                title: 'LS đã TĐT',
+                dataIndex: 'totalMoney',
+            },
+            {
+                title: 'K.Hạn còn lại',
+                dataIndex: 'totalMoney2',
+            },
+            {
+                title: 'G.Bán minh họa',
+                dataIndex: 'totalMoney3',
+            }
+        ];
+
+        const dataSource = [];
+
         return(
             <div>
                 <Modal isOpen={this.props.openSaleBeforeExpire} toggle={this.toggle} size="lg" centered>
                     <ModalHeader close={closeBtn} style={{background: 'rgba(155, 183, 205, 0.48)'}}>Bán trước đáo hạn</ModalHeader>
                     <ModalBody>
                         <Alert color="success" className="text-center">
-                            Thông tin IBONDS-VCSC-NHN2020
+                            {data.MSTP}
                         </Alert>
-                        <Badge color="primary">Ngày mua: 22/05/2019</Badge>&nbsp;&nbsp;<Badge color="danger">gốc đầu tư: 1,0000,000</Badge>
-                        <Tabs>
-                            <TabPane tab="Giữ đến đáo hạn" key="1">
-                                <Table bordered>
-                                    <thead>
-                                    <tr>
-                                        <th>Thời gian đầu tư(tháng)</th>
-                                        <th>LS chưa tái đầu tư</th>
-                                        <th>LS đã tái đầu tư</th>
-                                        <th>Kỳ hạn còn lại</th>
-                                        <th>Giá bán còn lại</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>5</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                    </tr>
-                                    </tbody>
-                                </Table>
-                            </TabPane>
-                            <TabPane tab="Bán trước đáo hạn" key="2">
-                                <Table bordered>
-                                    <thead>
-                                    <tr>
-                                        <th>Thời gian đầu tư(tháng)</th>
-                                        <th>LS chưa tái đầu tư</th>
-                                        <th>LS đã tái đầu tư</th>
-                                        <th>Kỳ hạn còn lại</th>
-                                        <th>Giá bán còn lại</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>5</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                        <td>4.05 (%)</td>
-                                    </tr>
-                                    </tbody>
-                                </Table>
-                            </TabPane>
-                        </Tabs>
+                        <span>
+                            <i>Đáo hạn:</i> <span className="index-color">{common.convertDDMMYYYY(data.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <span className="index-color">{data.TEN_DN}</span>
+                        </span>
+                        <div className="centerVertical">
+                            <i>Ngày mua:</i>&nbsp;<span>{common.convertDDMMYYYY(data.buyDate)}</span>&nbsp;-&nbsp;
+                            <i>Tổng đầu tư:</i>&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
+                        </div>
                         <div className="p-top10">
-                            <div style={{color: 'red'}}>* Lưu ý</div>
-                            <span>Lợi tức hiện tại có thể dùng để so sánh thu nhập lãi của trái phiếu với thu nhập cổ tức của cổ phiếu. Nó được tính bằng cách chia  lượng trái tức hàng năm theo giá hiện hành của trái phiếu. Hãy nhớ rằng lợi tức này chỉ là một phần lợi nhuận thu nhập, không tính khoản thu vốn hoặc lỗ có thể phát sinh. Như vậy, với các nhà đầu tư chỉ quan tâm đến thu nhập hiện tại, lợi nhuận này là hữu ích nhất.</span>
+                            <Table 
+                                columns={columns} 
+                                dataSource={dataSource}
+                                bordered={true}
+                                pagination={false}
+                                size="small" 
+                            />
+                        </div>
+                        <div className="p-top10" style={styles.borderBottomRadiusDasher}></div>
+                        <div style={{fontSize: 13}}>
+                            <i>Thuật ngữ: &nbsp;</i><span className="index-color">TĐT</span> - Tái đầu tư
                         </div>
                     </ModalBody>
                     <ModalFooter>

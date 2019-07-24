@@ -4,6 +4,7 @@ import {
     Table
 } from 'antd';
 import * as common from '../Common/Common';
+import * as formula from '../Common/Formula';
 
 class ModalShowDateInterest extends Component{
 
@@ -18,7 +19,16 @@ class ModalShowDateInterest extends Component{
             {
                 title: 'Ngày nhận', //1
                 dataIndex: 'date',
-                width: 200
+                width: 200,
+                render: (date, record) =>{
+                    let color = "#000000a6";
+                    if(formula.dateToTime(record.dateT) < formula.dateToTime(new Date())){
+                        color = "#18c52a";
+                    }
+                    return(
+                        <div style={{color: color}}>{record.date}</div>
+                    )
+                }
             },
             {
                 title: 'Tiền nhận (VND)', //1
@@ -52,6 +62,7 @@ class ModalShowDateInterest extends Component{
                 ...item,
                 "content": "Coupon",
                 "date": common.convertDDMMYYYY(item.date),
+                "dateT": item.date,
                 "moneyReceived": common.convertTextDecimal(item.moneyReceived),
                 "key": i + 1
             }

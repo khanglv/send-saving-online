@@ -106,7 +106,7 @@ class Directive extends Component{
     }
 
     updateInputValue = (event)=>{
-        this.setState({[event.target.name]: event.target.value});
+        this.setState({[event.target.name]: event.target.value, isShowWarning: 0});
         if( event.target.name === 'quantityBond'){
             this.callApiCheckFee();
         }
@@ -221,6 +221,33 @@ class Directive extends Component{
                 title: 'Tiền nhận (VND)',
                 dataIndex: 'totalMoney',
             },
+        ];
+
+        const columns_2 = [
+            {
+                title: 'T.Gian đầu tư',
+                dataIndex: 'name',
+                render: ()=> {
+                    return(
+                    <div>Coupon</div>
+                )}
+            },
+            {
+                title: 'LS chưa TĐT',
+                dataIndex: 'date',
+            },
+            {
+                title: 'LS đã TĐT',
+                dataIndex: 'totalMoney',
+            },
+            {
+                title: 'K.Hạn còn lại',
+                dataIndex: 'totalMoney2',
+            },
+            {
+                title: 'G.Bán minh họa',
+                dataIndex: 'totalMoney3',
+            }
         ];
 
         return(
@@ -400,15 +427,19 @@ class Directive extends Component{
                                             </div>
                                         </div>
                                     </TabPane>
-                                    {/* <TabPane tab="Bán trước đáo hạn" key="2">
+                                    <TabPane tab="Bán trước đáo hạn" key="2">
                                         <Table
-                                            columns={columns}
+                                            columns={columns_2}
                                             dataSource={dataSource}
                                             bordered={true}
                                             pagination={false}
                                             size="small"
                                         />
-                                    </TabPane> */}
+                                        <div className="p-top10" style={styles.borderBottomRadiusDasher}></div>
+                                        <div style={{fontSize: 13}}>
+                                            <i>Thuật ngữ: &nbsp;</i><span className="index-color">TĐT</span> - Tái đầu tư
+                                        </div>
+                                    </TabPane>
                                 </Tabs>
                             </div>
                             <div className="p-top10" style={styles.borderBottomRadius}></div>
