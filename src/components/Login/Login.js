@@ -36,6 +36,7 @@ class Login extends Component {
             isOpenOTP: false,
             codeOTP: '',
             checkVerifyOTP: false,
+            isPending: false,
             isTokenAccessBonds: false,
             dataSend: "^~^"
         };
@@ -144,7 +145,9 @@ class Login extends Component {
     onVerifyOTP = async()=>{
         this.setState({checkVerifyOTP: true});
         try {
+            this.setState({isPending: true});
             const res = await this.props.onCheckVerifyOTP(this.state.codeOTP, this.props.accessToken);
+            this.setState({isPending: false});
             if(res.type === 'VERIFY_OTP_FAILED'){
                 this.setState({ isOpenOTP: true, warningData: "Mã nhập không đúng, vui lòng nhập lại", checkVerifyOTP: false });
             }else{
@@ -201,7 +204,7 @@ class Login extends Component {
         );
         return (
             <div className="container" style={{backgroundColor: '#fff'}}>
-                <ModalConfirm title="OTP" dataSend={dataSend} warning={this.state.warningData} open={this.state.isOpenOTP} onActionOK={this.onVerifyOTP} />
+                <ModalConfirm title="OTP" dataSend={dataSend} warning={this.state.warningData} open={this.state.isOpenOTP} isPending={this.state.isPending} onActionOK={this.onVerifyOTP} />
                 <ModalAlert open={this.state.isOpen} onClose={this.onCloseAlert} dataSend={this.state.dataSend}/>
                 <Affix style={{height: '10vh'}}>
                     <img style={{with: '10vw', paddingTop: '0.8rem'}} src="/images/header/logo.png" alt='logo'/>

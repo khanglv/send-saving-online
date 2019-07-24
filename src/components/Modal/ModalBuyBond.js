@@ -442,6 +442,7 @@ export class KeepExpireBond extends Component{
             const dataTranfer = await lstTmpDateInterest.map((item)=>{
                 return{
                     ...item,
+                    "interestRate": data.LAISUAT_BAN,
                     "moneyReceived": item.totalDay*data.LAISUAT_BAN*data.moneyBuy/(100* data.SONGAYTINHLAI)
                 }
             });
@@ -457,7 +458,8 @@ export class KeepExpireBond extends Component{
                 "LAISUAT_DH": data.LAISUAT_BAN,
                 "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": data.buyDate,
-                "TRANGTHAI_MUA": this.state.isActiveOption
+                "TRANGTHAI_MUA": this.state.isActiveOption,
+                "TONGGIATRITRUOCPHI": data.moneyBuy
             }
             const res = await buyBondsRoomVCSC(dataTmp);
             if(res.error){

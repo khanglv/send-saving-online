@@ -6,6 +6,7 @@ import {
     ModalFooter, 
     ModalHeader,
 } from 'reactstrap';
+import {Spin} from 'antd';
 
 export class ModalAlert extends React.Component {
     constructor(props) {
@@ -98,6 +99,7 @@ export class ModalConfirm extends React.Component {
                         </div>
                     </ModalBody>
                     <ModalFooter>
+                        <Spin spinning={this.props.isPending}/>
                         <Button color="primary" onClick={this.onActionOK}>OK</Button>
                     </ModalFooter>
                 </Modal>

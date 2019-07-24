@@ -7,7 +7,7 @@ import {
     FormGroup,
     Button
 } from 'reactstrap';
-import { Tabs, DatePicker, Select, Modal, Badge, Input, Icon, Skeleton, Empty, Table, Spin } from 'antd';
+import { Tabs, DatePicker, Select, Modal, Badge, Input, Icon, Skeleton, Empty, Table, Spin, Radio } from 'antd';
 import {debounce} from 'lodash';
 import moment from 'moment';
 import * as common from '../Common/Common';
@@ -36,6 +36,7 @@ class Directive extends Component{
             isPending: false,
             isShowWarning: 0,
             isFetching: true,
+            isActiveOption: 1,
             accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
         }
     }
@@ -111,6 +112,10 @@ class Directive extends Component{
         }
     }
 
+    onChange = e => {
+        this.setState({isActiveOption: e.target.value});
+    };
+
     callApiCheckFee = debounce(async()=>{
         try {
             this.setState({ isPending: true });
@@ -136,7 +141,7 @@ class Directive extends Component{
             const dataTranfer = await lstTmpDateInterest.map((item)=>{
                 return{
                     ...item,
-                    "moneyReceived": (item.interestRate)*(this.state.quantityBond * data.GIATRI_HIENTAI)/100
+                    "moneyReceived": item.totalDay*data.LAISUAT_BAN*data.moneyBuy/(100* data.SONGAYTINHLAI)
                 }
             });
 
@@ -151,6 +156,7 @@ class Directive extends Component{
                 "LAISUAT_DH": data.LAISUAT_BAN,
                 "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": this.state.buyDate,
+                "TONGGIATRITRUOCPHI": this.state.quantityBond * data.GIATRI_HIENTAI
             }
             const res = await buyBondsRoomVCSC(dataTmp);
             if(res.error){
@@ -357,17 +363,22 @@ class Directive extends Component{
                                     <i>Đáo hạn:</i> <span className="index-color">{common.convertDDMMYYYY(detailBond.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <b className="index-color">{detailBond.TEN_DN}</b>
                                 </span>
                             </div>
-                            <div className="p-top10">
+                            <div>
                                 <Tabs>
                                     <TabPane tab="Giữ đến đáo hạn" key="1">
-                                        <Table 
-                                            columns={columns} 
-                                            dataSource={dataSource}
-                                            bordered={true}
-                                            pagination={false}
-                                            size="small" 
-                                        />
-
+                                        <Radio.Group onChange={this.onChange} value={this.state.isActiveOption}>
+                                            <Radio style={{color: '#17a2b8'}} value={1}>Chưa tái đầu tư</Radio>
+                                            <Radio style={{color: '#a80f0f'}} value={2}>Tái đầu tư</Radio>
+                                        </Radio.Group>
+                                        <div className="p-top10">
+                                            <Table 
+                                                columns={columns} 
+                                                dataSource={dataSource}
+                                                bordered={true}
+                                                pagination={false}
+                                                size="small" 
+                                            />
+                                        </div>
                                         <div className="p-top10" style={styles.borderBottomRadiusDasher} ></div>
 
                                         <div className="p-top10">
