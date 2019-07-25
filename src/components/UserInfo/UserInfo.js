@@ -33,8 +33,8 @@ class userinfo extends Component{
             <div>
                 <Row>
                     <Col span={6}></Col>
-                    <Col span={12}>
-                        <b style={{fontSize: 24, color:  'green'}}>Thông tin cá nhân</b>
+                    <Col span={12} className="p-top10">
+                        <b style={{fontSize: 24, color:  'green', paddingTop: '1rem'}}>Thông tin cá nhân</b>
                         <div className="p-top20">
                             <Timeline>
                                 <Timeline.Item color="green">Tên tài khoản: <b>{userInfo.customerName}</b></Timeline.Item>

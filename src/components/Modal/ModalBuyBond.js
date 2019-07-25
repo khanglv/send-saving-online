@@ -368,6 +368,7 @@ export class KeepExpireBond extends Component{
             isActiveOption: 1,
             isLoadingTable: false,
             dataInterestReturn: [],
+            interestReturn: null,
             accountInfo: JSON.parse(localStorage.getItem('accountInfoKey')),
             userInfo: JSON.parse(localStorage.getItem('userInfoKey'))
         }
@@ -383,12 +384,12 @@ export class KeepExpireBond extends Component{
         if(idOption === 2){
             this.setState({ isLoadingTable: true });
             try {
-                const res = await getListInterestRetunTrade({"arrData": JSON.stringify(dataTake)});
+                const res = await getListInterestRetunTrade(this.props.data.BONDID);
                 this.setState({ isLoadingTable: false });
                 if (!res.error) {
                     const dataLoad = this.props.data;
                     let returnTmp = 0;
-                    let tmp_2 =  res.map((item, i)=>{
+                    let tmp_2 =  dataTake.map((item, i)=>{
                         if(i === 0){
                             returnTmp = item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI);
                             return {
@@ -397,10 +398,10 @@ export class KeepExpireBond extends Component{
                                 "date": common.convertDDMMYYYY(item.date),
                                 "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI)),
                                 "returnReal": item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI),
-                                "return": `${common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI))} (${item.LS_TOIDA}%)`
+                                "return": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI))
                             }
                         }else{
-                            let result = returnTmp*(1 + item.LS_TOIDA*item.totalDay/(100*dataLoad.SONGAYTINHLAI)) + item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI);
+                            let result = returnTmp*(1 + res.MSLSTDT*item.totalDay/(100*dataLoad.SONGAYTINHLAI)) + item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI);
                             returnTmp = result;
                             return{
                                 ...item,
@@ -408,11 +409,11 @@ export class KeepExpireBond extends Component{
                                 "date": common.convertDDMMYYYY(item.date),
                                 "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI)),
                                 "returnReal": result,
-                                "return": `${common.convertTextDecimal(result)} (${item.LS_TOIDA}%)`
+                                "return": common.convertTextDecimal(result)
                             }
                         }
                     });
-                    this.setState({dataInterestReturn: tmp_2});
+                    this.setState({dataInterestReturn: tmp_2, interestReturn: res.MSLSTDT});
                 } else {
                     common.notify("error", "Thao tác thất bại" + res.error);
                 }
@@ -420,6 +421,9 @@ export class KeepExpireBond extends Component{
                 this.setState({ isLoadingTable: false });
                 common.notify("error", "Thao tác thất bại");
             }
+        }
+        if(idOption === 1){
+            this.setState({interestReturn: null});
         }
     }
 
@@ -487,12 +491,13 @@ export class KeepExpireBond extends Component{
             isActiveOption,
             accountInfo,
             userInfo,
-            dataInterestReturn
+            dataInterestReturn,
+            interestReturn
         } = this.state;
 
         let totalMoneyReceive = isActiveOption === 1 ? (dataSource ? dataSource.reduce((total, currentValue) => {
             return total + parseFloat(currentValue.totalMoneyReal);
-        }, 0) : null) : dataInterestReturn.length > 0 ? dataInterestReturn[dataInterestReturn.length-1].returnReal : 0;
+        }, 0) : null) : interestReturn ? (dataInterestReturn.length > 0 ? dataInterestReturn[dataInterestReturn.length-1].returnReal : 0) : 0;
 
         const columns = [
             {
@@ -564,7 +569,7 @@ export class KeepExpireBond extends Component{
                     </Col>
                 </Row>
                 <div style={{paddingTop: 10, paddingBottom: 10}}>
-                    <Tag color="orange">Chi tiết dòng tiền</Tag>
+                    <Tag color="orange">Chi tiết dòng tiền</Tag> {isActiveOption === 2 ? interestReturn === undefined ? <div className="text-center" style={{color: 'red'}}>Trái phiếu chưa nhập lãi suất tái đầu tư. Vui lùng liên hệ quản trị viên!!!</div> : null : null}
                 </div>
                 {isActiveOption === 1 ? 
                     <Table 
@@ -599,13 +604,21 @@ export class KeepExpireBond extends Component{
                         <div className="left">Lãi đầu tư</div>
                         <div className="right">{data.LAISUAT_BAN}(%)</div>
                     </div>
+                    {interestReturn ? <div style={{display: 'flow-root'}}>
+                        <div className="left">Lãi tái đầu tư</div>
+                        <div className="right">{interestReturn}(%)</div>
+                    </div> : null}
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Cho thời gian</div>
                         <div className="right">{formula.diffMonth(data.NGAYPH, data.NGAYDH)} tháng</div>
                     </div>
                 </div>
                 <div style={{position: 'relative'}}>
-                    <Button color="primary" style={{width: '100%', marginTop: 10}} onClick={this.onNextView}>Bấm để tiếp tục</Button>
+                    <Button color="primary" style={{width: '100%', marginTop: 10}} onClick={this.onNextView}
+                        disabled={interestReturn === undefined && isActiveOption === 2}
+                    >
+                        Bấm để tiếp tục
+                    </Button>
                     <Icon type="right" style={styles.iconNext2}/>
                 </div>
             </div>
@@ -842,7 +855,7 @@ export class SaleBeforeExpire extends Component{
                             />
                         </div>
                         <div className="p-top10" style={styles.borderBottomRadiusDasher}></div>
-                        <div style={{fontSize: 13}}>
+                        <div style={{fontSize: 13, paddingTop: 10}}>
                             <i>Thuật ngữ: &nbsp;</i><span className="index-color">TĐT</span> - Tái đầu tư
                         </div>
                     </ModalBody>

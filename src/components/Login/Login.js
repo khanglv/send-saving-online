@@ -147,9 +147,8 @@ class Login extends Component {
         try {
             this.setState({isPending: true});
             const res = await this.props.onCheckVerifyOTP(this.state.codeOTP, this.props.accessToken);
-            this.setState({isPending: false});
             if(res.type === 'VERIFY_OTP_FAILED'){
-                this.setState({ isOpenOTP: true, warningData: "Mã nhập không đúng, vui lòng nhập lại", checkVerifyOTP: false });
+                this.setState({ isOpenOTP: true, isPending: false, warningData: "Mã nhập không đúng, vui lòng nhập lại", checkVerifyOTP: false });
             }else{
                 if(res.info.userInfo){
                     await this.props.getUser({"accountNumber": res.info.userInfo.accounts[0].accountNumber, "subNumber": res.info.userInfo.accounts[0].accountSubs[0].subNumber});
@@ -165,14 +164,17 @@ class Login extends Component {
                         });
                     if(verifyBond.message){
                         common.notify("error", "Không thể xác thực api VBonds");
+                        this.setState({isPending: false});
                     }
                     else{
+                        this.setState({isPending: false});
                         this.props.history.push('/main');
                         return { isOpenOTP: false }
                     }
                 }
             }
         } catch (error) {
+            this.setState({isPending: false});
             console.log(error);
         }
     }

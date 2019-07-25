@@ -16,6 +16,7 @@ import {connect} from 'react-redux';
 import {getListRoomVCSC} from '../../stores/actions/roomVCSCAction';
 import {getDetailBond} from '../../stores/actions/getDetailBondAction';
 import {getCashBalance} from '../../stores/actions/cashBalanceAction';
+import {getListInterestRetunTrade} from '../../stores/actions/interestReturnTradeAction';
 import {buyBondsRoomVCSC, getListFeeTrade} from '../../api/api';
 
 const TabPane = Tabs.TabPane;
@@ -33,6 +34,8 @@ class Directive extends Component{
             buyDate: moment(new Date(), dateFormat),
             feeTrade: 0,
             dataInterestReturn: [],
+            interestReturn: null,
+            isLoadingTable: false,
             isPending: false,
             isShowWarning: 0,
             isFetching: true,
@@ -98,6 +101,7 @@ class Directive extends Component{
     }
 
     updateSelectedValue = async(event)=>{
+        this.setState({isActiveOption: 1});
         const res = await this.props.getDetailBond(event);
         await this.setState({detailBond: {
             ...res.data,
@@ -108,12 +112,57 @@ class Directive extends Component{
     updateInputValue = (event)=>{
         this.setState({[event.target.name]: event.target.value, isShowWarning: 0});
         if( event.target.name === 'quantityBond'){
+            this.setState({isActiveOption: 1});
             this.callApiCheckFee();
         }
     }
 
-    onChange = e => {
+    onChange = dataTake => async (e) => {
         this.setState({isActiveOption: e.target.value});
+        if(e.target.value === 2){
+            this.setState({ isLoadingTable: true });
+            try {
+                const res = await this.props.getListInterestRetunTrade(this.state.detailBond.BONDID);
+                this.setState({ isLoadingTable: false });
+                if (res.type !== 'LIST_INTEREST_RETURN_TRADE_FAILED') {
+                    const dataLoad = this.state.detailBond;
+                    let returnTmp = 0;
+                    let tmp_2 =  dataTake.map((item, i)=>{
+                        if(i === 0){
+                            returnTmp = item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI);
+                            return {
+                                ...item,
+                                "key": i,
+                                "date": common.convertDDMMYYYY(item.date),
+                                "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI)),
+                                "returnReal": item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI),
+                                "return": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI))
+                            }
+                        }else{
+                            let result = returnTmp*(1 + res.data.MSLSTDT*item.totalDay/(100*dataLoad.SONGAYTINHLAI)) + item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI);
+                            returnTmp = result;
+                            return{
+                                ...item,
+                                "key": i,
+                                "date": common.convertDDMMYYYY(item.date),
+                                "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI)),
+                                "returnReal": result,
+                                "return": common.convertTextDecimal(result)
+                            }
+                        }
+                    });
+                    this.setState({dataInterestReturn: tmp_2, interestReturn: res.data.MSLSTDT});
+                } else {
+                    common.notify("warning", "Trái phiếu chưa được thiết lập lãi tái đầu tư, liên hệ quản trị viên!!!");
+                }
+            } catch (error) {
+                this.setState({ isLoadingTable: false });
+                common.notify("error", "Thao tác thất bại");
+            }
+        }
+        if(e.target.value === 1){
+            this.setState({interestReturn: null});
+        }
     };
 
     callApiCheckFee = debounce(async()=>{
@@ -141,6 +190,7 @@ class Directive extends Component{
             const dataTranfer = await lstTmpDateInterest.map((item)=>{
                 return{
                     ...item,
+                    "interestRate": data.LAISUAT_BAN,
                     "moneyReceived": item.totalDay*data.LAISUAT_BAN*data.moneyBuy/(100* data.SONGAYTINHLAI)
                 }
             });
@@ -152,7 +202,7 @@ class Directive extends Component{
                 "MS_NGUOI_GT": "MS_01",
                 "SOLUONG": this.state.quantityBond,
                 "DONGIA": data.GIATRI_HIENTAI,
-                "TONGGIATRI": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + data.feeTrade/100),
+                "TONGGIATRI": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100),
                 "LAISUAT_DH": data.LAISUAT_BAN,
                 "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": this.state.buyDate,
@@ -181,6 +231,10 @@ class Directive extends Component{
         const {
             buyDate,
             quantityBond,
+            interestReturn,
+            isActiveOption,
+            dataInterestReturn,
+            isLoadingTable,
             detailBond = {}
         } = this.state;
         // const  { detailBond = {} }= this.state;
@@ -200,9 +254,9 @@ class Directive extends Component{
         //     dataInterestReturn
         // } = this.state;
 
-        let totalMoneyReceive = dataSource ? dataSource.reduce((total, currentValue) => {
+        let totalMoneyReceive = isActiveOption === 1 ? (dataSource ? dataSource.reduce((total, currentValue) => {
             return total + parseFloat(currentValue.totalMoneyReal);
-        }, 0) : null;
+        }, 0) : null) : interestReturn ? (dataInterestReturn.length > 0 ? dataInterestReturn[dataInterestReturn.length-1].returnReal : 0) : 0;
 
         const columns = [
             {
@@ -224,6 +278,29 @@ class Directive extends Component{
         ];
 
         const columns_2 = [
+            {
+                title: 'Nội dung',
+                dataIndex: 'name',
+                render: ()=> {
+                    return(
+                    <div>Coupon</div>
+                )}
+            },
+            {
+                title: 'Ngày nhận',
+                dataIndex: 'date',
+            },
+            {
+                title: 'Tiền nhận (VND)',
+                dataIndex: 'totalMoney',
+            },
+            {
+                title: 'Lãi tái đầu tư',
+                dataIndex: 'return',
+            },
+        ];
+
+        const columns_3 = [
             {
                 title: 'T.Gian đầu tư',
                 dataIndex: 'name',
@@ -336,35 +413,6 @@ class Directive extends Component{
                                 </Row>
                             </div>
                             <div className="p-top10" style={styles.borderBottomRadius}></div>
-                            {/* <div className="p-top10">
-                                <Row>
-                                    <Col sm="9">
-                                        <span>Lãi suất giữ đến đáo hạn (đã tái đầu tư)</span>
-                                    </Col>
-                                    <Col sm="3">
-                                        <span style={{color: 'red'}}> 8.29</span>%
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col sm="9">
-                                        <Checkbox onChange={this.onChange}><span style={{fontSize: 16, color: '#000'}}>Đăng kí trái tức sinh lời để hưởng lãi suất</span></Checkbox>
-                                    </Col>
-                                    <Col sm="3">
-                                        <span style={{color: 'red'}}> 8.36</span>%
-                                    </Col>
-                                </Row>
-                            </div>
-                            <div className="p-top10" style={styles.borderBottomRadius}></div> */}
-                            {/* <div className="p-top20">
-                                <Row>
-                                    <Col>
-                                        <Input placeholder="Mã giới thiệu"></Input>
-                                    </Col>
-                                    <Col>
-                                        <span style={{color: 'red'}} ><i className="fa fa-question-circle"></i> <span style={{fontSize: 14}}>Tìm hiểu chương trình</span></span>
-                                    </Col>
-                                </Row>
-                            </div> */}
                             <div className="p-top10">
                                 <Row>
                                     <Col sm="8">
@@ -376,7 +424,10 @@ class Directive extends Component{
                                         </div>
                                     </Col>
                                     <Col sm="4" style={{padding: 0}}>
-                                        <Button color="primary" onClick={()=>this.showConfirm(detailBond, lstTmpDateInterest)}>Đặt mua</Button>
+                                        <Button color="primary" onClick={()=>this.showConfirm(detailBond, lstTmpDateInterest)}
+                                            disabled={interestReturn === null && isActiveOption === 2}
+                                        >Đặt mua
+                                        </Button>
                                     </Col>
                                 </Row>
                             </div>
@@ -393,18 +444,29 @@ class Directive extends Component{
                             <div>
                                 <Tabs>
                                     <TabPane tab="Giữ đến đáo hạn" key="1">
-                                        <Radio.Group onChange={this.onChange} value={this.state.isActiveOption}>
+                                        <Radio.Group onChange={this.onChange(lstTmpDateInterest)} value={this.state.isActiveOption}>
                                             <Radio style={{color: '#17a2b8'}} value={1}>Chưa tái đầu tư</Radio>
                                             <Radio style={{color: '#a80f0f'}} value={2}>Tái đầu tư</Radio>
                                         </Radio.Group>
                                         <div className="p-top10">
-                                            <Table 
-                                                columns={columns} 
-                                                dataSource={dataSource}
-                                                bordered={true}
-                                                pagination={false}
-                                                size="small" 
-                                            />
+                                            {
+                                                isActiveOption === 1 ? 
+                                                <Table 
+                                                    columns={columns} 
+                                                    dataSource={dataSource}
+                                                    bordered={true}
+                                                    pagination={false}
+                                                    size="small" 
+                                                /> : 
+                                                <Table 
+                                                    columns={columns_2}
+                                                    loading={isLoadingTable}
+                                                    dataSource={dataInterestReturn}
+                                                    bordered={true}
+                                                    pagination={false}
+                                                    size="small" 
+                                                />
+                                            }
                                         </div>
                                         <div className="p-top10" style={styles.borderBottomRadiusDasher} ></div>
 
@@ -421,6 +483,11 @@ class Directive extends Component{
                                                 <b className="left index-color">Lãi đầu tư</b>
                                                 <div className="right">{detailBond.LAISUAT_BAN}(%)</div>
                                             </div>
+                                            {interestReturn ? <div style={{display: 'flow-root'}}>
+                                                <b className="left index-color">Lãi tái đầu tư</b>
+                                                <div className="right">{interestReturn}(%)</div>
+                                                </div> : null
+                                            }
                                             <div style={{ display: 'flow-root' }}>
                                                 <b className="left index-color">Cho thời gian</b>
                                                 <div className="right">{formula.diffMonth(detailBond.NGAYPH, detailBond.NGAYDH)} tháng</div>
@@ -429,7 +496,7 @@ class Directive extends Component{
                                     </TabPane>
                                     <TabPane tab="Bán trước đáo hạn" key="2">
                                         <Table
-                                            columns={columns_2}
+                                            columns={columns_3}
                                             dataSource={dataSource}
                                             bordered={true}
                                             pagination={false}
@@ -458,7 +525,8 @@ const mapStateToProps = state =>{
     return{
         lstRoomVCSC: state.roomVCSC.data,
         itemBond: state.getDetailBond.data,
-        cashBalance: state.cashBalance.data
+        cashBalance: state.cashBalance.data,
+        interestReturnTrade: state.interestReturnTrade.data
     }
 }
 
@@ -466,7 +534,8 @@ const mapDispatchToProps = dispatch =>{
     return{
         getListRoomVCSC: ()=> dispatch(getListRoomVCSC()),
         getDetailBond: (idBond)=> dispatch(getDetailBond(idBond)),
-        ongetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber))
+        ongetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber)),
+        getListInterestRetunTrade: (bondID)=> dispatch(getListInterestRetunTrade(bondID))
     }
 }
 

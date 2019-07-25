@@ -339,11 +339,10 @@ export const getListFeeTrade = (data)=>{
 }
 
 //interest return trade
-export const getListInterestRetunTrade = (data)=>{
+export const getListInterestRetunTrade = (bondID)=>{
     const options = {
-        url: `${BASE_URL_BONDS}/interestRateReturn/getDataRateByCouponDate`,
-        method: "PUT",
-        data: data
+        url: `${BASE_URL_BONDS}/bonds/getInterestRateReturnByBondId/${bondID}`,
+        method: "GET"
     }
     return callApiBonds(options);
 }

@@ -114,11 +114,12 @@ class BondSale extends Component{
                         onChange={this.filterList}
                         style={{ width: '10vw', position: 'absolute', top: '0.4rem', right: '2rem', borderColor: '#5073a2' }}
                     />
-                        {this.state.isFetching ? 
-                        this.state.lstData.length > 0 ? this.state.lstData.filter(item => item.FLAG === 1).map((item)=>{
-                            return (
-                                <Row key={item.BOND_ID} style={{paddingLeft: '2rem', paddingRight: '2rem'}}>
-                                    <Col xs="12" sm="3">
+
+                    <Row style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
+                        {this.state.isFetching ?
+                            this.state.lstData.length > 0 ? this.state.lstData.filter(item => item.FLAG === 1).map((item) => {
+                                return (
+                                    <Col key={item.BOND_ID} md="3" sm="3" xs="12">
                                         <Card style={styles.itemCard}>
                                             <CardHeader style={styles.headerCard}>
                                                 <b>{item.MSTP}</b> - <b>{item.LAISUAT_BAN} (%)</b><span>/năm</span><br />
@@ -132,7 +133,7 @@ class BondSale extends Component{
                                                             Hạn mức
                                                         </span><br />
                                                         <div className="centerVertical">
-                                                            <b>{common.convertTextDecimal(item.HANMUC)}</b><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                                            <b>{common.convertTextDecimal(item.HANMUC)}</b><span style={{ fontSize: 10 }}>&nbsp;VND</span>
                                                         </div>
                                                     </Col>
                                                     <Col sm="4">
@@ -155,10 +156,10 @@ class BondSale extends Component{
                                             </CardFooter>
                                         </Card>
                                     </Col>
-                                </Row>
-                            )
-                        }) : <div className="text-center"><Empty /></div> : null}
-                    </Skeleton>    
+                                )
+                            }) : <div className="text-center"><Empty /></div> : null}
+                    </Row>
+                </Skeleton>    
             </div>
         );
     }
