@@ -321,6 +321,7 @@ export class ModalBuyBond extends Component{
                                         "moneyBuy": this.state.quantityBond * data.GIATRI_HIENTAI,
                                         "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100),
                                         "buyDate": this.state.buyDate,
+                                        "feeTrade": this.state.quantityBond * data.GIATRI_HIENTAI * (this.state.feeTrade/100),
                                         "quantityBond": this.state.quantityBond,
                                     }}
                             />
@@ -437,11 +438,18 @@ export class KeepExpireBond extends Component{
 
     onConfirmBuy = async(data, lstTmpDateInterest)=>{
         try {
-            const dataTranfer = await lstTmpDateInterest.map((item)=>{
+            const dataTranfer = this.state.isActiveOption === 1 ? await lstTmpDateInterest.map((item)=>{
                 return{
                     ...item,
                     "interestRate": data.LAISUAT_BAN,
+                    "interestRateReturn": this.state.interestReturn ? this.state.interestReturn : 0,
                     "moneyReceived": item.totalDay*data.LAISUAT_BAN*data.moneyBuy/(100* data.SONGAYTINHLAI)
+                }
+            }) : this.state.dataInterestReturn.map(item => {
+                return {
+                    ...item,
+                    "interestRate": this.state.interestReturn ? this.state.interestReturn : 0,
+                    "moneyReceived": item.returnReal
                 }
             });
 
@@ -457,7 +465,7 @@ export class KeepExpireBond extends Component{
                 "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": data.buyDate,
                 "TRANGTHAI_MUA": this.state.isActiveOption,
-                "TONGGIATRITRUOCPHI": data.moneyBuy100
+                "TONGGIATRITRUOCPHI": data.moneyBuy
             }
             const res = await buyBondsRoomVCSC(dataTmp);
             if(res.error){
@@ -706,14 +714,6 @@ export class KeepExpireBond extends Component{
                         </Row>
                         <Row>
                             <Col sm="5">
-                                <Timeline.Item color="green">Mệnh giá</Timeline.Item>
-                            </Col>
-                            <Col sm="7">
-                                {common.convertTextDecimal(data.MENHGIA)}
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col sm="5">
                                 <Timeline.Item color="green">Giá trị hiện tại</Timeline.Item>
                             </Col>
                             <Col sm="7">
@@ -752,11 +752,27 @@ export class KeepExpireBond extends Component{
                                 {data.quantityBond}
                             </Col>
                         </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Giá mua T.P</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {common.convertTextDecimal(data.moneyBuy)}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Phí giao dịch</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {common.convertTextDecimal(data.feeTrade)}
+                            </Col>
+                        </Row>
                     </Timeline>
                     <Row style={{paddingLeft: '0.6rem', height: '2vh'}}>
                         <Col sm="5">
                             <Timeline>
-                                <Timeline.Item color="green">Giá mua</Timeline.Item>
+                                <Timeline.Item color="green">Tổng đầu tư</Timeline.Item>
                             </Timeline>
                         </Col>
                         <Col sm="7" style={{ color: 'red' }}>
