@@ -191,7 +191,6 @@ class Directive extends Component{
                 return{
                     ...item,
                     "interestRate": data.LAISUAT_BAN,
-                    "interestRateReturn": this.state.interestReturn ? this.state.interestReturn : 0,
                     "moneyReceived": item.totalDay*data.LAISUAT_BAN*(this.state.quantityBond * data.GIATRI_HIENTAI)/(100* data.SONGAYTINHLAI)
                 }
             }) : this.state.dataInterestReturn.map(item => {
@@ -199,7 +198,8 @@ class Directive extends Component{
                     ...item,
                     "date": common.convertToFormat(item.date),
                     "interestRate": this.state.interestReturn ? this.state.interestReturn : 0,
-                    "moneyReceived": item.returnReal
+                    "moneyReceived": item.totalDay*data.LAISUAT_BAN*(this.state.quantityBond * data.GIATRI_HIENTAI)/(100* data.SONGAYTINHLAI),
+                    "moneyReceivedReturn": item.returnReal
                 }
             });
 
