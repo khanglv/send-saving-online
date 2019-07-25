@@ -277,7 +277,7 @@ export class ModalBuyBond extends Component{
                                         </Col>
                                     </Row>
                                             {this.state.isShowWarning === 1 ? <i style={{ color: 'orange', fontSize: 14 }}>Cần phải nhập số lượng trái phiếu</i> :
-                                            this.state.isShowWarning === 4 ? <i style={{ color: 'orange', fontSize: 14 }}>Không tìm thấy tỉ lệ tính lãi suất, liên hệ quản trị viên</i> :
+                                            this.state.isShowWarning === 4 ? <i style={{ color: 'orange', fontSize: 14 }}>Không tìm thấy lãi suất tính phí dịch vụ, liên hệ quản trị viên</i> :
                                             this.state.isShowWarning === 2 ? <i style={{ color: 'orange', fontSize: 14 }}>Số lượng trái phiếu mua không lớn hơn số lượng phát hành</i> :
                                             this.state.isShowWarning === 3 ? <i style={{ color: 'red', fontSize: 14 }}>Tổng tiền đầu tư lớn hơn tài khoản hiện có</i> : null}
                                     </Col>
@@ -401,19 +401,19 @@ export class KeepExpireBond extends Component{
                                 "return": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI))
                             }
                         }else{
-                            let result = returnTmp*(1 + res.MSLSTDT*item.totalDay/(100*dataLoad.SONGAYTINHLAI)) + item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI);
+                            let result = returnTmp*(1 + res.LS_TOIDA*item.totalDay/(100*dataLoad.SONGAYTINHLAI)) + item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI);
                             returnTmp = result;
                             return{
                                 ...item,
                                 "key": i,
                                 "date": common.convertDDMMYYYY(item.date),
                                 "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*dataLoad.moneyBuy/(100* dataLoad.SONGAYTINHLAI)),
-                                "returnReal": result,
+                                "returnReal": result ? result : 0,
                                 "return": common.convertTextDecimal(result)
                             }
                         }
                     });
-                    this.setState({dataInterestReturn: tmp_2, interestReturn: res.MSLSTDT});
+                    this.setState({dataInterestReturn: tmp_2, interestReturn: res.LS_TOIDA});
                 } else {
                     common.notify("error", "Thao tác thất bại" + res.error);
                 }

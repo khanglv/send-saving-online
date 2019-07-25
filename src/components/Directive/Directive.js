@@ -139,19 +139,19 @@ class Directive extends Component{
                                 "return": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI))
                             }
                         }else{
-                            let result = returnTmp*(1 + res.data.MSLSTDT*item.totalDay/(100*dataLoad.SONGAYTINHLAI)) + item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI);
+                            let result = returnTmp*(1 + res.data.LS_TOIDA*item.totalDay/(100*dataLoad.SONGAYTINHLAI)) + item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI);
                             returnTmp = result;
                             return{
                                 ...item,
                                 "key": i,
                                 "date": common.convertDDMMYYYY(item.date),
                                 "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*(this.state.quantityBond * dataLoad.GIATRI_HIENTAI)/(100* dataLoad.SONGAYTINHLAI)),
-                                "returnReal": result,
+                                "returnReal": result ? result : 0,
                                 "return": common.convertTextDecimal(result)
                             }
                         }
                     });
-                    this.setState({dataInterestReturn: tmp_2, interestReturn: res.data.MSLSTDT});
+                    this.setState({dataInterestReturn: tmp_2, interestReturn: res.data.LS_TOIDA});
                 } else {
                     common.notify("warning", "Trái phiếu chưa được thiết lập lãi tái đầu tư, liên hệ quản trị viên!!!");
                 }
@@ -377,7 +377,7 @@ class Directive extends Component{
                                             <Label for="exampleSelect" style={styles.labelOption}>Số lượng</Label>
                                             <Input type="number" name="quantityBond" value={this.state.quantityBond} onChange={event => this.updateInputValue(event)} style={{maxHeight: 34}}/>
                                             {this.state.isShowWarning === 1 ? <i style={{color: 'orange', fontSize: 14}}>Cần phải nhập số lượng trái phiếu</i> : 
-                                            this.state.isShowWarning === 2 ? <i style={{color: 'orange', fontSize: 14}}>Không tìm thấy tỉ lệ tính lãi suất, liên hệ quản trị viên</i> : null}
+                                            this.state.isShowWarning === 2 ? <i style={{color: 'orange', fontSize: 14}}>Không tìm thấy lãi suất tính phí dịch vụ, liên hệ quản trị viên</i> : null}
                                         </FormGroup>
                                     </Col>
                                 </Row>
