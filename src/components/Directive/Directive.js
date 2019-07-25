@@ -187,11 +187,19 @@ class Directive extends Component{
 
     onConfirmBuy = async(data, lstTmpDateInterest)=>{
         try {
-            const dataTranfer = await lstTmpDateInterest.map((item)=>{
+            const dataTranfer = this.state.isActiveOption === 1 ? await lstTmpDateInterest.map((item)=>{
                 return{
                     ...item,
                     "interestRate": data.LAISUAT_BAN,
-                    "moneyReceived": item.totalDay*data.LAISUAT_BAN*data.moneyBuy/(100* data.SONGAYTINHLAI)
+                    "interestRateReturn": this.state.interestReturn ? this.state.interestReturn : 0,
+                    "moneyReceived": item.totalDay*data.LAISUAT_BAN*(this.state.quantityBond * data.GIATRI_HIENTAI)/(100* data.SONGAYTINHLAI)
+                }
+            }) : this.state.dataInterestReturn.map(item => {
+                return {
+                    ...item,
+                    "date": common.convertToFormat(item.date),
+                    "interestRate": this.state.interestReturn ? this.state.interestReturn : 0,
+                    "moneyReceived": item.returnReal
                 }
             });
 
@@ -206,6 +214,7 @@ class Directive extends Component{
                 "LAISUAT_DH": data.LAISUAT_BAN,
                 "NGAY_TRAITUC": JSON.stringify(dataTranfer),
                 "NGAY_GD": this.state.buyDate,
+                "TRANGTHAI_MUA": this.state.isActiveOption,
                 "TONGGIATRITRUOCPHI": this.state.quantityBond * data.GIATRI_HIENTAI
             }
             const res = await buyBondsRoomVCSC(dataTmp);

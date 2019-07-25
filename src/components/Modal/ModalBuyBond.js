@@ -448,6 +448,7 @@ export class KeepExpireBond extends Component{
             }) : this.state.dataInterestReturn.map(item => {
                 return {
                     ...item,
+                    "date": common.convertToFormat(item.date),
                     "interestRate": this.state.interestReturn ? this.state.interestReturn : 0,
                     "moneyReceived": item.returnReal
                 }
@@ -754,7 +755,7 @@ export class KeepExpireBond extends Component{
                         </Row>
                         <Row>
                             <Col sm="5">
-                                <Timeline.Item color="green">Giá mua T.P</Timeline.Item>
+                                <Timeline.Item color="green">Tổng đầu tư</Timeline.Item>
                             </Col>
                             <Col sm="7">
                                 {common.convertTextDecimal(data.moneyBuy)}
@@ -772,7 +773,7 @@ export class KeepExpireBond extends Component{
                     <Row style={{paddingLeft: '0.6rem', height: '2vh'}}>
                         <Col sm="5">
                             <Timeline>
-                                <Timeline.Item color="green">Tổng đầu tư</Timeline.Item>
+                                <Timeline.Item color="green">Tiền cần thanh toán</Timeline.Item>
                             </Timeline>
                         </Col>
                         <Col sm="7" style={{ color: 'red' }}>
