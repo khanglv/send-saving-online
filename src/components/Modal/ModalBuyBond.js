@@ -541,11 +541,11 @@ export class KeepExpireBond extends Component{
                 dataIndex: 'date',
             },
             {
-                title: 'Tiền nhận (VND)',
+                title: 'Lợi tức chưa đầu tư',
                 dataIndex: 'totalMoney',
             },
             {
-                title: 'Lãi tái đầu tư',
+                title: 'Lợi tức tái đầu tư',
                 dataIndex: 'return',
             },
         ];
