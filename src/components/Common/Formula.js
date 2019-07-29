@@ -20,6 +20,13 @@ export const diffMonth = (dateFrom, dateTo)=>{
     return dateTo.getMonth() - dateFrom.getMonth() +  (12 * (dateTo.getFullYear() - dateFrom.getFullYear()));
 }
 
+export const convertDateToEarlyDay = (date)=>{
+    let m = moment(date).utcOffset(0);
+    m.set({hour:0,minute:0,second:0,millisecond:0});
+    m.toISOString();
+    return m.format();
+}
+
 const diffDate = (firstDate, secondDate)=>{
     let oneDay = 24*60*60*1000;
     firstDate = new Date(firstDate);
@@ -36,7 +43,7 @@ export const GenDateInterestRate = (buyDate, dateF, dateT, expire, lstTmp = [])=
 
     if(dateFAfterExpiredToTime <= dateTToTime){
         if(dateBuyToTime >= dateFToTime){
-            lstTmp.push({"date": timeToDate(dateFAfterExpiredToTime), "totalDay": diffDate(dateBuyToTime, dateFAfterExpiredToTime)});
+            lstTmp.push({"date": timeToDate(dateFAfterExpiredToTime), "totalDay": diffDate(dateBuyToTime, dateFAfterExpiredToTime) - 1});
             GenDateInterestRate(buyDate, timeToDate(dateFAfterExpiredToTime), dateT, expire, lstTmp);
             return lstTmp;
         }
