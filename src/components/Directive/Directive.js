@@ -254,7 +254,7 @@ class Directive extends Component{
                 ...item,
                 "key": i,
                 "date": common.convertDDMMYYYY(item.date),
-                "totalMoneyReal": (item.totalDay - 1)*detailBond.LAISUAT_BAN*quantityBond*detailBond.MENHGIA/(100* detailBond.SONGAYTINHLAI),
+                "totalMoneyReal": (item.totalDay - 1)*detailBond.LAISUAT_BAN*(quantityBond*detailBond.MENHGIA)/(100* detailBond.SONGAYTINHLAI),
                 "totalMoney": common.convertTextDecimal((item.totalDay - 1)*detailBond.LAISUAT_BAN*quantityBond*detailBond.MENHGIA/(100* detailBond.SONGAYTINHLAI))
             }
         }) : null;
@@ -404,7 +404,7 @@ class Directive extends Component{
                                 <div className="p-top10" style={styles.borderBottomRadiusDasher} ></div>
                                 <Row className="p-top10">
                                     <Col className="centerVertical">
-                                        <Badge color="#4b81ba" />Giá tiền mua:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(detailBond.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                        <Badge color="#4b81ba" />Tiền đầu tư:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(detailBond.GIATRI_HIENTAI*this.state.quantityBond)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
                                     </Col>
                                 </Row>
                                 <Row>
@@ -426,7 +426,7 @@ class Directive extends Component{
                                 <Row>
                                     <Col sm="8">
                                         <div className="centerVertical">
-                                            <Icon type="swap-right" style={{color: 'green', fontSize: 18}} />&nbsp;Tổng tiền đầu tư
+                                            <Icon type="swap-right" style={{color: 'green', fontSize: 18}} />&nbsp;Tổng tiền thanh toán
                                         </div>
                                         <div className="centerVertical">
                                             <span style={{color: 'red', fontSize: 24, marginLeft: '1.5rem'}}>{common.convertTextDecimal(this.state.quantityBond * detailBond.GIATRI_HIENTAI * (1 + this.state.feeTrade/100))}</span><span style={{fontSize: 14}}>&nbsp;VND</span>
@@ -485,7 +485,7 @@ class Directive extends Component{
                                                 <div className="right centerVertical"><span style={{ color: 'red' }}>{common.convertTextDecimal(quantityBond * detailBond.GIATRI_HIENTAI + totalMoneyReceive)}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
                                             </div>
                                             <div style={{ display: 'flow-root' }}>
-                                                <b className="left index-color">Gốc đầu tư</b>
+                                                <b className="left index-color">Tổng tiền thanh toán</b>
                                                 <div className="right centerVertical"><span>{common.convertTextDecimal(this.state.quantityBond * detailBond.GIATRI_HIENTAI * (1 + this.state.feeTrade/100))}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
                                             </div>
                                             <div style={{ display: 'flow-root' }}>

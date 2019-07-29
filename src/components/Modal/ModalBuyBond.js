@@ -491,7 +491,7 @@ export class KeepExpireBond extends Component{
                 ...item,
                 "key": i,
                 "date": common.convertDDMMYYYY(item.date),
-                "totalMoneyReal": (item.totalDay - 1)*data.LAISUAT_BAN*data.moneyBuy/(100* data.SONGAYTINHLAI),
+                "totalMoneyReal": (item.totalDay - 1)*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI),
                 "totalMoney": common.convertTextDecimal((item.totalDay - 1)*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI))
             }
         });
@@ -565,7 +565,7 @@ export class KeepExpireBond extends Component{
                     <div className="right">
                         {common.convertDDMMYYYY(data.buyDate)}<br/>
                         <div className="centerVertical">
-                            <span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
+                            <span style={{color: 'red'}}>{common.convertTextDecimal(data.moneyBuy)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
                         </div>
                     </div>
                 </div>
@@ -606,7 +606,7 @@ export class KeepExpireBond extends Component{
                         <div className="right centerVertical"><span style={{color: 'red'}}>{common.convertTextDecimal(totalMoneyReceive + data.GIATRI_HIENTAI*data.quantityBond)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span></div>
                     </div>
                     <div style={{display: 'flow-root'}}>
-                        <div className="left">Gốc đầu tư</div>
+                        <div className="left">Tổng tiền thanh toán</div>
                         <div className="right centerVertical"><span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span></div>
                     </div>
                     <div style={{display: 'flow-root'}}>
