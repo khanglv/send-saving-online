@@ -36,7 +36,7 @@ export const GenDateInterestRate = (buyDate, dateF, dateT, expire, lstTmp = [])=
 
     if(dateFAfterExpiredToTime <= dateTToTime){
         if(dateBuyToTime >= dateFToTime){
-            lstTmp.push({"date": timeToDate(dateFAfterExpiredToTime), "totalDay": diffDate(dateBuyToTime, dateFAfterExpiredToTime) - 1});
+            lstTmp.push({"date": timeToDate(dateFAfterExpiredToTime), "totalDay": diffDate(dateBuyToTime, dateFAfterExpiredToTime)});
             GenDateInterestRate(buyDate, timeToDate(dateFAfterExpiredToTime), dateT, expire, lstTmp);
             return lstTmp;
         }
