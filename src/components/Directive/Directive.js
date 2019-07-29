@@ -247,7 +247,7 @@ class Directive extends Component{
             detailBond = {}
         } = this.state;
         // const  { detailBond = {} }= this.state;
-        const lstTmpDateInterest = Object.keys(detailBond).length > 0 ? formula.GenDateInterestRate(buyDate, detailBond.NGAYPH, detailBond.NGAYDH, detailBond.KYHAN, []) : null;
+        const lstTmpDateInterest = Object.keys(detailBond).length > 0 ? formula.GenDateInterestRate(buyDate, detailBond.NGAYPH, detailBond.NGAYDH, detailBond.LOAI_TT, []) : null;
 
         const dataSource = lstTmpDateInterest ? lstTmpDateInterest.map((item, i) =>{
             return {
