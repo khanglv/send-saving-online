@@ -31,9 +31,19 @@ class ModalShowDateInterest extends Component{
                 }
             },
             {
-                title: 'Tiền nhận (VND)', //1
+                title: 'Lợi tức chưa tái đầu tư', //1
                 dataIndex: 'moneyReceived',
                 width: 200
+            },
+            {
+                title: 'Lợi tức tái đầu tư', //1
+                dataIndex: 'moneyReceivedReturn',
+                width: 200,
+                render: moneyReceivedReturn =>{
+                    return(
+                        <div>{moneyReceivedReturn ? common.convertTextDecimal(moneyReceivedReturn) : <i style={{color: 'orange'}}>Không có</i>}</div>
+                    )
+                }
             },
             {
                 title: 'Lãi suất (%)', //1
