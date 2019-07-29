@@ -137,7 +137,7 @@ export class ModalBuyBond extends Component{
 
     toggle = ()=> {
         this.props.onClose();
-        this.setState({isShowWarning: false});
+        this.setState({isShowWarning: false, quantityBond: 0});
     }
 
     onOpenKeepExpire = ()=>{
@@ -392,23 +392,23 @@ export class KeepExpireBond extends Component{
                     let returnTmp = 0;
                     let tmp_2 =  dataTake.map((item, i)=>{
                         if(i === 0){
-                            returnTmp = (item.totalDay - 1)*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI);
+                            returnTmp = item.totalDay*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI);
                             return {
                                 ...item,
                                 "key": i,
                                 "date": common.convertDDMMYYYY(item.date),
-                                "totalMoney": common.convertTextDecimal((item.totalDay - 1)*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI)),
-                                "returnReal": (item.totalDay - 1)*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI),
-                                "return": common.convertTextDecimal((item.totalDay - 1)*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI))
+                                "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI)),
+                                "returnReal": item.totalDay*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI),
+                                "return": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI))
                             }
                         }else{
-                            let result = returnTmp*(1 + res.LS_TOIDA*(item.totalDay - 1)/(100*dataLoad.SONGAYTINHLAI)) + (item.totalDay - 1)*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI);
+                            let result = returnTmp*(1 + res.LS_TOIDA*item.totalDay/(100*dataLoad.SONGAYTINHLAI)) + item.totalDay*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI);
                             returnTmp = result;
                             return{
                                 ...item,
                                 "key": i,
                                 "date": common.convertDDMMYYYY(item.date),
-                                "totalMoney": common.convertTextDecimal((item.totalDay - 1)*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI)),
+                                "totalMoney": common.convertTextDecimal(item.totalDay*dataLoad.LAISUAT_BAN*(dataLoad.quantityBond*dataLoad.MENHGIA)/(100* dataLoad.SONGAYTINHLAI)),
                                 "returnReal": result ? result : 0,
                                 "return": common.convertTextDecimal(result)
                             }
@@ -442,14 +442,14 @@ export class KeepExpireBond extends Component{
                 return{
                     ...item,
                     "interestRate": data.LAISUAT_BAN,
-                    "moneyReceived": (item.totalDay - 1)*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI)
+                    "moneyReceived": item.totalDay*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI)
                 }
             }) : this.state.dataInterestReturn.map(item => {
                 return {
                     ...item,
                     "date": common.convertToFormat(item.date),
                     "interestRate": this.state.interestReturn ? this.state.interestReturn : 0,
-                    "moneyReceived": (item.totalDay - 1)*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI),
+                    "moneyReceived": item.totalDay*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI),
                     "moneyReceivedReturn": item.returnReal
                 }
             });
@@ -491,8 +491,8 @@ export class KeepExpireBond extends Component{
                 ...item,
                 "key": i,
                 "date": common.convertDDMMYYYY(item.date),
-                "totalMoneyReal": (item.totalDay - 1)*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI),
-                "totalMoney": common.convertTextDecimal((item.totalDay - 1)*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI))
+                "totalMoneyReal": item.totalDay*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI),
+                "totalMoney": common.convertTextDecimal(item.totalDay*data.LAISUAT_BAN*(data.quantityBond*data.MENHGIA)/(100* data.SONGAYTINHLAI))
             }
         });
 
