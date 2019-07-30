@@ -28,8 +28,7 @@ export const convertDateToEarlyDay = (date)=>{
 }
 
 export const dateTimeToDate = (date)=>{
-    let test = moment(new Date(date)).format('YYYY-MM-DD');
-    return test;
+    return moment(new Date(date)).format('YYYY-MM-DD');
 }
 
 const diffDate = (firstDate, secondDate)=>{
