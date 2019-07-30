@@ -602,8 +602,8 @@ export class KeepExpireBond extends Component{
                 
                 <div className="p-top10">
                     <div style={{display: 'flow-root'}}>
-                        <div className="left">Tổng tiền nhận</div>
-                        <div className="right centerVertical"><span style={{color: 'red'}}>{common.convertTextDecimal(totalMoneyReceive + data.GIATRI_HIENTAI*data.quantityBond)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span></div>
+                        <div className="left">Tổng tiền nhận đến kì ĐH</div>
+                        <div className="right centerVertical"><span style={{color: 'red'}}>{common.convertTextDecimal(totalMoneyReceive + data.MENHGIA*data.quantityBond)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span></div>
                     </div>
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Tổng tiền thanh toán</div>

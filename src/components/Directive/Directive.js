@@ -398,6 +398,11 @@ class Directive extends Component{
                                 </Row>
                                 <Row>
                                     <Col className="centerVertical">
+                                        <Badge color="#4b81ba" />Mệnh giá:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(detailBond.MENHGIA)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col className="centerVertical">
                                         <Badge color="#4b81ba" />Đơn giá:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(detailBond.GIATRI_HIENTAI)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
                                     </Col>
                                 </Row>
@@ -481,8 +486,8 @@ class Directive extends Component{
 
                                         <div className="p-top10">
                                             <div style={{ display: 'flow-root' }}>
-                                                <b className="left index-color">Tổng tiền nhận</b>
-                                                <div className="right centerVertical"><span style={{ color: 'red' }}>{common.convertTextDecimal(quantityBond * detailBond.GIATRI_HIENTAI + totalMoneyReceive)}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
+                                                <b className="left index-color">Tổng tiền nhận tới kì ĐH</b>
+                                                <div className="right centerVertical"><span style={{ color: 'red' }}>{common.convertTextDecimal(quantityBond * detailBond.MENHGIA + totalMoneyReceive)}</span><span style={{fontSize: 10}}>&nbsp;VND</span></div>
                                             </div>
                                             <div style={{ display: 'flow-root' }}>
                                                 <b className="left index-color">Tổng tiền thanh toán</b>
