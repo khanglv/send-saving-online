@@ -126,21 +126,29 @@ class BondSale extends Component{
                                                 <span style={{ fontSize: 14 }}>Kỳ hạn còn lại: {item.THANGCONLAI} tháng</span>
                                             </CardHeader>
                                             <CardBody>
-                                                <p>Số lượng: <b>{common.convertTextDecimal(item.SL_DPH)}</b></p>
                                                 <Row>
-                                                    <Col sm="8">
+                                                    <Col className="hidden-text">
+                                                        <span>
+                                                            Số lượng 
+                                                        </span><br />
+                                                        <b>{common.convertTextDecimal(item.SL_DPH)}</b>
+                                                    </Col>
+                                                    <Col className="hidden-text">
+                                                        <span>
+                                                            Đang chờ mua
+                                                        </span><br />
+                                                        <span><b>{common.convertTextDecimal(item.DANGCHO)}</b></span>
+                                                    </Col>
+                                                </Row>
+                                                <div className="p-top10" style={styles.borderBottomRadiusDasher}></div>
+                                                <Row className="p-top10">
+                                                    <Col sm="12">
                                                         <span>
                                                             Hạn mức
                                                         </span><br />
                                                         <div className="centerVertical">
                                                             <b>{common.convertTextDecimal(item.HANMUC)}</b><span style={{ fontSize: 10 }}>&nbsp;VND</span>
                                                         </div>
-                                                    </Col>
-                                                    <Col sm="4">
-                                                        <span>
-                                                            Đang chờ
-                                                            </span><br />
-                                                        <span><b>{common.convertTextDecimal(item.DANGCHO)}</b></span>
                                                     </Col>
                                                 </Row>
                                             </CardBody>
@@ -201,5 +209,8 @@ const styles = {
     headerCard:{
         background: 'linear-gradient(to right, #5073a2, #8ca7cc)',
         color: '#fff'
+    },
+    borderBottomRadiusDasher:{
+        borderBottom: '1px dashed #f0f3f5'
     }
 }

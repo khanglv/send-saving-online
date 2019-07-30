@@ -356,3 +356,12 @@ export const updateMoneyAsset = (data)=>{
     }
     return callApiBonds(options);
 }
+
+//get list interestRateNoReturn
+export const getListInterestRateNoReturn = ()=>{
+    const options = {
+        url: `${BASE_URL_BONDS}/interestRateNoReturn`,
+        method: "GET"
+    }
+    return callApiBonds(options);
+}

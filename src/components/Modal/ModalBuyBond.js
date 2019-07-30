@@ -9,12 +9,12 @@ import {
     Col,
     Alert
 } from 'reactstrap';
-import { DatePicker, Icon, Tag , Timeline, Input, Table} from 'antd';
+import { DatePicker, Icon, Tag , Timeline, Input, Table, Spin} from 'antd';
 import {debounce} from 'lodash';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
-import {buyBondsRoomVCSC, getListFeeTrade, getListInterestRetunTrade} from '../../api/api';
+import {buyBondsRoomVCSC, getListFeeTrade, getListInterestRetunTrade, getListInterestRateNoReturn} from '../../api/api';
 const dateFormat = 'DD/MM/YYYY';
 
 export class DetailBond extends Component{
@@ -131,7 +131,9 @@ export class ModalBuyBond extends Component{
             feeTrade: 0,
             buyDate: moment(new Date(), dateFormat),
             isShowWarning: 0,
-            isPending: false
+            isPending: false,
+            isLoading: false,
+            lstInterestRateNoReturn: []
         }
     }
 
@@ -193,8 +195,33 @@ export class ModalBuyBond extends Component{
         this.setState({[name]: value});
     }
 
-    onOpenSaleBeforeExpire = ()=>{
-        this.setState({isOpenSaleBeforeExpire: true});
+    onOpenSaleBeforeExpire = async()=>{
+        if(this.state.quantityBond === 0 || this.state.quantityBond === null || this.state.quantityBond === ''){
+            this.setState({isShowWarning: 1});
+        }else{
+            if(this.state.feeTrade === 0){
+                this.setState({isShowWarning: 4});
+            }else if(this.state.quantityBond > this.props.data.SL_DPH){
+                this.setState({isShowWarning: 2});
+            }else{
+                if(this.state.quantityBond * this.props.data.GIATRI_HIENTAI > this.props.data.cashBalance.depositAmount){
+                    this.setState({isShowWarning: 3});
+                }else{
+                    try {
+                        this.setState({ isLoading: true });
+                        const res = await getListInterestRateNoReturn();
+                        this.setState({ isLoading: false });
+                        if (!res.error) {
+                            this.setState({isOpenSaleBeforeExpire: true, lstInterestRateNoReturn: res});
+                        } else {
+                            common.notify("error", res.error);
+                        }
+                    } catch (error) {
+                        this.setState({ isLoading: false });
+                    }
+                }
+            }
+        }
     }
 
     onCloseSaleBeforeExpire = ()=>{
@@ -317,21 +344,23 @@ export class ModalBuyBond extends Component{
                         <div className="p-top10">
                             <KeepExpireBond openExpired={this.state.isOpenExpire} onCloseExpired={this.onCloseExpired} onCloseBuyBond={this.toggle} onLoadData={this.onLoadData}
                                 data={{
-                                        ...data,
-                                        "moneyBuy": this.state.quantityBond * data.GIATRI_HIENTAI,
-                                        "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100),
-                                        "buyDate": this.state.buyDate,
-                                        "feeTrade": this.state.quantityBond * data.GIATRI_HIENTAI * (this.state.feeTrade/100),
-                                        "quantityBond": this.state.quantityBond,
-                                    }}
+                                    ...data,
+                                    "moneyBuy": this.state.quantityBond * data.GIATRI_HIENTAI,
+                                    "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade / 100),
+                                    "buyDate": this.state.buyDate,
+                                    "feeTrade": this.state.quantityBond * data.GIATRI_HIENTAI * (this.state.feeTrade / 100),
+                                    "quantityBond": this.state.quantityBond,
+                                }}
                             />
                             <SaleBeforeExpire openSaleBeforeExpire={this.state.isOpenSaleBeforeExpire} onCloseSaleExpire={this.onCloseSaleBeforeExpire} onCloseModalBuyBond={this.toggle}
                                 data={{
                                     ...data,
                                     "moneyBuy": this.state.quantityBond * data.GIATRI_HIENTAI,
-                                    "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100),
+                                    "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade / 100),
                                     "buyDate": this.state.buyDate,
                                     "quantityBond": this.state.quantityBond,
+                                    "feeReceived": this.state.quantityBond * data.MENHGIA,
+                                    "lstInterest": this.state.lstInterestRateNoReturn.filter(item=>item.FLAG === 1)
                                 }}
                             />
                             <i>Lãi suất đầu tư đã tái đầu tư</i>
@@ -344,14 +373,16 @@ export class ModalBuyBond extends Component{
                                     </div>
                                     <Icon type="right" style={styles.iconNext}/>
                                 </div>
-                                <div className="btnBuyBond" style={Object.assign({}, styles.noteBond, {marginTop: 10})} onClick={this.onOpenSaleBeforeExpire}>
-                                    <div>
-                                        <b style={{fontSize: 18}}>Bán trước đáo hạn</b><br/>
-                                        Lãi suất đầu tư dự kiến từ {}/năm đến {}/năm<br/>
-                                        Khi bán trái phiếu sau mỗi tháng
+                                <Spin spinning={this.state.isLoading} tip="Loading...">
+                                    <div className="btnBuyBond" style={Object.assign({}, styles.noteBond, {marginTop: 10})} onClick={this.onOpenSaleBeforeExpire}>
+                                        <div>
+                                            <b style={{fontSize: 18}}>Bán trước đáo hạn</b><br/>
+                                            Lãi suất đầu tư dự kiến từ {}/năm đến {}/năm<br/>
+                                            Khi bán trái phiếu sau mỗi tháng
+                                        </div>
+                                        <Icon type="right" style={styles.iconNext}/>
                                     </div>
-                                    <Icon type="right" style={styles.iconNext}/>
-                                </div>
+                                </Spin>
                             </div>
                         </div>
                     </ModalBody>
@@ -619,7 +650,7 @@ export class KeepExpireBond extends Component{
                     </div> : null}
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Cho thời gian</div>
-                        <div className="right">{formula.diffMonth(data.NGAYPH, data.NGAYDH)} tháng</div>
+                        <div className="right">{formula.diffMonth(data.buyDate, data.NGAYDH)} tháng</div>
                     </div>
                 </div>
                 <div style={{position: 'relative'}}>
@@ -820,32 +851,57 @@ export class SaleBeforeExpire extends Component{
         const data = this.props.data;
         const columns = [
             {
-                title: 'T.Gian đầu tư',
-                dataIndex: 'name',
-                render: ()=> {
-                    return(
-                    <div>Coupon</div>
-                )}
+                title: 'T.G đầu tư (tháng)',
+                dataIndex: 'monthInvestment',
             },
             {
-                title: 'LS chưa TĐT',
-                dataIndex: 'date',
+                title: 'Chưa TĐT',
+                dataIndex: 'NoReInvesmentConvert',
             },
             {
-                title: 'LS đã TĐT',
-                dataIndex: 'totalMoney',
+                title: 'Đã TĐT',
+                dataIndex: 'ReInvestmentConvert',
             },
             {
-                title: 'K.Hạn còn lại',
+                title: 'K.Hạn C.Lại',
                 dataIndex: 'totalMoney2',
             },
             {
-                title: 'G.Bán minh họa',
-                dataIndex: 'totalMoney3',
+                title: 'G.Bán M.Họa',
+                dataIndex: 'feeBuyThisTime',
             }
         ];
 
-        const dataSource = [];
+        let tmpData = 0;
+        const dataSource = data.lstInterest.map((item, i) => {
+            if( i === 0){
+                tmpData = data.feeReceived*(1 + item.LS_TOIDA*0.01);
+                return {
+                    ...item,
+                    "key": i,
+                    "monthInvestment": `${item.THANGGIOIHAN} (${item.LS_TOIDA}%)`,
+                    "ReInvestment": tmpData,
+                    "ReInvestmentConvert": common.convertTextDecimal(tmpData),
+                    "NoReInvesment": data.feeReceived*item.LS_TOIDA*0.01,
+                    "NoReInvesmentConvert": common.convertTextDecimal(data.feeReceived*item.LS_TOIDA*0.01),
+                    "feeBuyThisTime": common.convertTextDecimal(data.feeReceived*(1 + item.LS_TOIDA*0.01))
+                }
+            }else{
+                let resultReInvestment = tmpData*(1 + item.LS_TOIDA*0.01);
+                tmpData = resultReInvestment;
+                return {
+                    ...item,
+                    "key": i,
+                    "monthInvestment": `${item.THANGGIOIHAN} (${item.LS_TOIDA}%)`,
+                    "ReInvestment": resultReInvestment,
+                    "ReInvestmentConvert": common.convertTextDecimal(resultReInvestment),
+                    "NoReInvesment": data.feeReceived*item.LS_TOIDA*0.01,
+                    "NoReInvesmentConvert": common.convertTextDecimal(data.feeReceived*item.LS_TOIDA*0.01),
+                    "feeBuyThisTime": common.convertTextDecimal(data.feeReceived*(1 + item.LS_TOIDA*0.01))
+                }
+            }
+            
+        });
 
         return(
             <div>
@@ -860,7 +916,7 @@ export class SaleBeforeExpire extends Component{
                         </span>
                         <div className="centerVertical">
                             <i>Ngày mua:</i>&nbsp;<span>{common.convertDDMMYYYY(data.buyDate)}</span>&nbsp;-&nbsp;
-                            <i>Tổng đầu tư:</i>&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
+                            <i>Tổng tiền thanh toán:</i>&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
                         </div>
                         <div className="p-top10">
                             <Table 
@@ -873,7 +929,7 @@ export class SaleBeforeExpire extends Component{
                         </div>
                         <div className="p-top10" style={styles.borderBottomRadiusDasher}></div>
                         <div style={{fontSize: 13, paddingTop: 10}}>
-                            <i>Thuật ngữ: &nbsp;</i><span className="index-color">TĐT</span> - Tái đầu tư
+                            <i>Thuật ngữ: &nbsp;</i><span className="index-color">TĐT</span> - Tái đầu tư,&nbsp;<span className="index-color">T.G</span> - Thời gian
                         </div>
                     </ModalBody>
                     <ModalFooter>

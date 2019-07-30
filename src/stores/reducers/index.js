@@ -13,6 +13,7 @@ import feeTrade from './feeTrade';
 import updateMoneyAsset from './updateMoneyAsset';
 import transactionHistory from './transactionHistory';
 import interestReturnTrade from './interestReturnTrade';
+import interestRateNoReturn from './interestRateNoReturn';
 
 export default combineReducers({
     login: login,
@@ -27,5 +28,6 @@ export default combineReducers({
     feeTrade: feeTrade,
     updateMoneyAsset: updateMoneyAsset,
     transactionHistory: transactionHistory,
-    interestReturnTrade: interestReturnTrade
+    interestReturnTrade: interestReturnTrade,
+    interestRateNoReturn: interestRateNoReturn
 });

@@ -53,6 +53,8 @@ code {
   cursor: pointer;
 }
 
+.hidden-text{text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}
+
 /* set hover */
 .hasHover{}
 div.hasHover:hover{
