@@ -484,7 +484,7 @@ export class KeepExpireBond extends Component{
 
     render(){
         const data = this.props.data;
-        const lstTmpDateInterest = data ? formula.GenDateInterestRate(formula.convertDateToEarlyDay(data.buyDate), data.NGAYPH, data.NGAYDH, data.LOAI_TT, []) : null;
+        const lstTmpDateInterest = data ? formula.GenDateInterestRate(formula.dateTimeToDate(data.buyDate), formula.dateTimeToDate(data.NGAYPH), formula.dateTimeToDate(data.NGAYDH), data.LOAI_TT, []) : null;
 
         const dataSource = lstTmpDateInterest.map((item, i) =>{
             return {
