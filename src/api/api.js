@@ -365,3 +365,13 @@ export const getListInterestRateNoReturn = ()=>{
     }
     return callApiBonds(options);
 }
+
+//gen list interestRateNoReturn
+export const genListInterestRateNoReturn = (data)=>{
+    const options = {
+        url: `${BASE_URL_BONDS}/interestRateNoReturn/getDataRateByCouponDate`,
+        method: "PUT",
+        data: data
+    }
+    return callApiBonds(options);
+}

@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 //convert ngày sau 1 khoảng thời gian (time =  số tháng)
-const dateAfterTime = (date, time)=>{
+export const dateAfterTime = (date, time)=>{
     let d = new Date(date);
     return d.setMonth(d.getMonth() + time);
 }
@@ -14,10 +14,13 @@ const timeToDate = (time)=>{
     return moment(time);
 }
 
-export const diffMonth = (dateFrom, dateTo)=>{
-    dateFrom = new Date(dateFrom);
-    dateTo = new Date(dateTo);
-    return dateTo.getMonth() - dateFrom.getMonth() +  (12 * (dateTo.getFullYear() - dateFrom.getFullYear()));
+export const diffMonth = (dateBuy, dateFrom, dateTo)=>{
+    // dateFrom = new Date(dateFrom);
+    // dateTo = new Date(dateTo);
+    // return dateTo.getMonth() - dateFrom.getMonth() +  (12 * (dateTo.getFullYear() - dateFrom.getFullYear()));
+    if(dateToTime(dateBuy) >= dateToTime(dateFrom))
+        return moment(new Date(dateTo)).diff(moment(new Date(dateBuy)), 'months', true).toFixed(1);
+    return moment(new Date(dateTo)).diff(moment(new Date(dateFrom)), 'months', true).toFixed(1);
 }
 
 export const convertDateToEarlyDay = (date)=>{
@@ -55,4 +58,11 @@ export const GenDateInterestRate = (buyDate, dateF, dateT, expire, lstTmp = [])=
         GenDateInterestRate(buyDate, timeToDate(dateFAfterExpiredToTime), dateT, expire, lstTmp);
     }
     return lstTmp;
+}
+
+//BÁN TRƯỚC ĐÁO HẠN --------------------------------------------------------------------
+//Chưa tái đầu tư
+export const totalDayExpectKeepExpired = (dateInit, monthsActive)=>{
+    let date = dateAfterTime(dateInit, monthsActive);
+    return diffDate(dateInit, date);
 }

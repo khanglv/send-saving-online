@@ -14,6 +14,7 @@ import updateMoneyAsset from './updateMoneyAsset';
 import transactionHistory from './transactionHistory';
 import interestReturnTrade from './interestReturnTrade';
 import interestRateNoReturn from './interestRateNoReturn';
+import genListInterestNoReturn from './genListInterestNoReturn';
 
 export default combineReducers({
     login: login,
@@ -29,5 +30,6 @@ export default combineReducers({
     updateMoneyAsset: updateMoneyAsset,
     transactionHistory: transactionHistory,
     interestReturnTrade: interestReturnTrade,
-    interestRateNoReturn: interestRateNoReturn
+    interestRateNoReturn: interestRateNoReturn,
+    genListInterestNoReturn: genListInterestNoReturn
 });

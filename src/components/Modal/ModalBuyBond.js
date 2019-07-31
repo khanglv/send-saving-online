@@ -9,13 +9,14 @@ import {
     Col,
     Alert
 } from 'reactstrap';
-import { DatePicker, Icon, Tag , Timeline, Input, Table, Spin} from 'antd';
+import { DatePicker, Icon, Tag , Timeline, Input, Table, Select, Radio} from 'antd';
 import {debounce} from 'lodash';
 import moment from 'moment';
 import * as common from '../Common/Common';
 import * as formula from '../Common/Formula';
-import {buyBondsRoomVCSC, getListFeeTrade, getListInterestRetunTrade, getListInterestRateNoReturn} from '../../api/api';
+import {buyBondsRoomVCSC, getListFeeTrade, getListInterestRetunTrade, genListInterestRateNoReturn} from '../../api/api';
 const dateFormat = 'DD/MM/YYYY';
+const { Option } = Select;
 
 export class DetailBond extends Component{
     toggle = ()=> {
@@ -198,29 +199,12 @@ export class ModalBuyBond extends Component{
     onOpenSaleBeforeExpire = async()=>{
         if(this.state.quantityBond === 0 || this.state.quantityBond === null || this.state.quantityBond === ''){
             this.setState({isShowWarning: 1});
+        }else if(this.state.feeTrade === 0){
+            this.setState({isShowWarning: 4});
+        }else if(this.state.quantityBond > this.props.data.SL_DPH){
+            this.setState({isShowWarning: 2});
         }else{
-            if(this.state.feeTrade === 0){
-                this.setState({isShowWarning: 4});
-            }else if(this.state.quantityBond > this.props.data.SL_DPH){
-                this.setState({isShowWarning: 2});
-            }else{
-                if(this.state.quantityBond * this.props.data.GIATRI_HIENTAI > this.props.data.cashBalance.depositAmount){
-                    this.setState({isShowWarning: 3});
-                }else{
-                    try {
-                        this.setState({ isLoading: true });
-                        const res = await getListInterestRateNoReturn();
-                        this.setState({ isLoading: false });
-                        if (!res.error) {
-                            this.setState({isOpenSaleBeforeExpire: true, lstInterestRateNoReturn: res});
-                        } else {
-                            common.notify("error", res.error);
-                        }
-                    } catch (error) {
-                        this.setState({ isLoading: false });
-                    }
-                }
-            }
+            this.setState({isOpenSaleBeforeExpire: true});
         }
     }
 
@@ -373,16 +357,14 @@ export class ModalBuyBond extends Component{
                                     </div>
                                     <Icon type="right" style={styles.iconNext}/>
                                 </div>
-                                <Spin spinning={this.state.isLoading} tip="Loading...">
-                                    <div className="btnBuyBond" style={Object.assign({}, styles.noteBond, {marginTop: 10})} onClick={this.onOpenSaleBeforeExpire}>
-                                        <div>
-                                            <b style={{fontSize: 18}}>Bán trước đáo hạn</b><br/>
-                                            Lãi suất đầu tư dự kiến từ {}/năm đến {}/năm<br/>
-                                            Khi bán trái phiếu sau mỗi tháng
-                                        </div>
-                                        <Icon type="right" style={styles.iconNext}/>
+                                <div className="btnBuyBond" style={Object.assign({}, styles.noteBond, {marginTop: 10})} onClick={this.onOpenSaleBeforeExpire}>
+                                    <div>
+                                        <b style={{fontSize: 18}}>Bán trước đáo hạn</b><br/>
+                                        Lãi suất đầu tư dự kiến từ {}/năm đến {}/năm<br/>
+                                        Khi bán trái phiếu sau mỗi tháng
                                     </div>
-                                </Spin>
+                                    <Icon type="right" style={styles.iconNext}/>
+                                </div>
                             </div>
                         </div>
                     </ModalBody>
@@ -650,7 +632,7 @@ export class KeepExpireBond extends Component{
                     </div> : null}
                     <div style={{display: 'flow-root'}}>
                         <div className="left">Cho thời gian</div>
-                        <div className="right">{formula.diffMonth(data.buyDate, data.NGAYDH)} tháng</div>
+                        <div className="right">{formula.diffMonth(data.buyDate, data.NGAYPH, data.NGAYDH)} tháng</div>
                     </div>
                 </div>
                 <div style={{position: 'relative'}}>
@@ -841,66 +823,85 @@ export class KeepExpireBond extends Component{
 }
 
 export class SaleBeforeExpire extends Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            selectMonth: 0,
+            dataSource: [],
+            isActiveOption: 2,
+            isLoadingTable: false
+        }
+    }
+
     toggle = ()=> {
         this.props.onCloseSaleExpire();
         // this.props.onCloseModalBuyBond();
     }
 
+    onChange = (e) => {
+        this.setState({isActiveOption: e.target.value});
+    }
+    
+    updateSelectValue = name => async (event)=>{
+        if(name === 'selectMonth'){
+            await this.setState({[name]: parseInt(event)});
+            const tmpMonth = Math.floor(formula.diffMonth(this.props.data.buyDate, this.props.data.NGAYPH, this.props.data.NGAYDH));
+            let lstMonthsActive = [];
+            for(let i = this.state.selectMonth; i <= tmpMonth; i = i + this.state.selectMonth){
+                await lstMonthsActive.push({"monthsActive": i, "key": i, "dateActive": formula.dateAfterTime(this.props.data.buyDate, i)});
+            }
+            try {
+                this.setState({ isLoadingTable: true });
+                const res = await genListInterestRateNoReturn({"arrData": JSON.stringify(lstMonthsActive)});
+                this.setState({ isLoadingTable: false });
+                if (!res.error) {
+                    this.setState({dataSource: res});
+                } else {
+                    common.notify("error", res.error);
+                }
+            } catch (error) {
+                this.setState({ isLoadingTable: false });
+            }
+        }
+    }
+
     render(){
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
         const data = this.props.data;
+        const lstMonth = (new Array(Math.floor(formula.diffMonth(data.buyDate, data.NGAYPH, data.NGAYDH)))).fill(0).map((item, idx) => idx + 1);
+        const {
+            isLoadingTable,
+            isActiveOption
+        } = this.state;
         const columns = [
             {
                 title: 'T.G đầu tư (tháng)',
-                dataIndex: 'monthInvestment',
+                dataIndex: 'monthsActiveConvert',
             },
             {
-                title: 'Chưa TĐT',
-                dataIndex: 'NoReInvesmentConvert',
+                title: 'Tiền lãi dự kiến',
+                dataIndex: 'moneyInterestExpectConvert',
             },
             {
-                title: 'Đã TĐT',
-                dataIndex: 'ReInvestmentConvert',
+                title: 'Tổng nhận dự kiến',
+                dataIndex: 'totalMoneyExpectConvert',
             },
             {
-                title: 'K.Hạn C.Lại',
-                dataIndex: 'totalMoney2',
-            },
-            {
-                title: 'G.Bán M.Họa',
-                dataIndex: 'feeBuyThisTime',
+                title: 'Số tháng còn lại',
+                dataIndex: 'monthsRemain',
             }
         ];
 
-        let tmpData = 0;
-        const dataSource = data.lstInterest.map((item, i) => {
-            if( i === 0){
-                tmpData = data.feeReceived*(1 + item.LS_TOIDA*0.01);
-                return {
-                    ...item,
-                    "key": i,
-                    "monthInvestment": `${item.THANGGIOIHAN} (${item.LS_TOIDA}%)`,
-                    "ReInvestment": tmpData,
-                    "ReInvestmentConvert": common.convertTextDecimal(tmpData),
-                    "NoReInvesment": data.feeReceived*item.LS_TOIDA*0.01,
-                    "NoReInvesmentConvert": common.convertTextDecimal(data.feeReceived*item.LS_TOIDA*0.01),
-                    "feeBuyThisTime": common.convertTextDecimal(data.feeReceived*(1 + item.LS_TOIDA*0.01))
-                }
-            }else{
-                let resultReInvestment = tmpData*(1 + item.LS_TOIDA*0.01);
-                tmpData = resultReInvestment;
-                return {
-                    ...item,
-                    "key": i,
-                    "monthInvestment": `${item.THANGGIOIHAN} (${item.LS_TOIDA}%)`,
-                    "ReInvestment": resultReInvestment,
-                    "ReInvestmentConvert": common.convertTextDecimal(resultReInvestment),
-                    "NoReInvesment": data.feeReceived*item.LS_TOIDA*0.01,
-                    "NoReInvesmentConvert": common.convertTextDecimal(data.feeReceived*item.LS_TOIDA*0.01),
-                    "feeBuyThisTime": common.convertTextDecimal(data.feeReceived*(1 + item.LS_TOIDA*0.01))
-                }
+        const dataSource = this.state.dataSource.map(item =>{
+            return {
+                ...item,
+                "monthsActiveConvert": `${item.monthsActive} (${item.LS_TOIDA}%)`,
+                "moneyInterestExpect": data.feeReceived,
+                "moneyInterestExpectConvert": formula.totalDayExpectKeepExpired(data.buyDate, item.monthsActive),
+                "totalMoneyExpect": data.feeReceived,
+                "totalMoneyExpectConvert": common.convertTextDecimal(data.feeReceived),
+                "monthsRemain": (formula.diffMonth(data.buyDate, data.NGAYPH, data.NGAYDH) - item.monthsActive).toFixed(1)
             }
-            
         });
 
         return(
@@ -917,15 +918,57 @@ export class SaleBeforeExpire extends Component{
                         <div className="centerVertical">
                             <i>Ngày mua:</i>&nbsp;<span>{common.convertDDMMYYYY(data.buyDate)}</span>&nbsp;-&nbsp;
                             <i>Tổng tiền thanh toán:</i>&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
+                            &nbsp;-&nbsp;
+                            <i>Tổng tiền đầu tư:</i>&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.moneyBuy)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
                         </div>
+                        <div className="centerVertical">
+                            <Icon type="warning" style={{color: 'orange'}} />&nbsp;Số tháng muốn nắm giữ &nbsp;
+                            <Select
+                                showSearch
+                                style={{ width: '6rem' }}
+                                onChange={this.updateSelectValue('selectMonth')}
+                                size="small"
+                                value={this.state.selectMonth}
+                                filterOption={(input, option) =>
+                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                            >
+                                {
+                                    lstMonth.map((item, i)=>{
+                                        return(
+                                            <Option key={i} value={item}>{`${item} tháng`}</Option>
+                                        )
+                                    })
+                                }
+                            </Select>
+                            <div style={{marginLeft: '1rem'}}>
+                                <Radio.Group value={this.state.isActiveOption} onChange={(e) => this.onChange(e)}>
+                                    <Radio style={{ color: '#a80f0f' }} value={2}>Tái đầu tư</Radio>
+                                    <Radio style={{ color: '#17a2b8' }} value={1}>Chưa tái đầu tư</Radio>
+                                </Radio.Group>
+                            </div>
+                        </div>
+                        
                         <div className="p-top10">
-                            <Table 
-                                columns={columns} 
-                                dataSource={dataSource}
-                                bordered={true}
-                                pagination={false}
-                                size="small" 
-                            />
+                        {
+                            isActiveOption === 1 ? 
+                                <Table 
+                                    columns={columns}
+                                    loading={isLoadingTable}
+                                    dataSource={dataSource.length > 0 ? [dataSource[0]] : []}
+                                    bordered={true}
+                                    pagination={false}
+                                    size="small" 
+                                /> : 
+                                <Table 
+                                    columns={columns}
+                                    loading={isLoadingTable}
+                                    dataSource={dataSource}
+                                    bordered={true}
+                                    pagination={false}
+                                    size="small" 
+                                />
+                        }
                         </div>
                         <div className="p-top10" style={styles.borderBottomRadiusDasher}></div>
                         <div style={{fontSize: 13, paddingTop: 10}}>
