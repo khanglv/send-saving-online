@@ -65,10 +65,11 @@ class BondsAsset extends Component{
                 width: 180,
                 render: (TRANGTHAI_MUA, record)=>{
                     return(
-                        record.TRANGTHAI_MUA === 3 ?
-                        <span style={{color: '#643dc3'}}>Không giữ đến đáo hạn</span> : record.TRANGTHAI_MUA === 2 ?
-                        <span style={{color: '#a80f0f'}}>Tái đầu tư</span> : 
-                        <span style={{color: '#17a2b8'}}>Chưa tái đầu tư</span>
+                        record.TRANGTHAI_MUA === 4 ?
+                        <span style={{color: '#643dc3'}}>Trước ĐH, TĐT</span> : record.TRANGTHAI_MUA === 3 ?
+                        <span style={{color: '#643dc3'}}>Trước ĐH, K.TĐT</span> : record.TRANGTHAI_MUA === 2 ?
+                        <span style={{color: '#a80f0f'}}>Giữ ĐH, TĐT</span> : 
+                        <span style={{color: '#17a2b8'}}>Giữ ĐH, K.TĐT</span>
                     )
                 }
             },
@@ -287,7 +288,7 @@ class BondsAsset extends Component{
     }
 
     onDetailDateInterest = (data)=>{
-        this.setState({openModal: true, lstSetCommand: data});
+        this.setState({openModal: true, lstSetCommand: data ? JSON.parse(data) : []});
     }
 
     handleCloseModal = ()=>{

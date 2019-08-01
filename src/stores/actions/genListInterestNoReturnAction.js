@@ -6,7 +6,7 @@ export const genListInterestRateNoReturn = fetchData => async (dispatch) => {
         type: GEN_INTEREST_RATE_NO_RETURN_REQUEST,
     })
     try {
-        const res = await api.genListInterestRateNoReturn();
+        const res = await api.genListInterestRateNoReturn(fetchData);
         if (res && !res.error) {
             return dispatch({
                 type: GEN_INTEREST_RATE_NO_RETURN_SUCCESS,
@@ -15,7 +15,7 @@ export const genListInterestRateNoReturn = fetchData => async (dispatch) => {
         } else {
             return dispatch({
                 type: GEN_INTEREST_RATE_NO_RETURN_FAILED,
-                message: res.message,
+                message: res.error,
             })
         }
     } catch (er) {

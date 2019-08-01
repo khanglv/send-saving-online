@@ -343,6 +343,7 @@ export class ModalBuyBond extends Component{
                                     "investMoney": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade / 100),
                                     "buyDate": this.state.buyDate,
                                     "quantityBond": this.state.quantityBond,
+                                    "feeTrade": this.state.quantityBond * data.GIATRI_HIENTAI * (this.state.feeTrade / 100),
                                     "feeReceived": this.state.quantityBond * data.MENHGIA,
                                     "lstInterest": this.state.lstInterestRateNoReturn.filter(item=>item.FLAG === 1)
                                 }}
@@ -353,7 +354,7 @@ export class ModalBuyBond extends Component{
                                     <div>
                                         <b style={{fontSize: 18}}>Giữ đến đáo hạn</b><br/>
                                         Lãi suất đầu tư dự kiến {data.LAISUAT_BAN}/năm<br/>
-                                        Trong thời gian {formula.diffMonth(data.NGAYPH, data.NGAYDH)} tháng
+                                        Trong thời gian {formula.diffMonth(this.state.buyDate, data.NGAYPH, data.NGAYDH)} tháng
                                     </div>
                                     <Icon type="right" style={styles.iconNext}/>
                                 </div>
@@ -828,28 +829,41 @@ export class SaleBeforeExpire extends Component{
         this.state = {
             selectMonth: 0,
             dataSource: [],
-            isActiveOption: 2,
-            isLoadingTable: false
+            isActiveOption: 4,
+            isLoadingTable: false,
+            isExpireBondNext: false,
+            accountInfo: JSON.parse(localStorage.getItem('accountInfoKey')),
+            userInfo: JSON.parse(localStorage.getItem('userInfoKey'))
         }
     }
 
     toggle = ()=> {
+        this.setState({isExpireBondNext: false});
         this.props.onCloseSaleExpire();
-        // this.props.onCloseModalBuyBond();
     }
 
     onChange = (e) => {
         this.setState({isActiveOption: e.target.value});
+    }
+
+    onNextView = ()=>{
+        this.setState({isExpireBondNext: true});
+    }
+
+    onPrevView = ()=>{
+        this.setState({isExpireBondNext: false});
     }
     
     updateSelectValue = name => async (event)=>{
         if(name === 'selectMonth'){
             await this.setState({[name]: parseInt(event)});
             const tmpMonth = Math.floor(formula.diffMonth(this.props.data.buyDate, this.props.data.NGAYPH, this.props.data.NGAYDH));
-            let lstMonthsActive = [];
-            for(let i = this.state.selectMonth; i <= tmpMonth; i = i + this.state.selectMonth){
-                await lstMonthsActive.push({"monthsActive": i, "key": i, "dateActive": formula.dateAfterTime(this.props.data.buyDate, i)});
-            }
+            const lstMonthsActive = await formula.genListDateActiveKeepExpired({
+                "buyDate": this.props.data.buyDate,
+                "NGAYPH": this.props.data.NGAYPH,
+                "tmpMonth": tmpMonth,
+                "selectMonth": this.state.selectMonth
+            });
             try {
                 this.setState({ isLoadingTable: true });
                 const res = await genListInterestRateNoReturn({"arrData": JSON.stringify(lstMonthsActive)});
@@ -865,18 +879,57 @@ export class SaleBeforeExpire extends Component{
         }
     }
 
+    onConfirmBuy = async(data)=>{
+        try {
+           
+            let dataTmp = {
+                "BOND_ID": data.BONDID,
+                "MS_NDT": this.state.accountInfo[0].accountNumber,
+                "MS_ROOM": data.MSROOM,
+                "MS_NGUOI_GT": "MS_01",
+                "SOLUONG": data.quantityBond,
+                "DONGIA": data.GIATRI_HIENTAI,
+                "TONGGIATRI": data.investMoney,
+                "LAISUAT_DH": data.LAISUAT_BAN,
+                "NGAY_GD": data.buyDate,
+                "TRANGTHAI_MUA": this.state.isActiveOption,
+                "TONGGIATRITRUOCPHI": data.moneyBuy
+            }
+            const res = await buyBondsRoomVCSC(dataTmp);
+            if(res.error){
+                common.notify('error', 'Thao tác thất bại :( ');
+            }else{
+                common.notify('success', 'Thao tác thành công ^^ ');
+                this.toggle();
+                this.props.onCloseModalBuyBond();
+                this.props.onLoadData();
+            }
+        } catch (error) {
+            
+        }
+    }
+
     render(){
         const closeBtn = <button className="close" style={{color: '#000', display: 'block'}} onClick={this.toggle}>&times;</button>;
         const data = this.props.data;
         const lstMonth = (new Array(Math.floor(formula.diffMonth(data.buyDate, data.NGAYPH, data.NGAYDH)))).fill(0).map((item, idx) => idx + 1);
         const {
             isLoadingTable,
-            isActiveOption
+            isActiveOption,
+            accountInfo,
+            userInfo
         } = this.state;
         const columns = [
             {
                 title: 'T.G đầu tư (tháng)',
                 dataIndex: 'monthsActiveConvert',
+                render: (i, record) =>{
+                    return(
+                        <div className="centerVertical">
+                            {record.monthsActive}&nbsp;({record.LS_TOIDA}%)&nbsp;<Icon type="swap-right" style={{color: 'green'}}/>&nbsp;{record.dateLimitActive}
+                        </div>
+                    )
+                }
             },
             {
                 title: 'Tiền lãi dự kiến',
@@ -891,93 +944,271 @@ export class SaleBeforeExpire extends Component{
                 dataIndex: 'monthsRemain',
             }
         ];
-
-        const dataSource = this.state.dataSource.map(item =>{
+        let feeReceivedTmp = data.feeReceived;
+        const dataSource = this.state.dataSource.map((item, i) =>{
+            let feeReInvestmentTmp = feeReceivedTmp*(1 + this.state.dataSource[0].LS_TOIDA*0.01*item.totalDateActive/data.SONGAYTINHLAI);
+            let feeInterestInvestmentTmp = feeReceivedTmp*this.state.dataSource[0].LS_TOIDA*0.01*item.totalDateActive/data.SONGAYTINHLAI;
+            feeReceivedTmp = feeReInvestmentTmp;
             return {
                 ...item,
-                "monthsActiveConvert": `${item.monthsActive} (${item.LS_TOIDA}%)`,
-                "moneyInterestExpect": data.feeReceived,
-                "moneyInterestExpectConvert": formula.totalDayExpectKeepExpired(data.buyDate, item.monthsActive),
-                "totalMoneyExpect": data.feeReceived,
-                "totalMoneyExpectConvert": common.convertTextDecimal(data.feeReceived),
+                "moneyInterestExpect": feeInterestInvestmentTmp,
+                "moneyInterestExpectConvert": common.convertTextDecimal(feeInterestInvestmentTmp),
+                "dateLimitActive": common.convertDDMMYYYY(item.dateLimitActive),
+                "totalMoneyExpect": feeReInvestmentTmp,
+                "totalMoneyExpectConvert": common.convertTextDecimal(feeReInvestmentTmp),
                 "monthsRemain": (formula.diffMonth(data.buyDate, data.NGAYPH, data.NGAYDH) - item.monthsActive).toFixed(1)
             }
         });
 
+        let Bondprev = (
+            <div>
+                <Alert color="success" className="text-center">
+                    {data.MSTP}
+                </Alert>
+                <span>
+                    <i>Đáo hạn:</i> <span className="index-color">{common.convertDDMMYYYY(data.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <span className="index-color">{data.TEN_DN}</span>
+                </span>
+                <div className="centerVertical">
+                    <i>Ngày mua:</i>&nbsp;<span>{common.convertDDMMYYYY(data.buyDate)}</span>&nbsp;-&nbsp;
+                            <i>Tổng tiền thanh toán:</i>&nbsp;<span style={{ color: 'red' }}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{ fontSize: 10 }}>&nbsp;VND</span>
+                    &nbsp;-&nbsp;
+                            <i>Tổng tiền đầu tư:</i>&nbsp;<span style={{ color: 'red' }}>{common.convertTextDecimal(data.moneyBuy)}</span> <span style={{ fontSize: 10 }}>&nbsp;VND</span>
+                </div>
+                <div className="centerVertical">
+                    <Icon type="warning" style={{ color: 'orange' }} />&nbsp;Số tháng muốn nắm giữ &nbsp;
+                        <Select
+                            showSearch
+                            style={{ width: '6rem' }}
+                            onChange={this.updateSelectValue('selectMonth')}
+                            size="small"
+                            value={this.state.selectMonth}
+                            filterOption={(input, option) =>
+                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                            }
+                        >
+                            {
+                                lstMonth.map((item, i) => {
+                                    return (
+                                        <Option key={i} value={item}>{`${item} tháng`}</Option>
+                                    )
+                                })
+                            }
+                        </Select>
+                    <div style={{ marginLeft: '1rem' }}>
+                        <Radio.Group value={this.state.isActiveOption} onChange={(e) => this.onChange(e)}>
+                            <Radio style={{ color: '#a80f0f' }} value={4}>Tái đầu tư</Radio>
+                            <Radio style={{ color: '#17a2b8' }} value={3}>Không tái đầu tư</Radio>
+                        </Radio.Group>
+                    </div>
+                </div>
+
+                <div className="p-top10">
+                    {
+                        isActiveOption === 3 ?
+                            <Table
+                                columns={columns}
+                                loading={isLoadingTable}
+                                dataSource={dataSource.length > 0 ? [dataSource[0]] : []}
+                                bordered={true}
+                                pagination={false}
+                                size="small"
+                            /> :
+                            <Table
+                                columns={columns}
+                                loading={isLoadingTable}
+                                dataSource={dataSource}
+                                bordered={true}
+                                pagination={false}
+                                size="small"
+                            />
+                    }
+                </div>
+                <div className="p-top10" style={styles.borderBottomRadiusDasher}></div>
+                <div style={{ fontSize: 13, paddingTop: 10 }}>
+                    <i>Thuật ngữ: &nbsp;</i><span className="index-color">TĐT</span> - Tái đầu tư,&nbsp;<span className="index-color">T.G</span> - Thời gian
+                </div>
+                <div style={{position: 'relative'}}>
+                    <Button color="primary" style={{width: '100%', marginTop: 10}} onClick={this.onNextView}>
+                        Bấm để tiếp tục
+                    </Button>
+                    <Icon type="right" style={styles.iconNext2}/>
+                </div>
+            </div>
+        )
+
+        let Bondnext = (
+            <div>
+                <Alert color="primary" className="text-center">
+                    Mua trái phiếu
+                </Alert>
+                <div>
+                    <Tag color="#5073a2" style={{ fontSize: 14 }}>Thông tin khách hàng</Tag>
+                    <Timeline style={{padding: 5, paddingLeft: 10}}>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Tên KH</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {userInfo.customerName}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">CMND/Hộ chiếu</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {userInfo.identifierNumber}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green" className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày cấp</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {common.convertDDMMYYYY(common.splitStringDate(userInfo.identifierIssueDate))}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Nơi cấp</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {userInfo.identifierIssuePlace}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Địa chỉ</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {userInfo.address}
+                            </Col>
+                        </Row>
+                        {/* <Row style={{padding: '0.3rem'}}>
+                            <Col sm="5">
+                                <Timeline.Item color="green">SĐT</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                0964666982
+                            </Col>
+                        </Row> */}
+                    </Timeline>
+                        <Row style={{paddingLeft: '0.6rem', height: '2vh'}}>
+                            <Col sm="5">
+                                <Timeline>
+                                    <Timeline.Item color="green">Số tài khoản</Timeline.Item>
+                                </Timeline>
+                            </Col>
+                            <Col sm="7">
+                                {accountInfo[0].accountNumber}
+                            </Col>
+                        </Row>
+                </div>
+
+                <div className="p-top10">
+                    <Tag color="#5073a2">Thông tin đặt mua</Tag>
+                    <Timeline style={{padding: 5, paddingLeft: 10}}>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Trái phiếu</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                <b style={{color: '#4b81ba'}}>{data.MSTP}</b>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Giá trị hiện tại</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {common.convertTextDecimal(data.GIATRI_HIENTAI)} VND
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green" className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày phát hành</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {common.convertDDMMYYYY(data.NGAYPH)}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green" className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày đáo hạn</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {common.convertDDMMYYYY(data.NGAYDH)}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green" className="centerVertical" dot={<Icon type="clock-circle-o" />}>Ngày mua</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {common.convertDDMMYYYY(data.buyDate)}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Số lượng đặt mua</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {data.quantityBond}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Tổng đầu tư</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {common.convertTextDecimal(data.moneyBuy)}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="5">
+                                <Timeline.Item color="green">Phí giao dịch</Timeline.Item>
+                            </Col>
+                            <Col sm="7">
+                                {common.convertTextDecimal(data.feeTrade)}
+                            </Col>
+                        </Row>
+                    </Timeline>
+                    <Row style={{paddingLeft: '0.6rem', height: '2vh'}}>
+                        <Col sm="5">
+                            <Timeline>
+                                <Timeline.Item color="green">Tiền cần thanh toán</Timeline.Item>
+                            </Timeline>
+                        </Col>
+                        <Col sm="7" style={{ color: 'red' }}>
+                            <span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> VND
+                        </Col>
+                    </Row>
+                </div>
+
+                <Row style={{ paddingTop: 20 }}>
+                    <Col sm="6">
+                        <div style={{ position: 'relative' }}>
+                            <Button style={{ width: '100%' }} outline color="secondary" onClick={this.onPrevView}>Quay lại</Button>
+                            <Icon type="double-left" style={styles.iconPrev3} />
+                        </div>
+                    </Col>
+                    <Col sm="6">
+                        <div style={{ position: 'relative' }}>
+                            <Button style={{ width: '100%' }} outline color="success" onClick={()=>this.onConfirmBuy(data)}>Xác nhận</Button>
+                            <Icon type="double-right" style={styles.iconNext3} />
+                        </div>
+                    </Col>
+                </Row>
+            </div>
+        );
+
         return(
             <div>
-                <Modal isOpen={this.props.openSaleBeforeExpire} toggle={this.toggle} size="lg" centered>
+                <Modal isOpen={this.props.openSaleBeforeExpire} size="lg" centered>
                     <ModalHeader close={closeBtn} style={{background: 'rgba(155, 183, 205, 0.48)'}}>Bán trước đáo hạn</ModalHeader>
                     <ModalBody>
-                        <Alert color="success" className="text-center">
-                            {data.MSTP}
-                        </Alert>
-                        <span>
-                            <i>Đáo hạn:</i> <span className="index-color">{common.convertDDMMYYYY(data.NGAYDH)}</span> <i>- Tổ chức phát hành:</i> <span className="index-color">{data.TEN_DN}</span>
-                        </span>
-                        <div className="centerVertical">
-                            <i>Ngày mua:</i>&nbsp;<span>{common.convertDDMMYYYY(data.buyDate)}</span>&nbsp;-&nbsp;
-                            <i>Tổng tiền thanh toán:</i>&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.investMoney)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
-                            &nbsp;-&nbsp;
-                            <i>Tổng tiền đầu tư:</i>&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(data.moneyBuy)}</span> <span style={{fontSize: 10}}>&nbsp;VND</span>
-                        </div>
-                        <div className="centerVertical">
-                            <Icon type="warning" style={{color: 'orange'}} />&nbsp;Số tháng muốn nắm giữ &nbsp;
-                            <Select
-                                showSearch
-                                style={{ width: '6rem' }}
-                                onChange={this.updateSelectValue('selectMonth')}
-                                size="small"
-                                value={this.state.selectMonth}
-                                filterOption={(input, option) =>
-                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                }
-                            >
-                                {
-                                    lstMonth.map((item, i)=>{
-                                        return(
-                                            <Option key={i} value={item}>{`${item} tháng`}</Option>
-                                        )
-                                    })
-                                }
-                            </Select>
-                            <div style={{marginLeft: '1rem'}}>
-                                <Radio.Group value={this.state.isActiveOption} onChange={(e) => this.onChange(e)}>
-                                    <Radio style={{ color: '#a80f0f' }} value={2}>Tái đầu tư</Radio>
-                                    <Radio style={{ color: '#17a2b8' }} value={1}>Chưa tái đầu tư</Radio>
-                                </Radio.Group>
-                            </div>
-                        </div>
-                        
-                        <div className="p-top10">
-                        {
-                            isActiveOption === 1 ? 
-                                <Table 
-                                    columns={columns}
-                                    loading={isLoadingTable}
-                                    dataSource={dataSource.length > 0 ? [dataSource[0]] : []}
-                                    bordered={true}
-                                    pagination={false}
-                                    size="small" 
-                                /> : 
-                                <Table 
-                                    columns={columns}
-                                    loading={isLoadingTable}
-                                    dataSource={dataSource}
-                                    bordered={true}
-                                    pagination={false}
-                                    size="small" 
-                                />
-                        }
-                        </div>
-                        <div className="p-top10" style={styles.borderBottomRadiusDasher}></div>
-                        <div style={{fontSize: 13, paddingTop: 10}}>
-                            <i>Thuật ngữ: &nbsp;</i><span className="index-color">TĐT</span> - Tái đầu tư,&nbsp;<span className="index-color">T.G</span> - Thời gian
-                        </div>
+                        {this.state.isExpireBondNext === true ? Bondnext : Bondprev }
                     </ModalBody>
-                    <ModalFooter>
-                        <Button color="primary" onClick={this.toggle}>Mua trái phiếu</Button>{' '}
-                    </ModalFooter>
                 </Modal>
             </div>
         )

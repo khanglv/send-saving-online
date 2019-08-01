@@ -17,6 +17,7 @@ import {getListRoomVCSC} from '../../stores/actions/roomVCSCAction';
 import {getDetailBond} from '../../stores/actions/getDetailBondAction';
 import {getCashBalance} from '../../stores/actions/cashBalanceAction';
 import {getListInterestRetunTrade} from '../../stores/actions/interestReturnTradeAction';
+import {genListInterestRateNoReturn} from '../../stores/actions/genListInterestNoReturnAction';
 import {buyBondsRoomVCSC, getListFeeTrade} from '../../api/api';
 
 const TabPane = Tabs.TabPane;
@@ -40,6 +41,9 @@ class Directive extends Component{
             isShowWarning: 0,
             isFetching: true,
             isActiveOption: 1,
+            isActiveOption_2: 4,
+            keyTable: 1,
+            selectMonth: 0,
             accountInfo: JSON.parse(localStorage.getItem('accountInfoKey'))
         }
     }
@@ -109,6 +113,29 @@ class Directive extends Component{
         }});
     }
 
+    updateSelectValueMonth = name => async (event)=>{
+        if(name === 'selectMonth'){
+            await this.setState({[name]: parseInt(event)});
+            const tmpMonth = Math.floor(formula.diffMonth(this.state.buyDate, this.state.detailBond.NGAYPH, this.state.detailBond.NGAYDH));
+            const lstMonthsActive = await formula.genListDateActiveKeepExpired({
+                "buyDate": this.state.buyDate,
+                "NGAYPH": this.state.detailBond.NGAYPH,
+                "tmpMonth": tmpMonth,
+                "selectMonth": this.state.selectMonth
+            });
+            try {
+                this.setState({ isLoadingTable: true });
+                const res = await this.props.genListInterestRateNoReturn({"arrData": JSON.stringify(lstMonthsActive)});
+                this.setState({ isLoadingTable: false });
+                if (res.type === 'GEN_INTEREST_RATE_NO_RETURN_FAILED') {
+                    common.notify("error", res.message);
+                }
+            } catch (error) {
+                this.setState({ isLoadingTable: false });
+            }
+        }
+    }
+
     updateInputValue = (event)=>{
         this.setState({[event.target.name]: event.target.value, isShowWarning: 0});
         if( event.target.name === 'quantityBond'){
@@ -165,6 +192,14 @@ class Directive extends Component{
         }
     };
 
+    onChange_2 = (e)=>{
+        this.setState({isActiveOption_2: e.target.value});
+    }
+
+    onChangeTable = (activeKey)=>{
+        this.setState({keyTable: parseInt(activeKey) });
+    }
+
     callApiCheckFee = debounce(async()=>{
         try {
             this.setState({ isPending: true });
@@ -187,11 +222,17 @@ class Directive extends Component{
 
     onConfirmBuy = async(data, lstTmpDateInterest)=>{
         try {
-            const dataTranfer = this.state.isActiveOption === 1 ? await lstTmpDateInterest.map((item)=>{
+            const {
+                keyTable,
+                isActiveOption,
+                quantityBond,
+                isActiveOption_2
+            } = this.state;
+            const dataTranfer = keyTable === 1 ? isActiveOption === 1 ? await lstTmpDateInterest.map((item)=>{
                 return{
                     ...item,
                     "interestRate": data.LAISUAT_BAN,
-                    "moneyReceived": item.totalDay*data.LAISUAT_BAN*(this.state.quantityBond * data.MENHGIA)/(100* data.SONGAYTINHLAI)
+                    "moneyReceived": item.totalDay*data.LAISUAT_BAN*(quantityBond * data.MENHGIA)/(100* data.SONGAYTINHLAI)
                 }
             }) : this.state.dataInterestReturn.map(item => {
                 return {
@@ -201,21 +242,21 @@ class Directive extends Component{
                     "moneyReceived": item.totalDay*data.LAISUAT_BAN*(this.state.quantityBond * data.MENHGIA)/(100* data.SONGAYTINHLAI),
                     "moneyReceivedReturn": item.returnReal
                 }
-            });
+            }) : null;
 
             let dataTmp = {
                 "BOND_ID": data.BONDID,
                 "MS_NDT": this.state.accountInfo[0].accountNumber,
                 "MS_ROOM": data.MSROOM,
                 "MS_NGUOI_GT": "MS_01",
-                "SOLUONG": this.state.quantityBond,
+                "SOLUONG": quantityBond,
                 "DONGIA": data.GIATRI_HIENTAI,
-                "TONGGIATRI": this.state.quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100),
+                "TONGGIATRI": quantityBond * data.GIATRI_HIENTAI * (1 + this.state.feeTrade/100),
                 "LAISUAT_DH": data.LAISUAT_BAN,
-                "NGAY_TRAITUC": JSON.stringify(dataTranfer),
+                "NGAY_TRAITUC": keyTable === 1 ? JSON.stringify(dataTranfer) : null,
                 "NGAY_GD": this.state.buyDate,
-                "TRANGTHAI_MUA": this.state.isActiveOption,
-                "TONGGIATRITRUOCPHI": this.state.quantityBond * data.GIATRI_HIENTAI
+                "TRANGTHAI_MUA": keyTable === 1 ? isActiveOption : isActiveOption_2,
+                "TONGGIATRITRUOCPHI": quantityBond * data.GIATRI_HIENTAI
             }
             const res = await buyBondsRoomVCSC(dataTmp);
             if(res.error){
@@ -224,7 +265,9 @@ class Directive extends Component{
                 common.notify('success', 'Thao tác thành công ^^ ');
                 await this.setState(
                     {
-                        detailBond: {},
+                        keyTable: 1,
+                        isActiveOption: 1,
+                        isActiveOption_2: 4,
                         quantityBond: 0,
                         buyDate: moment(new Date(), dateFormat),
                     }
@@ -242,13 +285,13 @@ class Directive extends Component{
             quantityBond,
             interestReturn,
             isActiveOption,
+            isActiveOption_2,
             dataInterestReturn,
             isLoadingTable,
             detailBond = {}
         } = this.state;
         // const  { detailBond = {} }= this.state;
         const lstTmpDateInterest = Object.keys(detailBond).length > 0 ? formula.GenDateInterestRate(formula.dateTimeToDate(buyDate), formula.dateTimeToDate(detailBond.NGAYPH), formula.dateTimeToDate(detailBond.NGAYDH), detailBond.LOAI_TT, []) : null;
-
         const dataSource = lstTmpDateInterest ? lstTmpDateInterest.map((item, i) =>{
             return {
                 ...item,
@@ -259,13 +302,11 @@ class Directive extends Component{
             }
         }) : null;
 
-        // const {
-        //     dataInterestReturn
-        // } = this.state;
-
         let totalMoneyReceive = isActiveOption === 1 ? (dataSource ? dataSource.reduce((total, currentValue) => {
             return total + parseFloat(currentValue.totalMoneyReal);
         }, 0) : null) : interestReturn ? (dataInterestReturn.length > 0 ? dataInterestReturn[dataInterestReturn.length-1].returnReal : 0) : 0;
+
+        const lstMonth = Object.keys(detailBond).length > 0 ? (new Array(Math.floor(formula.diffMonth(buyDate, detailBond.NGAYPH, detailBond.NGAYDH)))).fill(0).map((item, idx) => idx + 1) : 0;
 
         const columns = [
             {
@@ -311,30 +352,45 @@ class Directive extends Component{
 
         const columns_3 = [
             {
-                title: 'T.Gian đầu tư',
-                dataIndex: 'name',
-                render: ()=> {
+                title: 'T.G đầu tư (tháng)',
+                dataIndex: 'monthsActiveConvert',
+                render: (i, record) =>{
                     return(
-                    <div>Coupon</div>
-                )}
+                        <div className="centerVertical">
+                            {record.monthsActive}&nbsp;({record.LS_TOIDA}%)&nbsp;<Icon type="swap-right" style={{color: 'green'}}/>&nbsp;{record.dateLimitActive}
+                        </div>
+                    )
+                }
             },
             {
-                title: 'LS chưa TĐT',
-                dataIndex: 'date',
+                title: 'Tiền lãi dự kiến',
+                dataIndex: 'moneyInterestExpectConvert',
             },
             {
-                title: 'LS đã TĐT',
-                dataIndex: 'totalMoney',
+                title: 'Tổng nhận dự kiến',
+                dataIndex: 'totalMoneyExpectConvert',
             },
             {
-                title: 'K.Hạn còn lại',
-                dataIndex: 'totalMoney2',
-            },
-            {
-                title: 'G.Bán minh họa',
-                dataIndex: 'totalMoney3',
+                title: 'Số tháng còn lại',
+                dataIndex: 'monthsRemain',
             }
         ];
+
+        let feeReceivedTmp = detailBond.MENHGIA*quantityBond;
+        const dataSource_3 = Object.keys(detailBond).length > 0 ? this.props.lstInterestRateNoReturn.map((item, i) =>{
+            let feeReInvestmentTmp = feeReceivedTmp*(1 + this.props.lstInterestRateNoReturn[0].LS_TOIDA*0.01*item.totalDateActive/detailBond.SONGAYTINHLAI);
+            let feeInterestInvestmentTmp = feeReceivedTmp*this.props.lstInterestRateNoReturn[0].LS_TOIDA*0.01*item.totalDateActive/detailBond.SONGAYTINHLAI;
+            feeReceivedTmp = feeReInvestmentTmp;
+            return {
+                ...item,
+                "moneyInterestExpect": feeInterestInvestmentTmp,
+                "moneyInterestExpectConvert": common.convertTextDecimal(feeInterestInvestmentTmp),
+                "dateLimitActive": common.convertDDMMYYYY(item.dateLimitActive),
+                "totalMoneyExpect": feeReInvestmentTmp,
+                "totalMoneyExpectConvert": common.convertTextDecimal(feeReInvestmentTmp),
+                "monthsRemain": (formula.diffMonth(buyDate, detailBond.NGAYPH, detailBond.NGAYDH) - item.monthsActive).toFixed(1)
+            }
+        }) : [];
 
         return(
             <Skeleton active loading={this.state.isFetching} >
@@ -422,7 +478,7 @@ class Directive extends Component{
                                 <div className="p-top10" style={styles.borderBottomRadiusDasher} ></div>
                                 <Row className="p-top10">
                                     <Col className="centerVertical">
-                                        <Badge color="#4b81ba" />Tài sản hiện có:&nbsp;<span style={{color: 'red'}}>{common.convertTextDecimal(this.props.cashBalance.depositAmount)}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
+                                        <Badge color="#4b81ba" />Tài sản hiện có:&nbsp;<span style={{color: 'red'}}>{this.props.cashBalance.depositAmount ? common.convertTextDecimal(this.props.cashBalance.depositAmount) : 0}</span><span style={{fontSize: 10}}>&nbsp;VND</span>
                                     </Col>
                                 </Row>
                             </div>
@@ -456,10 +512,10 @@ class Directive extends Component{
                                 </span>
                             </div>
                             <div>
-                                <Tabs>
-                                    <TabPane tab="Giữ đến đáo hạn" key="1">
+                                <Tabs onChange={this.onChangeTable}>
+                                    <TabPane tab="Giữ đến đáo hạn" key={1}>
                                         <Radio.Group onChange={this.onChange(lstTmpDateInterest)} value={this.state.isActiveOption}>
-                                            <Radio style={{color: '#17a2b8'}} value={1}>Chưa tái đầu tư</Radio>
+                                            <Radio style={{color: '#17a2b8'}} value={1}>Không tái đầu tư</Radio>
                                             <Radio style={{color: '#a80f0f'}} value={2}>Tái đầu tư</Radio>
                                         </Radio.Group>
                                         <div className="p-top10">
@@ -508,14 +564,42 @@ class Directive extends Component{
                                             </div>
                                         </div>
                                     </TabPane>
-                                    <TabPane tab="Bán trước đáo hạn" key="2">
-                                        <Table
-                                            columns={columns_3}
-                                            dataSource={dataSource}
-                                            bordered={true}
-                                            pagination={false}
-                                            size="small"
-                                        />
+                                    <TabPane tab="Bán trước đáo hạn" key={2}>
+                                        <div className="centerVertical">
+                                            <Radio.Group onChange={this.onChange_2} value={isActiveOption_2}>
+                                                <Radio style={{color: '#a80f0f'}} value={4}>Tái đầu tư</Radio>
+                                                <Radio style={{color: '#17a2b8'}} value={3}>Không tái đầu tư</Radio>
+                                            </Radio.Group>
+                                            <Icon type="warning" style={{ color: 'orange' , marginLeft: '2rem'}} />&nbsp;Số tháng muốn nắm giữ &nbsp;
+                                            <Select
+                                                showSearch
+                                                style={{ width: '6rem' }}
+                                                onChange={this.updateSelectValueMonth('selectMonth')}
+                                                size="small"
+                                                value={this.state.selectMonth}
+                                                filterOption={(input, option) =>
+                                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                }
+                                            >
+                                                {
+                                                    lstMonth.map((item, i) => {
+                                                        return (
+                                                            <Option key={i} value={item}>{`${item} tháng`}</Option>
+                                                        )
+                                                    })
+                                                }
+                                        </Select>
+                                        </div>
+                                        
+                                        <div className="p-top10">
+                                            <Table
+                                                columns={columns_3}
+                                                dataSource={isActiveOption_2 === 3 ? dataSource_3.length > 0 ? [dataSource_3[0]] : [] : dataSource_3}
+                                                bordered={true}
+                                                pagination={false}
+                                                size="small"
+                                            />
+                                        </div>
                                         <div className="p-top10" style={styles.borderBottomRadiusDasher}></div>
                                         <div style={{fontSize: 13}}>
                                             <i>Thuật ngữ: &nbsp;</i><span className="index-color">TĐT</span> - Tái đầu tư
@@ -540,7 +624,8 @@ const mapStateToProps = state =>{
         lstRoomVCSC: state.roomVCSC.data,
         itemBond: state.getDetailBond.data,
         cashBalance: state.cashBalance.data,
-        interestReturnTrade: state.interestReturnTrade.data
+        interestReturnTrade: state.interestReturnTrade.data,
+        lstInterestRateNoReturn: state.genListInterestNoReturn.data
     }
 }
 
@@ -549,7 +634,8 @@ const mapDispatchToProps = dispatch =>{
         getListRoomVCSC: ()=> dispatch(getListRoomVCSC()),
         getDetailBond: (idBond)=> dispatch(getDetailBond(idBond)),
         ongetCashBalance: (accountNumber)=> dispatch(getCashBalance(accountNumber)),
-        getListInterestRetunTrade: (bondID)=> dispatch(getListInterestRetunTrade(bondID))
+        getListInterestRetunTrade: (bondID)=> dispatch(getListInterestRetunTrade(bondID)),
+        genListInterestRateNoReturn: (data)=> dispatch(genListInterestRateNoReturn(data))
     }
 }
 

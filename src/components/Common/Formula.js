@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 //convert ngày sau 1 khoảng thời gian (time =  số tháng)
-export const dateAfterTime = (date, time)=>{
+const dateAfterTime = (date, time)=>{
     let d = new Date(date);
     return d.setMonth(d.getMonth() + time);
 }
@@ -61,8 +61,15 @@ export const GenDateInterestRate = (buyDate, dateF, dateT, expire, lstTmp = [])=
 }
 
 //BÁN TRƯỚC ĐÁO HẠN --------------------------------------------------------------------
-//Chưa tái đầu tư
-export const totalDayExpectKeepExpired = (dateInit, monthsActive)=>{
-    let date = dateAfterTime(dateInit, monthsActive);
-    return diffDate(dateInit, date);
+
+export const genListDateActiveKeepExpired = async (obj)=>{
+    let lstMonthsActive = [];
+    let dateUseInit = dateToTime(obj.buyDate) > dateToTime(obj.NGAYPH) ? obj.buyDate : obj.NGAYPH; 
+    let afterDateActive = null;
+    for(let i = obj.selectMonth; i <= obj.tmpMonth; i = i + obj.selectMonth){
+        afterDateActive = dateAfterTime(dateUseInit, obj.selectMonth);
+        await lstMonthsActive.push({"monthsActive": i, "key": i, "totalDateActive": diffDate(dateUseInit, afterDateActive), "dateLimitActive": afterDateActive});
+        dateUseInit = afterDateActive;
+    }
+    return lstMonthsActive;
 }
